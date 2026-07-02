@@ -5,7 +5,6 @@ import {
   Landmark, 
   Users2, 
   CloudRain, 
-  Compass, 
   Scroll, 
   Milestone,
   Layers,
@@ -16,8 +15,8 @@ export default function About() {
   return (
     <div className="bg-[#F8F6F1]/40 min-h-screen pb-20">
       
-      {/* 1. MINIMAL HERO BANNER */}
-      <section className="bg-gradient-to-b from-[#1E5631] to-[#12351E] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#D4A017]">
+      {/* 1. HERO BANNER (With pt-32 navbar clearance fix) */}
+      <section className="bg-gradient-to-b from-[#1E5631] to-[#12351E] text-white pt-32 pb-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#D4A017]">
         <div className="max-w-7xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-[#E9C46A]">
             <Sparkles className="h-3 w-3" /> Regional Profile & Heritage
@@ -94,7 +93,7 @@ export default function About() {
                   <Milestone className="h-3 w-3" />
                 </div>
                 <div className="bg-white border border-gray-100 p-5 rounded-lg shadow-sm space-y-2">
-                  <span className="text-xs font-black bg-[#E8F0EA] text-[#1E5631] px-2.5 py-0.5 rounded-full inline-block">Late 1880s</span>
+                  <span className="text-xs font-black bg-emerald-50 text-[#1E5631] px-2.5 py-0.5 rounded-full inline-block">Late 1880s</span>
                   <h3 className="font-bold text-base text-[#2C2C2C]">Integration & Origin of Kossa</h3>
                   <p className="text-xs text-gray-600 leading-relaxed">
                     The sovereign kingdom integrated into the imperial Ethiopian framework under Emperor Menelik II. An active administrative garrison was situated at Kossa—a high, crisp mountain landscape frequently blanketed in fog—giving rise to the compound name used today.
