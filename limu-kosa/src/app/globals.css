@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8F6F1; /* Warm Light Cream */
+  --foreground: #2C2C2C; /* Dark Charcoal */
+  --radius: 0.5rem;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
