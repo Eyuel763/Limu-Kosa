@@ -15,7 +15,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const saved = localStorage.getItem('limu-kosa-theme');
+                  const theme = saved || 'light';
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (_) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="flex flex-col min-h-screen bg-[#F8F6F1] text-[#2C2C2C] antialiased">
         <Navbar />
         <main className="flex-grow">

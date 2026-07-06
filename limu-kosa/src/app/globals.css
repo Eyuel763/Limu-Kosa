@@ -3,11 +3,161 @@
 :root {
   --background: #F8F6F1; /* Warm Light Cream */
   --foreground: #2C2C2C; /* Dark Charcoal */
+  --card: #ffffff;
+  --card-foreground: #2C2C2C;
+  --muted: #50627A;
+  --border: #E8E1D4;
   --radius: 0.5rem;
+}
+
+[data-theme="dark"] {
+  --background: #0c0f0d; /* Deep Forest Dark Charcoal */
+  --foreground: #f5f4f0; /* Soft Warm Cream Off-white */
+  --card: #151a17; /* Dark Forest Slate Card */
+  --card-foreground: #f5f4f0;
+  --muted: #a2b2a6; /* Sage Grey/Green text */
+  --border: #232c25; /* Forest Dark Border */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Global Dynamic Dark Theme Class overrides using substring attribute selectors (Safe from escaping compile errors) */
+[data-theme="dark"] body {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#F8F6F1]"] {
+  background-color: var(--background) !important;
+}
+
+[data-theme="dark"] [class*="bg-white"] {
+  background-color: var(--card) !important;
+}
+
+[data-theme="dark"] [class*="text-[#2C2C2C]"] {
+  color: var(--foreground) !important;
+}
+
+[data-theme="dark"] [class*="text-[#50627A]"] {
+  color: var(--muted) !important;
+}
+
+[data-theme="dark"] [class*="text-[#1E5631]"] {
+  color: #D4A017 !important; /* Gold text in dark theme for green highlights */
+}
+
+[data-theme="dark"] [class*="text-[#6F4E37]"] {
+  color: #F4D06F !important; /* Light Gold for brown accents in dark theme */
+}
+
+[data-theme="dark"] [class*="border-[#E8E1D4]"] {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] [class*="divide-[#E8E1D4]"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] [class*="border-[#D7DED5]"] {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#EEF2ED]"] {
+  background-color: #131715 !important;
+}
+
+[data-theme="dark"] [class*="bg-gray-50"] {
+  background-color: #191f1c !important;
+}
+
+[data-theme="dark"] [class*="bg-[#FAF9F5]"] {
+  background-color: #191f1c !important;
+}
+
+[data-theme="dark"] [class*="bg-gray-100"] {
+  background-color: #212924 !important;
+}
+
+[data-theme="dark"] [class*="border-gray-100"] {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] [class*="divide-gray-100"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] [class*="text-gray-900"] {
+  color: var(--foreground) !important;
+}
+
+[data-theme="dark"] [class*="text-gray-700"] {
+  color: var(--muted) !important;
+}
+
+[data-theme="dark"] [class*="text-gray-500"] {
+  color: #798b7e !important;
+}
+
+/* Dotted grid radial background overrides (Replaces bright white dots with dark sage subtle dots) */
+[data-theme="dark"] [class*="radial-gradient"] {
+  background-image: radial-gradient(#1c221e 1px, transparent 1px) !important;
+}
+[data-theme="dark"] [class*="radial-gradient"]::before {
+  background-image: radial-gradient(#1c221e 1px, transparent 1px) !important;
+}
+
+/* Active tab inside sidebar overrides */
+[data-theme="dark"] .bg-white.text-\[\#12351E\] {
+  background-color: #D4A017 !important; /* Gold background */
+  color: #12351E !important; /* Dark green text */
+}
+
+/* Form styling overrides in dark mode */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: #0c0f0d !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #49544c !important;
+}
+
+/* Hover states overrides in dark theme (Ensures elements don't flash light white/cream) */
+[data-theme="dark"] [class*="hover:bg-[#FAF9F5]"]:hover,
+[data-theme="dark"] [class*="hover:bg-[#F8F6F1]"]:hover,
+[data-theme="dark"] [class*="hover:bg-[#EEF2ED]"]:hover,
+[data-theme="dark"] [class*="hover:bg-white"]:hover,
+[data-theme="dark"] [class*="hover:bg-gray-50"]:hover,
+[data-theme="dark"] [class*="hover:bg-[#E8F0EA]"]:hover {
+  background-color: #1c221f !important; /* Sage Dark Grey accent */
+}
+
+[data-theme="dark"] [class*="hover:text-[#1E5631]"]:hover,
+[data-theme="dark"] [class*="hover:text-[#6F4E37]"]:hover {
+  color: #D4A017 !important; /* Highlight gold on hover */
+}
+
+[data-theme="dark"] [class*="group-hover:translate-x-1"] {
+  color: #D4A017 !important;
+}
+
+/* Glass/Opaque blur containers overrides */
+[data-theme="dark"] .bg-white\/95 {
+  background-color: rgba(20, 24, 22, 0.95) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#F8F6F1]/95"] {
+  background-color: rgba(12, 15, 13, 0.95) !important;
 }

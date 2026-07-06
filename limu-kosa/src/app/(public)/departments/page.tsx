@@ -1,123 +1,103 @@
-import React from 'react';
-import { 
-  Building2, 
-  Sprout, 
-  HeartPulse, 
-  GraduationCap, 
-  Coins, 
-  ShieldCheck, 
-  Scale, 
-  ArrowRight,
-  Sparkles
-} from 'lucide-react';
-import Link from 'next/link';
+import Link from "next/link";
+import { ArrowRight, Building2, Landmark, Sprout, HeartPulse, GraduationCap, Coins, MapPin, Droplets, Briefcase, Users, BadgeCheck, Mountain, ShieldCheck, Scale } from "lucide-react";
+import { getPublicResource } from "@/lib/api";
+import { departments as fallbackDepts } from "@/lib/publicContent";
 
-const sectors = [
-  {
-    id: 'agriculture',
-    name: 'Agriculture & Natural Resources Office',
-    icon: Sprout,
-    description: 'Oversees rural extension programs, wild Arabica coffee protection zones, and support networks for our 40 agricultural kebeles.',
-  },
-  {
-    id: 'health',
-    name: 'Woreda Health Office',
-    icon: HeartPulse,
-    description: 'Manages localized public clinics, healthcare delivery frameworks, sanitation networks, and regional disease prevention initiatives.',
-  },
-  {
-    id: 'education',
-    name: 'Education Office',
-    icon: GraduationCap,
-    description: 'Administers public primary and secondary educational facilities, local teacher deployments, and instructional tracking metrics.',
-  },
-  {
-    id: 'finance',
-    name: 'Finance & Economic Development Office',
-    icon: Coins,
-    description: 'Handles annual budgetary framing allocations, local market revenue assessments, and municipal infrastructure financing plans.',
-  },
-  {
-    id: 'peace-security',
-    name: 'Peace & Security Administration',
-    icon: ShieldCheck,
-    description: 'Coordinates local civil enforcement networks, community protection services, and inter-kebele boundary alignment safety protocols.',
-  },
-  {
-    id: 'justice',
-    name: 'Justice Office',
-    icon: Scale,
-    description: 'Provides municipal legal consulting services, maintains formal civil records, and executes judicial guidelines across the district.',
-  },
-];
+// Define the interface to satisfy TypeScript's strict type checking
+interface Department {
+  id: string;
+  name: string;
+  shortName: string;
+  description: string;
+  slug?: string;
+  icon?: any;
+}
 
-export default function Departments() {
+const officeImage =
+  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80";
+
+const iconMap: Record<string, any> = {
+  "agriculture": Sprout,
+  "health": HeartPulse,
+  "education": GraduationCap,
+  "finance": Coins,
+  "land-administration": MapPin,
+  "water-energy": Droplets,
+  "trade-industry": Briefcase,
+  "women-social-affairs": Users,
+  "youth-sports": BadgeCheck,
+  "culture-tourism": Mountain,
+  "peace-security": ShieldCheck,
+  "justice": Scale,
+};
+
+export default async function Departments() {
+  // Explicitly typing the array as Department[]
+  const departments: Department[] = await getPublicResource("departments", fallbackDepts);
+
   return (
-    <div className="bg-[#F8F6F1]/40 min-h-screen pb-20">
-      
-      {/* 1. HERO BANNER */}
-      <section className="bg-gradient-to-br from-[#227C3E] to-[#165A2B] text-white pt-32 pb-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#D4A017]">
-  <div className="max-w-7xl mx-auto space-y-4">
-    <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-[#E9C46A]">
-      <Sparkles className="h-3 w-3" /> Public Governance & Sectors
-    </div>
-    <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-      Administrative Departments
-    </h1>
-    <p className="text-emerald-50/90 text-sm sm:text-base max-w-3xl leading-relaxed">
-      Explore the core sectors steering municipal development, economic growth, and civilian service structures across Limmu Kosa Woreda.
-    </p>
-  </div>
-</section>
-
-      {/* 2. DEPARTMENTS GRID CONTAINER */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
-        <div className="max-w-3xl">
-          <h2 className="text-xl sm:text-2xl font-black text-[#2C2C2C] flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-[#1E5631]" /> Core Sector Directory
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
-            Select a public division below to examine its internal leadership, ongoing infrastructure blueprints, strategic development benchmarks, and citizen documentation templates.
-          </p>
+    <div className="min-h-screen bg-[#F8F6F1] pb-20">
+      <section className="bg-gradient-to-r from-[#159447] to-[#0E6E36] px-4 pb-14 pt-32 text-white sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#F4D06F]">
+              <Landmark className="h-4 w-4" />
+              Public governance and sector offices
+            </div>
+            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Government Departments</h1>
+            <p className="mt-5 text-base leading-8 text-white/90">
+              Sector offices responsible for public service coordination, development planning, natural resources, social services, and citizen communication.
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sectors.map((sector) => {
-            const IconComponent = sector.icon;
+      <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <section className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <h2 className="flex items-center gap-2 text-3xl font-black text-[#1E5631]">
+              <Building2 className="h-7 w-7 text-[#6F4E37]" />
+              Core sector directory
+            </h2>
+            <p className="mt-4 text-base leading-8 text-[#50627A]">
+              Each office page includes a public overview, responsibilities, major programs, and contact placeholders. Later, these pages can be managed from the NestJS administration portal.
+            </p>
+            <div className="mt-6 border-l-2 border-[#D4A017] pl-4">
+              <div className="text-4xl font-black text-[#1E5631]">{departments.length}</div>
+              <div className="text-sm font-bold uppercase tracking-wide text-[#6B7280]">Listed offices</div>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-lg shadow-lg">
+            <img src={officeImage} alt="Public office meeting representing government departments" className="h-80 w-full object-cover" />
+          </div>
+        </section>
+
+        <section className="mt-14 divide-y divide-[#E8E1D4] border-y border-[#E8E1D4] bg-white">
+          {departments.map((department: Department) => {
+            // Safely accessing properties now that Department is defined
+            const Icon = iconMap[department.id] || (department.slug && iconMap[department.slug]) || (department as any).icon || Building2;
+            const deptId = department.id || department.slug || "";
+
             return (
-              <div 
-                key={sector.id} 
-                className="bg-white border-t-4 border-[#1E5631] rounded-b-xl shadow-sm p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              <Link
+                key={deptId}
+                href={`/departments/${deptId}`}
+                className="group grid gap-4 px-4 py-6 transition hover:bg-[#F8F6F1] sm:grid-cols-[42px_1fr_auto] sm:items-center sm:px-6"
               >
-                <div className="space-y-4">
-                  <div className="p-2.5 bg-[#E8F0EA] text-[#1E5631] rounded-lg inline-block shadow-sm">
-                    <IconComponent className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <h3 className="font-bold text-base text-[#2C2C2C] tracking-tight leading-tight">
-                      {sector.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">
-                      {sector.description}
-                    </p>
-                  </div>
+                <Icon className="h-7 w-7 text-[#1E5631]" />
+                <div>
+                  <h3 className="text-lg font-black text-[#2C2C2C]">{department.name}</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#50627A]">{department.description}</p>
                 </div>
-
-                <div className="pt-6 border-t border-gray-50 mt-6">
-                  <Link 
-                    href={`/departments/${sector.id}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E5631] hover:text-[#12351E] group transition-colors"
-                  >
-                    View Portal Registry 
-                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#6F4E37]">
+                  View office
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                 </div>
-              </div>
+              </Link>
             );
           })}
-        </div>
+        </section>
       </main>
-
     </div>
   );
 }
