@@ -1,5 +1,5 @@
 import { Download, FileText, BookOpen, Coins, MapPin, Scale } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { downloads as fallbackDownloads } from "@/lib/publicContent";
 
@@ -31,11 +31,11 @@ export default async function DownloadsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Official documents"
-        title="Downloads"
-        description="Access annual reports, strategic plans, budget reports, policies, brochures, and public forms once files are published."
-        icon={Download}
+      <PageHero
+        eyebrowKey="downloads.eyebrow"
+        titleKey="downloads.title"
+        descriptionKey="downloads.description"
+        iconName="Download"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">

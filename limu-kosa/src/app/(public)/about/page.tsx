@@ -1,5 +1,6 @@
 import { Compass, Leaf, Sprout, Users2 } from "lucide-react";
 import { economyHighlights, values } from "@/lib/publicContent";
+import PageHero from "@/components/common/PageHero";
 
 const landscapeImage =
   "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1200&q=80";
@@ -22,20 +23,12 @@ const timeline = [
 export default function About() {
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <section className="bg-gradient-to-r from-[#159447] to-[#0E6E36] px-4 pb-14 pt-32 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#F4D06F]">
-              <Compass className="h-4 w-4" />
-              Regional profile and heritage
-            </div>
-            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">About Limu Kosa</h1>
-            <p className="mt-5 text-base leading-8 text-white/90">
-              History, geography, people, economy, and vision of Limu Kosa Woreda Administration.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrowKey="about.eyebrow"
+        titleKey="about.title"
+        descriptionKey="about.description"
+        iconName="Compass"
+      />
 
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <section className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_0.8fr]">

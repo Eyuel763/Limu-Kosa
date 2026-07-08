@@ -1,5 +1,5 @@
 import { Landmark, Mail, UserRound } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { leaders as fallbackLeaders } from "@/lib/publicContent";
 
@@ -24,11 +24,11 @@ export default async function LeadershipPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Administration leadership"
-        title="Leadership"
-        description="Meet the public administration roles responsible for coordinating woreda priorities, office collaboration, and transparent communication."
-        icon={Landmark}
+      <PageHero
+        eyebrowKey="leadership.eyebrow"
+        titleKey="leadership.title"
+        descriptionKey="leadership.description"
+        iconName="Landmark"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

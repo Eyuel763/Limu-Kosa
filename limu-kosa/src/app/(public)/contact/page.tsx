@@ -1,15 +1,15 @@
 import { Building2, Send } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { contactChannels, departments } from "@/lib/publicContent";
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Public communication"
-        title="Contact"
-        description="Office address, working hours, public channels, and department directory contact placeholders."
-        icon={Building2}
+      <PageHero
+        eyebrowKey="contact.eyebrow"
+        titleKey="contact.title"
+        descriptionKey="contact.description"
+        iconName="Phone"
       />
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 pt-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         <section>

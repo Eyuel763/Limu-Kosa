@@ -1,5 +1,5 @@
 import { Megaphone } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { announcements as fallbackAnnouncements } from "@/lib/publicContent";
 
@@ -8,11 +8,11 @@ export default async function AnnouncementsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Public notices"
-        title="Announcements"
-        description="Important notices for public meetings, office updates, community events, investment information, and emergency communication."
-        icon={Megaphone}
+      <PageHero
+        eyebrowKey="announcements.eyebrow"
+        titleKey="announcements.title"
+        descriptionKey="announcements.description"
+        iconName="Bell"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

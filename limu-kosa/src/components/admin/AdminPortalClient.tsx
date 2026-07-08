@@ -27,6 +27,7 @@ import {
   Sun,   // <-- Added missing import
   Moon   // <-- Added missing import
 } from "lucide-react";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
 
@@ -694,8 +695,9 @@ export default function AdminPortalClient() {
         <div className="absolute top-0 left-0 w-80 h-80 lg:w-96 lg:h-96 bg-[#12351E]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-80 h-80 lg:w-96 lg:h-96 bg-[#D4A017]/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
 
-        {/* Theme Toggle in Login Screen */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* Language Switcher + Theme Toggle in Login Screen */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <LanguageSwitcher variant="light" />
           <button
             onClick={toggleTheme}
             className="p-2.5 rounded-full bg-white hover:bg-gray-100 border border-[#D7DED5] transition-colors text-[#1E5631] cursor-pointer shadow-sm"
@@ -848,6 +850,7 @@ export default function AdminPortalClient() {
             </div>
             
             <div className="shrink-0 flex items-center gap-3">
+              <LanguageSwitcher variant="dark" />
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors text-[#1E5631] cursor-pointer"

@@ -1,5 +1,5 @@
 import { ArrowRight, Briefcase } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { investmentSectors as fallbackInvestment } from "@/lib/publicContent";
 
@@ -11,11 +11,11 @@ export default async function InvestmentPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Economic opportunities"
-        title="Investment"
-        description="Priority sectors include coffee, agriculture, livestock, agro-processing, tourism, trade, and light manufacturing."
-        icon={Briefcase}
+      <PageHero
+        eyebrowKey="investment.eyebrow"
+        titleKey="investment.title"
+        descriptionKey="investment.description"
+        iconName="Sprout"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <section className="grid grid-cols-1 gap-10 lg:grid-cols-[0.95fr_1.05fr]">

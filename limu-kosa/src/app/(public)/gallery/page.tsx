@@ -1,5 +1,5 @@
 import { Camera } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 
 // Define the interface to ensure type safety during the build process
@@ -20,11 +20,11 @@ export default async function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Photo archive"
-        title="Gallery"
-        description="Official gallery of government activities, infrastructure development, agricultural initiatives, tourism sites, and community events."
-        icon={Camera}
+      <PageHero
+        eyebrowKey="gallery.eyebrow"
+        titleKey="gallery.title"
+        descriptionKey="gallery.description"
+        iconName="Camera"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         {images.length === 0 ? (

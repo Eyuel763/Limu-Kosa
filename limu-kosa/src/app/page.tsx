@@ -15,6 +15,7 @@ import {
   Sprout,
 } from "lucide-react";
 import { announcements, newsItems, projects, siteStats, tourismSites } from "@/lib/publicContent";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const sliderItems = [
   {
@@ -55,16 +56,52 @@ const sliderItems = [
   },
 ];
 
-const quickLinks = [
-  { title: "Departments", desc: "Sector offices and public responsibilities.", href: "/departments", icon: Building2 },
-  { title: "Investment", desc: "Coffee, agriculture, tourism, and enterprise opportunities.", href: "/investment", icon: Sprout },
-  { title: "Tourism", desc: "Forests, caves, lake sites, coffee culture, and heritage.", href: "/tourism", icon: Mountain },
-  { title: "Downloads", desc: "Reports, plans, policies, brochures, and public forms.", href: "/downloads", icon: FileText },
-];
-
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const { t } = useLanguage();
+
+  const sliderItems = [
+    {
+      image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('hero.slide1.tagline'),
+      title: t('hero.slide1.title'),
+      description: t('hero.slide1.description'),
+      primaryHref: "/tourism",
+      primaryLabel: t('hero.slide1.primary'),
+    },
+    {
+      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('hero.slide2.tagline'),
+      title: t('hero.slide2.title'),
+      description: t('hero.slide2.description'),
+      primaryHref: "/about",
+      primaryLabel: t('hero.slide2.primary'),
+    },
+    {
+      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('hero.slide3.tagline'),
+      title: t('hero.slide3.title'),
+      description: t('hero.slide3.description'),
+      primaryHref: "/investment",
+      primaryLabel: t('hero.slide3.primary'),
+    },
+    {
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=80",
+      tagline: t('hero.slide4.tagline'),
+      title: t('hero.slide4.title'),
+      description: t('hero.slide4.description'),
+      primaryHref: "/tourism",
+      primaryLabel: t('hero.slide4.primary'),
+    },
+  ];
+
+  const quickLinks = [
+    { title: t('home.ql.departments'), desc: t('home.ql.departments.desc'), href: "/departments", icon: Building2 },
+    { title: t('home.ql.investment'),  desc: t('home.ql.investment.desc'),  href: "/investment",  icon: Sprout },
+    { title: t('home.ql.tourism'),     desc: t('home.ql.tourism.desc'),     href: "/tourism",     icon: Mountain },
+    { title: t('downloads.title'),     desc: t('home.ql.news.desc'),        href: "/downloads",   icon: FileText },
+  ];
 
   // Explicitly type hooks as any[] arrays to stop compilation errors from API resource definitions
   const [news, setNews] = useState<any[]>(newsItems);
@@ -241,9 +278,9 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div>
-          <h2 className="text-3xl font-black text-[#1E5631]">Public resources</h2>
+          <h2 className="text-3xl font-black text-[#1E5631]">{t('home.quickLinks.title')}</h2>
           <p className="mt-3 max-w-xl text-base leading-8 text-[#50627A]">
-            The first version of the website focuses on clear public information. Online transactions and staff content management will come later with the NestJS backend.
+            {t('home.quickLinks.subtitle')}
           </p>
         </div>
         <div className="divide-y divide-[#E8E1D4] border-y border-[#E8E1D4]">
@@ -269,10 +306,10 @@ export default function Home() {
             <div className="mb-6 flex items-center justify-between border-b border-[#E8E1D4] pb-3">
               <h2 className="flex items-center gap-2 text-2xl font-black text-[#1E5631]">
                 <Newspaper className="h-5 w-5 text-[#6F4E37]" />
-                Latest updates
+                {t('home.news.title')}
               </h2>
               <Link href="/news" className="text-sm font-bold text-[#6F4E37] hover:text-[#1E5631]">
-                View all
+                {t('home.news.viewAll')}
               </Link>
             </div>
             <div className="space-y-6">

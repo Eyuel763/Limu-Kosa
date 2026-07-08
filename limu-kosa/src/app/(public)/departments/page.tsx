@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Building2, Landmark, Sprout, HeartPulse, GraduationCap, Coins, MapPin, Droplets, Briefcase, Users, BadgeCheck, Mountain, ShieldCheck, Scale } from "lucide-react";
 import { getPublicResource } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
+import PageHero from "@/components/common/PageHero";
 
 // Define the interface to satisfy TypeScript's strict type checking
 interface Department {
@@ -37,20 +38,12 @@ export default async function Departments() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <section className="bg-gradient-to-r from-[#159447] to-[#0E6E36] px-4 pb-14 pt-32 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#F4D06F]">
-              <Landmark className="h-4 w-4" />
-              Public governance and sector offices
-            </div>
-            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Government Departments</h1>
-            <p className="mt-5 text-base leading-8 text-white/90">
-              Sector offices responsible for public service coordination, development planning, natural resources, social services, and citizen communication.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrowKey="departments.eyebrow"
+        titleKey="departments.title"
+        descriptionKey="departments.description"
+        iconName="Landmark"
+      />
 
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <section className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr]">

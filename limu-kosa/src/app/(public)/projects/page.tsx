@@ -1,6 +1,6 @@
 import { Building2, MapPin, Waves, Coffee, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { projects as fallbackProjects } from "@/lib/publicContent";
 
@@ -27,11 +27,11 @@ export default async function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20 text-[#2C2C2C]">
-      <PublicHero
-        eyebrow="Development tracking"
-        title="Development Projects"
-        description="Ongoing and planned public development work, including natural resources, infrastructure, and document modernization."
-        icon={Building2}
+      <PageHero
+        eyebrowKey="projects.eyebrow"
+        titleKey="projects.title"
+        descriptionKey="projects.description"
+        iconName="Building2"
       />
       
       {/* Expanded container for wide screen breathing room */}

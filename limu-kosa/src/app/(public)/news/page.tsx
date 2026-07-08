@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 
 interface NewsItem {
   id?: string;
@@ -52,11 +52,11 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20 text-[#2C2C2C]">
-      <PublicHero
-        eyebrow="Official updates"
-        title="News"
-        description="Public updates from the woreda administration, sector offices, development programs, and community initiatives."
-        icon={Newspaper}
+      <PageHero
+        eyebrowKey="news.eyebrow"
+        titleKey="news.title"
+        descriptionKey="news.description"
+        iconName="Newspaper"
       />
       
       {/* Expanded max-w-7xl layout container to fix whitespace margins */}

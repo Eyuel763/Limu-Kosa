@@ -1,5 +1,5 @@
 import { Mountain } from "lucide-react";
-import PublicHero from "@/components/common/PublicHero";
+import PageHero from "@/components/common/PageHero";
 import { getPublicResource } from "@/lib/api";
 import { tourismSites as fallbackTourism } from "@/lib/publicContent";
 
@@ -11,11 +11,11 @@ export default async function TourismPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
-      <PublicHero
-        eyebrow="Destinations and culture"
-        title="Tourism"
-        description="Natural landmarks, protected forests, coffee culture, historical identity, festivals, and responsible travel information."
-        icon={Mountain}
+      <PageHero
+        eyebrowKey="tourism.eyebrow"
+        titleKey="tourism.title"
+        descriptionKey="tourism.description"
+        iconName="Globe"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <section className="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr]">
