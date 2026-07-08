@@ -73,10 +73,10 @@ export default async function Departments() {
         </section>
 
         <section className="mt-14 divide-y divide-[#E8E1D4] border-y border-[#E8E1D4] bg-white">
-          {departments.map((department: Department) => {
-            // Safely accessing properties now that Department is defined
-            const Icon = iconMap[department.id] || (department.slug && iconMap[department.slug]) || (department as any).icon || Building2;
-            const deptId = department.id || department.slug || "";
+          {departments.map((department) => {
+            const deptAny = department as any;
+            const Icon = iconMap[deptAny.id] || iconMap[deptAny.slug] || deptAny.icon || Building2;
+            const deptId = deptAny.id || deptAny.slug;
 
             return (
               <Link

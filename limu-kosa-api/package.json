@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node dist/main",
+    "start": "node dist/src/main.js",
     "start:dev": "nest start --watch",
+    "start:prod": "node dist/src/main.js",
     "build": "nest build",
     "lint": "eslint \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",

@@ -75,7 +75,7 @@ To deploy the NestJS API to [Render](https://render.com/), follow these steps:
 3. Configure the service settings:
     *   **Runtime**: `Node`
     *   **Build Command**: `npm install && npm run build && npx prisma generate`
-    *   **Start Command**: `node dist/main.js`
+    *   **Start Command**: `node dist/src/main.js`
 4. Add the required Environment Variables in the **Env** tab:
     *   `DATABASE_URL`: *(Your production PostgreSQL URL)*
     *   `JWT_SECRET`: *(A secure random string)*
