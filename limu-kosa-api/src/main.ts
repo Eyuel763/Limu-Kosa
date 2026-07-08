@@ -8,7 +8,9 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
-  const origins = config.get<string>("CORS_ORIGIN")?.split(",") ?? ["http://127.0.0.1:3000"];
+  const originsRaw = config.get<string>("CORS_ORIGINS") ?? config.get<string>("CORS_ORIGIN") ?? "*";
+  const origins: string | string[] = originsRaw === "*" ? "*" : originsRaw.split(",").map((o) => o.trim());
+
 
   app.setGlobalPrefix("api");
   app.enableCors({ origin: origins, credentials: true });
