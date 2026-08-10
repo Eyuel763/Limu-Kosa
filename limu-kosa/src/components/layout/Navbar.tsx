@@ -47,62 +47,64 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-20 bg-white/95 text-[#1E5631] z-50 border-b border-[#E8E1D4] px-4 shadow-sm backdrop-blur sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+    <>
+      <nav className="fixed top-0 left-0 right-0 h-20 bg-white/95 text-[#1E5631] z-50 border-b border-[#E8E1D4] px-4 shadow-sm backdrop-blur sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
 
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3 font-black text-lg tracking-tight z-50">
-          <Image src="/limu-kosa-logo.png" alt="Limu Kosa Woreda logo" width={44} height={44} className="h-11 w-11 rounded-full" />
-          <span>Limu Kosa Woreda</span>
-        </Link>
+          {/* LOGO */}
+          <Link href="/" className="flex items-center gap-3 font-black text-lg tracking-tight z-50">
+            <Image src="/limu-kosa-logo.png" alt="Limu Kosa Woreda logo" width={44} height={44} className="h-11 w-11 rounded-full" />
+            <span>Limu Kosa Woreda</span>
+          </Link>
 
-        {/* DESKTOP NAVIGATION LINKS */}
-        <div className="hidden md:flex items-center gap-4 lg:gap-6">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-xs lg:text-sm transition-colors relative py-1 ${
-                  isActive ? 'text-[#1E5631] font-bold' : 'text-[#50627A] hover:text-[#1E5631]'
-                }`}
-              >
-                {t(link.key)}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D4A017] rounded-full" />
-                )}
-              </Link>
-            );
-          })}
+          {/* DESKTOP NAVIGATION LINKS */}
+          <div className="hidden md:flex items-center gap-4 lg:gap-6">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-xs lg:text-sm transition-colors relative py-1 ${
+                    isActive ? 'text-[#1E5631] font-bold' : 'text-[#50627A] hover:text-[#1E5631]'
+                  }`}
+                >
+                  {t(link.key)}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D4A017] rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
 
-          {/* Language Switcher */}
-          <LanguageSwitcher variant="light" />
+            {/* Language Switcher */}
+            <LanguageSwitcher variant="light" />
 
-          {/* Theme Toggle */}
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-[#E8F0EA] transition-colors text-[#1E5631] cursor-pointer"
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5 text-amber-500" />}
+            </button>
+          </div>
+
+          {/* MOBILE HAMBURGER BUTTON */}
           <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-[#E8F0EA] transition-colors text-[#1E5631] cursor-pointer"
-            aria-label="Toggle theme"
+            onClick={toggleMenu}
+            className="p-2 md:hidden hover:bg-[#E8F0EA] rounded-md transition-colors z-50 focus:outline-none"
+            aria-label="Toggle menu"
           >
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5 text-amber-500" />}
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
+
         </div>
-
-        {/* MOBILE HAMBURGER BUTTON */}
-        <button
-          onClick={toggleMenu}
-          className="p-2 md:hidden hover:bg-[#E8F0EA] rounded-md transition-colors z-50 focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-
-      </div>
+      </nav>
 
       {/* MOBILE DRAWER OVERLAY */}
       {isOpen && (
-        <div className="fixed inset-0 bg-white pt-24 px-6 z-40 md:hidden flex flex-col gap-y-4 shadow-xl animate-in fade-in slide-in-from-top duration-200">
+        <div className="fixed top-20 left-0 right-0 bottom-0 bg-white z-40 md:hidden flex flex-col gap-y-2 p-6 shadow-xl overflow-y-auto animate-in fade-in slide-in-from-top duration-200">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
@@ -120,7 +122,7 @@ export default function Navbar() {
           })}
 
           {/* Mobile Language + Theme row */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-2">
             <LanguageSwitcher variant="light" />
             <button
               onClick={() => { toggleTheme(); setIsOpen(false); }}
@@ -135,6 +137,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
