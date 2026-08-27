@@ -1,8 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Building2, Send } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import { contactChannels, departments } from "@/lib/publicContent";
 
 export default function ContactPage() {
+  const [channels, setChannels] = useState<any[]>([]);
+
+  useEffect(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
+    fetch(`${apiBase}/public/settings/contact-info`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.metadata?.channels && data.metadata.channels.length > 0) {
+          setChannels(data.metadata.channels);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeChannels = channels.length > 0 ? channels : contactChannels;
+
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
       <PageHero
@@ -15,7 +34,7 @@ export default function ContactPage() {
         <section>
           <h2 className="text-3xl font-black text-[#1E5631]">Main office</h2>
           <div className="mt-6 divide-y divide-[#E8E1D4] border-y border-[#E8E1D4]">
-            {contactChannels.map((channel) => (
+            {activeChannels.map((channel) => (
               <div key={channel.label} className="py-5">
                 <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">{channel.label}</div>
                 <p className="mt-1 text-base leading-7 text-[#50627A]">{channel.value}</p>

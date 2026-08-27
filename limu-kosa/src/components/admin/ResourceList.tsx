@@ -1,0 +1,161 @@
+"use client";
+
+import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon } from "lucide-react";
+
+interface ResourceItem {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+interface AnyRecord {
+  id?: string;
+  title?: string;
+  name?: string;
+  slug?: string;
+  category?: string;
+  status?: string;
+  published?: boolean;
+  publishedAt?: string;
+  createdAt?: string;
+  excerpt?: string;
+  description?: string;
+}
+
+interface ResourceListProps {
+  activeResource: ResourceItem;
+  active: string;
+  items: AnyRecord[];
+  selectedId: string | null;
+  setSelectedId: (id: string | null) => void;
+  setFormState: (state: any) => void;
+  deleteItem: (id: string) => void;
+  loadItems: () => void;
+  isBusy: boolean;
+}
+
+export default function ResourceList({
+  activeResource,
+  active,
+  items,
+  selectedId,
+  setSelectedId,
+  setFormState,
+  deleteItem,
+  loadItems,
+  isBusy,
+}: ResourceListProps) {
+  return (
+    <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col min-h-[550px] w-full min-w-0 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {(() => {
+            const TargetIcon = activeResource.icon;
+            return <TargetIcon className="h-4 w-4 text-[#1E5631] shrink-0" />;
+          })()}
+          <div className="min-w-0">
+            <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
+              {activeResource.label} Registry
+            </h2>
+            <p className="text-[10px] text-[#7A8B9E] font-mono lowercase truncate">/{active}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => loadItems()}
+          disabled={isBusy}
+          className="rounded-md border border-[#D7DED5] bg-white px-3 py-1.5 text-xs font-bold text-[#6F4E37] shadow-2xs hover:bg-[#FAF9F5] transition disabled:opacity-40 shrink-0"
+        >
+          Refresh Data
+        </button>
+      </div>
+
+      <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
+        {items.map((item) => {
+          const labelText = item.title ?? item.name ?? item.slug ?? item.id ?? "Untitled Entry";
+          const isCurrentSelected = selectedId === item.id;
+          const itemTimeDisplay = item.publishedAt || item.createdAt || null;
+
+          return (
+            <div
+              key={item.id}
+              className={`p-4 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group w-full min-w-0 overflow-hidden ${
+                isCurrentSelected ? "bg-[#EEF2ED] border-l-4 border-l-[#1E5631]" : "hover:bg-[#FAF9F5]"
+              }`}
+            >
+              <div className="min-w-0 flex-1 space-y-1.5 w-full">
+                <div className="flex flex-wrap items-center gap-2">
+                  {item.category && (
+                    <span className="bg-white px-2 py-0.5 border border-[#E8E1D4] text-[10px] font-black uppercase tracking-wider rounded text-[#6F4E37] shadow-3xs break-all max-w-[150px] truncate">
+                      {item.category}
+                    </span>
+                  )}
+                  {(item.status || item.published !== undefined) && (
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded shrink-0 ${
+                        item.status === "PUBLISHED" || item.published === true
+                          ? "bg-green-50 text-green-700 border border-green-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {item.status ?? (item.published ? "Published" : "Draft")}
+                    </span>
+                  )}
+                  {itemTimeDisplay && (
+                    <span className="text-[10px] font-medium text-[#7A8B9E] flex items-center gap-1 shrink-0">
+                      <Calendar className="h-3 w-3 text-gray-400" />
+                      {new Date(itemTimeDisplay).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-sm font-bold text-[#2C2C2C] pr-2 group-hover:text-[#1E5631] transition-colors break-words break-all tracking-tight leading-snug">
+                  {labelText}
+                </h3>
+
+                {(item.excerpt || item.description || item.slug) && (
+                  <p className="text-xs text-[#50627A] pr-4 font-mono opacity-80 break-words break-all line-clamp-2">
+                    {item.excerpt || item.description || item.slug}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 sm:self-center self-end bg-white sm:bg-transparent p-1 sm:p-0 rounded-lg border sm:border-0 border-gray-100 shadow-3xs sm:shadow-none">
+                <button
+                  onClick={() => {
+                    setSelectedId(item.id ?? null);
+                    setFormState({ ...item });
+                  }}
+                  className="p-2 text-xs font-bold rounded-lg border border-[#E8E1D4] bg-white hover:bg-[#FAF9F5] hover:border-[#1E5631]/30 text-[#50627A] hover:text-[#1E5631] transition flex items-center gap-1 shadow-3xs shrink-0"
+                >
+                  <span>Edit</span>
+                  <ArrowUpRight className="h-3 w-3 opacity-60" />
+                </button>
+                {item.id ? (
+                  <button
+                    onClick={() => deleteItem(item.id as string)}
+                    className="p-2 text-xs font-bold rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 text-red-600 hover:border-red-200 transition shadow-3xs shrink-0"
+                    title="Remove item data row permanently"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+
+        {!items.length ? (
+          <div className="py-20 px-4 text-center text-[#50627A] w-full">
+            <Layers className="h-10 w-10 mx-auto text-gray-300 stroke-[1.5] mb-3" />
+            <p className="text-xs font-bold">No data entries mapped here inside this section yet.</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">Use the workflow tools block to append structural fields.</p>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}

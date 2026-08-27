@@ -437,6 +437,102 @@ async function main() {
     });
   }
   console.log("Seeded gallery images");
+
+  // 11. Seed Dynamic Settings
+  const settings = [
+    {
+      title: "Homepage Hero Slider",
+      slug: "homepage-hero",
+      category: "Setting",
+      status: "PUBLISHED",
+      metadata: {
+        slides: [
+          {
+            image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=80",
+            tagline: "Jimma Zone · Oromia, Ethiopia",
+            title: "Limu Kosa Coffee Heritage",
+            description: "A public portal rooted in the woreda's shade-grown Arabica coffee, forests, agriculture, and community service.",
+            primaryHref: "/tourism",
+            primaryLabel: "Explore tourism"
+          },
+          {
+            image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80",
+            tagline: "Official public information portal",
+            title: "Limu Kosa Woreda Administration",
+            description: "Follow government updates, public notices, development work, departments, documents, and local opportunities.",
+            primaryHref: "/about",
+            primaryLabel: "Learn more"
+          },
+          {
+            image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+            tagline: "Forests, valleys, and rural communities",
+            title: "Nature, Culture, and Development",
+            description: "Discover protected forests, local tourism resources, investment potential, public offices, and community-centered administration.",
+            primaryHref: "/investment",
+            primaryLabel: "View investment"
+          },
+          {
+            image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=80",
+            tagline: "Eco-tourism and natural preservation",
+            title: "Nature and Community Care",
+            description: "Explore protected high-biodiversity montane forests, community beehives, and wild coffee preservation initiatives.",
+            primaryHref: "/tourism",
+            primaryLabel: "Explore tourism"
+          }
+        ]
+      }
+    },
+    {
+      title: "Woreda Statistics",
+      slug: "site-stats",
+      category: "Setting",
+      status: "PUBLISHED",
+      metadata: {
+        stats: [
+          { label: "Projected Population", value: "235,584", detail: "2022 projection", icon: "Users" },
+          { label: "Surface Area", value: "1,316 km2", detail: "current boundary", icon: "MapPin" },
+          { label: "Rural Kebeles", value: "40", detail: "plus 4 urban kebeles", icon: "Building2" },
+          { label: "Forest Cover", value: "39.7%", detail: "including protected areas", icon: "Trees" }
+        ]
+      }
+    },
+    {
+      title: "Contact Channels",
+      slug: "contact-info",
+      category: "Setting",
+      status: "PUBLISHED",
+      metadata: {
+        channels: [
+          { label: "Office Address", value: "Limmu Genet, Jimma Zone, Oromia, Ethiopia", icon: "MapPin" },
+          { label: "Telephone", value: "+251 97 111 XXXX", icon: "Phone" },
+          { label: "Email", value: "info@limukosa.gov.et", icon: "Megaphone" },
+          { label: "Working Hours", value: "Monday to Friday, 8:30 AM - 5:30 PM", icon: "CalendarDays" }
+        ]
+      }
+    },
+    {
+      title: "General Settings",
+      slug: "general",
+      category: "Setting",
+      status: "PUBLISHED",
+      metadata: {
+        footerTagline: "A public portal rooted in the woreda's shade-grown Arabica coffee, forests, agriculture, and community service.",
+        copyrightText: "All rights reserved."
+      }
+    }
+  ];
+
+  for (const s of settings) {
+    await prisma.contentItem.upsert({
+      where: { slug: s.slug },
+      update: {},
+      create: {
+        type: ContentType.SETTING,
+        ...s,
+      },
+    });
+  }
+  console.log("Seeded dynamic settings");
 }
 
 main()

@@ -13,53 +13,42 @@ import {
   Mountain,
   Newspaper,
   Sprout,
+  Users,
+  MapPin,
+  Trees,
+  Coffee,
+  Briefcase,
 } from "lucide-react";
 import { announcements, newsItems, projects, siteStats, tourismSites } from "@/lib/publicContent";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-const sliderItems = [
-  {
-    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=80",
-    tagline: "Jimma Zone · Oromia, Ethiopia",
-    title: "Limu Kosa Coffee Heritage",
-    description:
-      "A public portal rooted in the woreda's shade-grown Arabica coffee, forests, agriculture, and community service.",
-    primaryHref: "/tourism",
-    primaryLabel: "Explore tourism",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80",
-    tagline: "Official public information portal",
-    title: "Limu Kosa Woreda Administration",
-    description:
-      "Follow government updates, public notices, development work, departments, documents, and local opportunities.",
-    primaryHref: "/about",
-    primaryLabel: "Learn more",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
-    tagline: "Forests, valleys, and rural communities",
-    title: "Nature, Culture, and Development",
-    description:
-      "Discover protected forests, local tourism resources, investment potential, public offices, and community-centered administration.",
-    primaryHref: "/investment",
-    primaryLabel: "View investment",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=80",
-    tagline: "Eco-tourism and natural preservation",
-    title: "Nature and Community Care",
-    description:
-      "Explore protected high-biodiversity montane forests, community beehives, and wild coffee preservation initiatives.",
-    primaryHref: "/tourism",
-    primaryLabel: "Explore tourism",
-  },
-];
+const iconMap: Record<string, any> = {
+  Users,
+  MapPin,
+  Building2,
+  Trees,
+  Landmark,
+  Coffee,
+  Briefcase,
+  FileText,
+  Mountain,
+  Sprout,
+};
+
+const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
+const apiBaseRoot = apiBase.replace("/api", "");
+const getFullImageUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") || url.startsWith("data:") ? url : `${apiBaseRoot}${url}`;
+};
 
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const { t } = useLanguage();
+
+  const [slider, setSlider] = useState<any[]>([]);
+  const [stats, setStats] = useState<any[]>([]);
 
   const sliderItems = [
     {
@@ -96,6 +85,17 @@ export default function Home() {
     },
   ];
 
+  const activeSlider = slider.length > 0 ? slider : sliderItems;
+
+  const activeStats = stats.length > 0
+    ? stats.map(s => ({
+        label: s.label,
+        value: s.value,
+        detail: s.detail,
+        icon: iconMap[s.icon] || Landmark
+      }))
+    : siteStats;
+
   const quickLinks = [
     { title: t('home.ql.departments'), desc: t('home.ql.departments.desc'), href: "/departments", icon: Building2 },
     { title: t('home.ql.investment'),  desc: t('home.ql.investment.desc'),  href: "/investment",  icon: Sprout },
@@ -110,7 +110,24 @@ export default function Home() {
   const [tourism, setTourism] = useState<any[]>(tourismSites);
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
+    // Fetch dynamic Hero and Stats settings
+    fetch(`${apiBase}/public/settings/homepage-hero`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.metadata?.slides && data.metadata.slides.length > 0) {
+          setSlider(data.metadata.slides);
+        }
+      })
+      .catch(() => {});
+
+    fetch(`${apiBase}/public/settings/site-stats`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.metadata?.stats && data.metadata.stats.length > 0) {
+          setStats(data.metadata.stats);
+        }
+      })
+      .catch(() => {});
     
     fetch(`${apiBase}/public/news`)
       .then((r) => (r.ok ? r.json() : null))
@@ -134,18 +151,18 @@ export default function Home() {
   }, []);
 
   const nextSlide = () => {
-    setCurrent((prev) => (prev + 1) % sliderItems.length);
+    setCurrent((prev) => (prev + 1) % activeSlider.length);
   };
 
   const prevSlide = () => {
-    setCurrent((prev) => (prev - 1 + sliderItems.length) % sliderItems.length);
+    setCurrent((prev) => (prev - 1 + activeSlider.length) % activeSlider.length);
   };
 
   // Safe and clean interval processing without layout lag
   useEffect(() => {
     const timer = setInterval(nextSlide, 3000);
     return () => clearInterval(timer);
-  }, []);
+  }, [activeSlider]);
 
   const handleTouchEnd = (x: number) => {
     if (touchStartX.current === null) return;
@@ -176,15 +193,12 @@ export default function Home() {
           className="flex h-full w-full transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
-          {sliderItems.map((slide, index) => (
+          {activeSlider.map((slide, index) => (
             <div key={slide.title} className="relative h-full w-full shrink-0">
-              <Image
-                src={slide.image}
+              <img
+                src={getFullImageUrl(slide.image)}
                 alt={slide.title}
-                fill
-                priority={index === 0}
-                sizes="100vw"
-                className="object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-[#0B2D1A]/70 to-black/25" />
 
@@ -234,7 +248,7 @@ export default function Home() {
           </button>
 
           <div className="flex items-center gap-2">
-            {sliderItems.map((slide, index) => (
+            {activeSlider.map((slide, index) => (
               <button
                 key={slide.title}
                 type="button"
@@ -260,7 +274,7 @@ export default function Home() {
 
       <section className="border-b border-[#E8E1D4] bg-white">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-8 sm:px-6 lg:grid-cols-4 lg:px-8">
-          {siteStats.map((stat) => {
+          {activeStats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div key={stat.label} className="flex gap-3">
