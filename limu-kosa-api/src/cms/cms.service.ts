@@ -99,6 +99,7 @@ export class CmsService {
     if (resource === "leaders") return this.prisma.leader.delete({ where: { id } });
     if (resource === "gallery") return this.prisma.galleryImage.delete({ where: { id } });
     if (resource === "downloads") return this.prisma.download.delete({ where: { id } });
+    if (resource === "messages") return this.prisma.message.delete({ where: { id } });
     throw new BadRequestException("Unsupported resource");
   }
 
@@ -186,6 +187,7 @@ export class CmsService {
     if (resource === "leaders") return this.prisma.leader.findFirstOrThrow({ where: { id: idOrSlug, ...published } });
     if (resource === "gallery") return this.prisma.galleryImage.findFirstOrThrow({ where: { id: idOrSlug, ...published } });
     if (resource === "downloads") return this.prisma.download.findFirstOrThrow({ where: { id: idOrSlug, ...published } });
+    if (resource === "messages") return this.prisma.message.findFirstOrThrow({ where: { id: idOrSlug } });
     throw new BadRequestException("Unsupported resource");
   }
 
@@ -194,6 +196,7 @@ export class CmsService {
     if (resource === "leaders") return this.prisma.leader.findMany({ orderBy: { sortOrder: "asc" } });
     if (resource === "gallery") return this.prisma.galleryImage.findMany({ orderBy: { createdAt: "desc" } });
     if (resource === "downloads") return this.prisma.download.findMany({ orderBy: { createdAt: "desc" } });
+    if (resource === "messages") return this.prisma.message.findMany({ orderBy: { createdAt: "desc" } });
     throw new BadRequestException("Unsupported resource");
   }
 
@@ -248,6 +251,16 @@ export class CmsService {
         },
       });
     }
+    if (resource === "messages") {
+      return this.prisma.message.create({
+        data: {
+          name: dto.name ?? "Anonymous",
+          email: dto.email ?? "",
+          subject: dto.subject ?? "No Subject",
+          body: dto.body ?? "",
+        },
+      });
+    }
     throw new BadRequestException("Unsupported resource");
   }
 
@@ -256,6 +269,17 @@ export class CmsService {
     if (resource === "leaders") return this.prisma.leader.update({ where: { id }, data: dto as never });
     if (resource === "gallery") return this.prisma.galleryImage.update({ where: { id }, data: dto as never });
     if (resource === "downloads") return this.prisma.download.update({ where: { id }, data: dto as never });
+    if (resource === "messages") {
+      return this.prisma.message.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          email: dto.email,
+          subject: dto.subject,
+          body: dto.body,
+        },
+      });
+    }
     throw new BadRequestException("Unsupported resource");
   }
 

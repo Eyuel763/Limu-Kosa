@@ -17,6 +17,7 @@ import {
   Sun,
   Moon,
   Save,
+  Mail,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import AdminLogin from "./AdminLogin";
@@ -37,6 +38,7 @@ const resources = [
   { key: "downloads", label: "Documents", icon: FileText },
   { key: "investment", label: "Investment", icon: Globe2 },
   { key: "tourism", label: "Tourism", icon: Globe2 },
+  { key: "messages", label: "Messages", icon: Mail },
   { key: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -50,6 +52,7 @@ const templates: Record<string, Record<string, any>> = {
   downloads: { title: "", category: "Reports", fileUrl: "", description: "", published: true },
   investment: { title: "", slug: "", body: "", category: "Investment", status: "PUBLISHED" },
   tourism: { title: "", slug: "", body: "", category: "Tourism", status: "PUBLISHED" },
+  messages: { name: "", email: "", subject: "", body: "" },
   settings: { title: "", slug: "", body: "", category: "Setting", status: "PUBLISHED", metadata: {} },
 };
 
@@ -396,19 +399,23 @@ export default function AdminPortalClient() {
             <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col min-h-[550px] lg:sticky lg:top-24 w-full min-w-0 overflow-hidden">
               <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
                 <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
-                  {selected ? `Edit ${activeResource.label}` : `New ${activeResource.label}`}
+                  {active === "messages" 
+                    ? "Message Details" 
+                    : (selected ? `Edit ${activeResource.label}` : `New ${activeResource.label}`)}
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedId(null);
-                    setFormState({ ...templates[active] });
-                  }}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition shrink-0"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Clear Form
-                </button>
+                {active !== "messages" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedId(null);
+                      setFormState({ ...templates[active] });
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Clear Form
+                  </button>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[500px] w-full min-w-0">
@@ -428,27 +435,33 @@ export default function AdminPortalClient() {
               </div>
 
               <div className="border-t border-[#E8E1D4] px-5 py-4 bg-gray-50 rounded-b-2xl flex items-center justify-between shrink-0 gap-4">
-                <div className="flex items-center gap-3 shrink-0">
-                  <button
-                    onClick={saveItem}
-                    disabled={isBusy}
-                    className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
-                  >
-                    <Save className="h-4 w-4" />
-                    Save Record
-                  </button>
-                  {selectedId && (
+                {active === "messages" ? (
+                  <span className="text-xs font-bold text-[#50627A]">
+                    Inbound message review panel
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-3 shrink-0">
                     <button
-                      onClick={() => {
-                        setSelectedId(null);
-                        setFormState({ ...templates[active] });
-                      }}
-                      className="text-xs font-bold text-[#50627A] hover:text-red-600 transition"
+                      onClick={saveItem}
+                      disabled={isBusy}
+                      className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
                     >
-                      Cancel
+                      <Save className="h-4 w-4" />
+                      Save Record
                     </button>
-                  )}
-                </div>
+                    {selectedId && (
+                      <button
+                        onClick={() => {
+                          setSelectedId(null);
+                          setFormState({ ...templates[active] });
+                        }}
+                        className="text-xs font-bold text-[#50627A] hover:text-red-600 transition"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )}
                 <span className="text-[10px] font-mono text-[#6B7280] truncate max-w-[100px] sm:max-w-none">
                   /{active}
                 </span>

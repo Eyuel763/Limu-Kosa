@@ -9,7 +9,7 @@ export const contentResourceTypes: Record<string, ContentType> = {
   settings: "SETTING",
 };
 
-export const standaloneResources = ["departments", "leaders", "gallery", "downloads"] as const;
+export const standaloneResources = ["departments", "leaders", "gallery", "downloads", "messages"] as const;
 
 export type StandaloneResource = (typeof standaloneResources)[number];
 

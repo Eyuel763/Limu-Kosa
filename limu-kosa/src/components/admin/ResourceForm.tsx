@@ -529,7 +529,51 @@ export default function ResourceForm({
   // 2. STANDARD RESOURCES FORMS
   const fields: React.JSX.Element[] = [];
 
-  if (active === "news") {
+  if (active === "messages") {
+    fields.push(
+      <div key="msg-info" className="space-y-4 w-full text-left">
+        <div className="bg-[#FAF9F5] p-3 rounded-lg border border-[#E8E1D4] text-xs text-[#6F4E37] font-bold">
+          User Submission Message Details (Read-only)
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-black uppercase text-[#50627A]">Sender Name</label>
+          <input
+            type="text"
+            readOnly
+            value={formState.name ?? ""}
+            className="w-full rounded-lg border border-[#D7DED5] bg-gray-50 px-3 py-2 text-xs outline-none cursor-default font-semibold"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-black uppercase text-[#50627A]">Sender Email</label>
+          <input
+            type="text"
+            readOnly
+            value={formState.email ?? ""}
+            className="w-full rounded-lg border border-[#D7DED5] bg-gray-50 px-3 py-2 text-xs outline-none cursor-default font-mono"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-black uppercase text-[#50627A]">Subject</label>
+          <input
+            type="text"
+            readOnly
+            value={formState.subject ?? ""}
+            className="w-full rounded-lg border border-[#D7DED5] bg-gray-50 px-3 py-2 text-xs outline-none cursor-default font-semibold"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-black uppercase text-[#50627A]">Message Body</label>
+          <textarea
+            rows={6}
+            readOnly
+            value={formState.body ?? ""}
+            className="w-full rounded-lg border border-[#D7DED5] bg-gray-50 px-3 py-2 text-xs outline-none cursor-default font-sans leading-relaxed"
+          />
+        </div>
+      </div>
+    );
+  } else if (active === "news") {
     fields.push(
       textInput("title", "News Title", "e.g., Coffee harvest expands"),
       slugInput(),

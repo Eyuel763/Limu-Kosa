@@ -295,6 +295,37 @@ export default function ResourcePreview({
           )}
         </div>
       )}
+
+      {active === "messages" && (
+        <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-3 w-full text-left">
+          <div className="border-b border-gray-100 pb-2 flex justify-between items-center text-xs text-gray-400">
+            <span>Direct Message View</span>
+            {formState.createdAt && (
+              <span>Received: {new Date(formState.createdAt).toLocaleString()}</span>
+            )}
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase text-[#6F4E37] tracking-wider">Subject</div>
+            <h3 className="text-sm font-black text-[#2C2C2C] mt-0.5">{formState.subject || "No Subject"}</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-50 py-2">
+            <div>
+              <div className="text-[9px] font-black uppercase text-gray-400">From</div>
+              <div className="text-xs font-bold text-[#2C2C2C]">{formState.name || "Anonymous"}</div>
+            </div>
+            <div>
+              <div className="text-[9px] font-black uppercase text-gray-400">Email</div>
+              <div className="text-xs font-mono text-[#50627A] break-all">{formState.email || "N/A"}</div>
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase text-[#1E5631] tracking-wider mb-1">Message Content</div>
+            <p className="text-xs text-[#50627A] leading-relaxed whitespace-pre-wrap bg-gray-50 p-3 rounded border border-gray-100 min-h-[100px]">
+              {formState.body || "No message content."}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

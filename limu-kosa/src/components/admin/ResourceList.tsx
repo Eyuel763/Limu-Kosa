@@ -20,6 +20,8 @@ interface AnyRecord {
   createdAt?: string;
   excerpt?: string;
   description?: string;
+  subject?: string;
+  email?: string;
 }
 
 interface ResourceListProps {
@@ -116,9 +118,11 @@ export default function ResourceList({
                   {labelText}
                 </h3>
 
-                {(item.excerpt || item.description || item.slug) && (
+                {(item.excerpt || item.description || item.slug || item.subject || item.email) && (
                   <p className="text-xs text-[#50627A] pr-4 font-mono opacity-80 break-words break-all line-clamp-2">
-                    {item.excerpt || item.description || item.slug}
+                    {item.subject 
+                      ? `${item.subject} (${item.email ?? ""})` 
+                      : (item.excerpt || item.description || item.slug)}
                   </p>
                 )}
               </div>
