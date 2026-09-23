@@ -69,7 +69,6 @@ export default function MessagesInbox({
                 <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
                   Messages Inbox
                 </h2>
-                <p className="text-[10px] text-[#7A8B9E] font-mono lowercase truncate">/messages</p>
               </div>
               <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
                 {filteredItems.length} {filteredItems.length === 1 ? "Message" : "Messages"}

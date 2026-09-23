@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Upload } from "lucide-react";
+import { Upload, Plus, Trash2 } from "lucide-react";
 
 interface ResourceFormProps {
   active: string;
@@ -240,17 +240,60 @@ export default function ResourceForm({
     const slug = formState.slug;
 
     if (slug === "homepage-hero") {
-      const slides = formState.metadata?.slides || [];
-      // Ensure we have exactly 4 slides structure
-      const slideIndices = [0, 1, 2, 3];
+      const slides: any[] = formState.metadata?.slides || [];
+
+      const addSlide = () => {
+        setFormState((prev: any) => {
+          const list = [...(prev.metadata?.slides || [])];
+          list.push({
+            tagline: "",
+            title: "",
+            description: "",
+            primaryHref: "",
+            primaryLabel: "",
+            image: "",
+          });
+          return {
+            ...prev,
+            metadata: {
+              ...(prev.metadata || {}),
+              slides: list,
+            },
+          };
+        });
+      };
+
+      const removeSlide = (index: number) => {
+        setFormState((prev: any) => {
+          const list = [...(prev.metadata?.slides || [])];
+          list.splice(index, 1);
+          return {
+            ...prev,
+            metadata: {
+              ...(prev.metadata || {}),
+              slides: list,
+            },
+          };
+        });
+      };
 
       return (
         <div className="space-y-6 w-full text-left">
-          <div className="bg-[#FAF9F5] p-3 rounded-lg border border-[#E8E1D4] text-xs text-[#6F4E37] font-bold">
-            Editing Homepage Hero Section Slider (4 Slides)
+          <div className="flex items-center justify-between bg-[#FAF9F5] p-3 rounded-lg border border-[#E8E1D4]">
+            <div className="text-xs text-[#6F4E37] font-bold">
+              Editing Homepage Hero Section Slider ({slides.length} {slides.length === 1 ? "Slide" : "Slides"})
+            </div>
+            <button
+              type="button"
+              onClick={addSlide}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1E5631] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#12351E] transition"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add Hero Slide
+            </button>
           </div>
-          {slideIndices.map((idx) => {
-            const slide = slides[idx] || {};
+
+          {slides.map((slide: any, idx: number) => {
             const slideImageUrl = slide.image || "";
             const slidePreviewUrl = slideImageUrl
               ? slideImageUrl.startsWith("http")
@@ -260,8 +303,19 @@ export default function ResourceForm({
 
             return (
               <div key={idx} className="border border-[#D7DED5] rounded-xl p-4 space-y-4 bg-white shadow-3xs">
-                <div className="text-xs font-black text-[#1E5631] border-b border-gray-100 pb-1.5">
-                  Hero Slide #{idx + 1}
+                <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span className="text-xs font-black text-[#1E5631]">
+                    Hero Slide #{idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeSlide(idx)}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition"
+                    title="Remove this slide"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove
+                  </button>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -358,6 +412,17 @@ export default function ResourceForm({
               </div>
             );
           })}
+
+          <div className="pt-2 flex justify-center">
+            <button
+              type="button"
+              onClick={addSlide}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#1E5631] bg-white px-5 py-2.5 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition shadow-xs"
+            >
+              <Plus className="h-4 w-4" />
+              Add Another Hero Slide
+            </button>
+          </div>
         </div>
       );
     }

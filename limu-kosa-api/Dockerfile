@@ -10,6 +10,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Set dummy DATABASE_URL for build-time Prisma client generation
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
 RUN npx prisma generate

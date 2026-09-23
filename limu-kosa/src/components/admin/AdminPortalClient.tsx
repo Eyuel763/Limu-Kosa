@@ -363,7 +363,6 @@ export default function AdminPortalClient() {
                 { slug: "homepage-hero", label: "Homepage Hero Slider" },
                 { slug: "site-stats", label: "Woreda Statistics" },
                 { slug: "contact-info", label: "Contact Channels" },
-                { slug: "general", label: "General & Footer" },
                 { slug: "security", label: "Security & Password" },
               ].map(tab => (
                 <button
@@ -456,9 +455,6 @@ export default function AdminPortalClient() {
                     <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
                       Settings Manager
                     </h2>
-                    <span className="text-[10px] font-mono text-[#6B7280]">
-                      slug: {settingsTab}
-                    </span>
                   </div>
                   
                   <div className="p-5 space-y-4 max-h-[580px] overflow-y-auto w-full min-w-0">
@@ -585,9 +581,6 @@ export default function AdminPortalClient() {
                     )}
                   </div>
                 )}
-                <span className="text-[10px] font-mono text-[#6B7280] truncate max-w-[100px] sm:max-w-none">
-                  /{active}
-                </span>
               </div>
             </section>
           </div>
