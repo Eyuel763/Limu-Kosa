@@ -4,21 +4,23 @@ import * as bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("Admin@12345", 10);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@limukosa.gov.et";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Admin@12345";
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   // 1. Seed admin user
   await prisma.user.upsert({
-    where: { email: "admin@limukosa.gov.et" },
+    where: { email: adminEmail },
     update: { passwordHash },
     create: {
       name: "Website Administrator",
-      email: "admin@limukosa.gov.et",
+      email: adminEmail,
       passwordHash,
       role: UserRole.ADMIN,
     },
   });
 
-  console.log("Seeded administrator");
+  console.log(`Seeded administrator (${adminEmail})`);
 
   // 2. Seed News
   const newsItems = [

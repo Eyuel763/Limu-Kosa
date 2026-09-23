@@ -80,7 +80,11 @@ export default function ResourceList({
           return (
             <div
               key={item.id}
-              className={`p-4 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group w-full min-w-0 overflow-hidden ${
+              onClick={() => {
+                setSelectedId(item.id ?? null);
+                setFormState({ ...item });
+              }}
+              className={`p-4 cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group w-full min-w-0 overflow-hidden ${
                 isCurrentSelected ? "bg-[#EEF2ED] border-l-4 border-l-[#1E5631]" : "hover:bg-[#FAF9F5]"
               }`}
             >
@@ -128,19 +132,25 @@ export default function ResourceList({
               </div>
 
               <div className="flex items-center gap-2 shrink-0 sm:self-center self-end bg-white sm:bg-transparent p-1 sm:p-0 rounded-lg border sm:border-0 border-gray-100 shadow-3xs sm:shadow-none">
-                <button
-                  onClick={() => {
-                    setSelectedId(item.id ?? null);
-                    setFormState({ ...item });
-                  }}
-                  className="p-2 text-xs font-bold rounded-lg border border-[#E8E1D4] bg-white hover:bg-[#FAF9F5] hover:border-[#1E5631]/30 text-[#50627A] hover:text-[#1E5631] transition flex items-center gap-1 shadow-3xs shrink-0"
-                >
-                  <span>Edit</span>
-                  <ArrowUpRight className="h-3 w-3 opacity-60" />
-                </button>
+                {active !== "messages" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedId(item.id ?? null);
+                      setFormState({ ...item });
+                    }}
+                    className="p-2 text-xs font-bold rounded-lg border border-[#E8E1D4] bg-white hover:bg-[#FAF9F5] hover:border-[#1E5631]/30 text-[#50627A] hover:text-[#1E5631] transition flex items-center gap-1 shadow-3xs shrink-0"
+                  >
+                    <span>Edit</span>
+                    <ArrowUpRight className="h-3 w-3 opacity-60" />
+                  </button>
+                )}
                 {item.id ? (
                   <button
-                    onClick={() => deleteItem(item.id as string)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteItem(item.id as string);
+                    }}
                     className="p-2 text-xs font-bold rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 text-red-600 hover:border-red-200 transition shadow-3xs shrink-0"
                     title="Remove item data row permanently"
                   >

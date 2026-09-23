@@ -18,6 +18,8 @@ import {
   Moon,
   Save,
   Mail,
+  Lock,
+  Key,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import AdminLogin from "./AdminLogin";
@@ -25,6 +27,7 @@ import AdminSidebar from "./AdminSidebar";
 import ResourceList from "./ResourceList";
 import ResourcePreview from "./ResourcePreview";
 import ResourceForm from "./ResourceForm";
+import MessagesInbox from "./MessagesInbox";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
 
@@ -75,6 +78,45 @@ export default function AdminPortalClient() {
   const [isBusy, setIsBusy] = useState(false);
 
   const [settingsTab, setSettingsTab] = useState("homepage-hero");
+  const [currentPasswordInput, setCurrentPasswordInput] = useState("");
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+
+  async function changeAdminPassword(e: FormEvent) {
+    e.preventDefault();
+    if (newPasswordInput !== confirmPasswordInput) {
+      setMessage("New password and confirmation do not match.");
+      return;
+    }
+    if (newPasswordInput.length < 8) {
+      setMessage("Password must be at least 8 characters long.");
+      return;
+    }
+    setIsBusy(true);
+    try {
+      const response = await fetch(`${apiBase}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: currentPasswordInput,
+          newPassword: newPasswordInput,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to update password");
+      setMessage("Administrator password updated successfully!");
+      setCurrentPasswordInput("");
+      setNewPasswordInput("");
+      setConfirmPasswordInput("");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Failed to update password");
+    } finally {
+      setIsBusy(false);
+    }
+  }
 
   const activeResource = useMemo(() => resources.find((item) => item.key === active) ?? resources[0], [active]);
   const selected = items.find((item) => item.id === selectedId);
@@ -321,7 +363,8 @@ export default function AdminPortalClient() {
                 { slug: "homepage-hero", label: "Homepage Hero Slider" },
                 { slug: "site-stats", label: "Woreda Statistics" },
                 { slug: "contact-info", label: "Contact Channels" },
-                { slug: "general", label: "General & Footer" }
+                { slug: "general", label: "General & Footer" },
+                { slug: "security", label: "Security & Password" },
               ].map(tab => (
                 <button
                   key={tab.slug}
@@ -337,50 +380,130 @@ export default function AdminPortalClient() {
               ))}
             </div>
 
-            {/* SIDE-BY-SIDE EDITOR & PREVIEW */}
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start w-full min-w-0">
-              <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col w-full min-w-0 overflow-hidden">
-                <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
-                  <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
-                    Settings Manager
-                  </h2>
-                  <span className="text-[10px] font-mono text-[#6B7280]">
-                    slug: {settingsTab}
-                  </span>
+            {settingsTab === "security" ? (
+              <div className="max-w-xl bg-white rounded-2xl shadow-sm border border-[#D7DED5] overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5]">
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-[#1E5631]" />
+                    <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C]">
+                      Change Admin Password
+                    </h2>
+                  </div>
                 </div>
-                
-                <div className="p-5 space-y-4 max-h-[580px] overflow-y-auto w-full min-w-0">
-                  <ResourceForm
+
+                <form onSubmit={changeAdminPassword} className="p-6 space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={currentPasswordInput}
+                      onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                      placeholder="Enter current password"
+                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      value={newPasswordInput}
+                      onChange={(e) => setNewPasswordInput(e.target.value)}
+                      placeholder="Enter new password (min. 8 characters)"
+                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      value={confirmPasswordInput}
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      placeholder="Re-enter new password to confirm"
+                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                    />
+                  </div>
+
+                  <div className="pt-3 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isBusy}
+                      className="inline-flex items-center gap-2 rounded-lg bg-[#1E5631] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#12351E] transition disabled:opacity-40 shadow-sm"
+                    >
+                      <Key className="h-4 w-4" />
+                      Update Password
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* SIDE-BY-SIDE EDITOR & PREVIEW */
+              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start w-full min-w-0">
+                <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col w-full min-w-0 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
+                    <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
+                      Settings Manager
+                    </h2>
+                    <span className="text-[10px] font-mono text-[#6B7280]">
+                      slug: {settingsTab}
+                    </span>
+                  </div>
+                  
+                  <div className="p-5 space-y-4 max-h-[580px] overflow-y-auto w-full min-w-0">
+                    <ResourceForm
+                      active={active}
+                      formState={formState}
+                      setFormState={setFormState}
+                      apiBase={apiBase}
+                      uploadFile={uploadFile}
+                    />
+                  </div>
+
+                  <div className="border-t border-[#E8E1D4] px-5 py-4 bg-gray-50 rounded-b-2xl flex items-center justify-between shrink-0 gap-4">
+                    <button
+                      onClick={saveItem}
+                      disabled={isBusy}
+                      className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
+                    >
+                      <Save className="h-4 w-4" />
+                      Apply and Save Settings
+                    </button>
+                  </div>
+                </section>
+
+                <section className="space-y-6">
+                  <ResourcePreview
                     active={active}
+                    selectedId="settings-active"
                     formState={formState}
-                    setFormState={setFormState}
                     apiBase={apiBase}
-                    uploadFile={uploadFile}
                   />
-                </div>
-
-                <div className="border-t border-[#E8E1D4] px-5 py-4 bg-gray-50 rounded-b-2xl flex items-center justify-between shrink-0 gap-4">
-                  <button
-                    onClick={saveItem}
-                    disabled={isBusy}
-                    className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
-                  >
-                    <Save className="h-4 w-4" />
-                    Apply and Save Settings
-                  </button>
-                </div>
-              </section>
-
-              <section className="space-y-6">
-                <ResourcePreview
-                  active={active}
-                  selectedId="settings-active"
-                  formState={formState}
-                  apiBase={apiBase}
-                />
-              </section>
-            </div>
+                </section>
+              </div>
+            )}
           </div>
+        ) : active === "messages" ? (
+          <MessagesInbox
+            items={items}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            setFormState={setFormState}
+            deleteItem={deleteItem}
+            loadItems={loadItems}
+            isBusy={isBusy}
+          />
         ) : (
           /* STANDARD REGISTRY GRID LAYOUT */
           <div className="grid gap-6 px-4 py-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 flex-1 items-start w-full min-w-0">
