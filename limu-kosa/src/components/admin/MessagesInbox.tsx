@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Mail, Calendar, Trash2, RefreshCw, Inbox, Send, User } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Mail, Calendar, Trash2, RefreshCw, Inbox, Send, User, Search, X } from "lucide-react";
 
 interface MessageRecord {
   id?: string;
@@ -31,9 +31,23 @@ export default function MessagesInbox({
   loadItems,
   isBusy,
 }: MessagesInboxProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
   const selectedMessage = useMemo(() => {
     return items.find((msg) => msg.id === selectedId) || null;
   }, [items, selectedId]);
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return items;
+    const q = searchQuery.toLowerCase();
+    return items.filter((msg) => {
+      const text = [msg.name, msg.email, msg.subject, msg.body]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return text.includes(q);
+    });
+  }, [items, searchQuery]);
 
   const getInitials = (name?: string) => {
     if (!name) return "??";
@@ -58,7 +72,7 @@ export default function MessagesInbox({
                 <p className="text-[10px] text-[#7A8B9E] font-mono lowercase truncate">/messages</p>
               </div>
               <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
-                {items.length} {items.length === 1 ? "Message" : "Messages"}
+                {filteredItems.length} {filteredItems.length === 1 ? "Message" : "Messages"}
               </span>
             </div>
 
@@ -72,8 +86,29 @@ export default function MessagesInbox({
             </button>
           </div>
 
+          {/* SEARCH INPUT BAR */}
+          <div className="px-4 py-2.5 bg-white border-b border-[#E8E1D4] flex items-center gap-2">
+            <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search messages by sender, email, subject, or content..."
+              className="w-full text-xs outline-none bg-transparent placeholder:text-gray-400 font-medium"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition"
+                title="Clear search"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
           <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
-            {items.map((item) => {
+            {filteredItems.map((item) => {
               const isSelected = selectedId === item.id;
               const timeDisplay = item.createdAt
                 ? new Date(item.createdAt).toLocaleDateString("en-US", {

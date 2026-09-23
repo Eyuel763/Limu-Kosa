@@ -1,6 +1,7 @@
 "use client";
 
-import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon, Search, X } from "lucide-react";
 
 interface ResourceItem {
   key: string;
@@ -47,6 +48,29 @@ export default function ResourceList({
   loadItems,
   isBusy,
 }: ResourceListProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return items;
+    const q = searchQuery.toLowerCase();
+    return items.filter((item) => {
+      const text = [
+        item.title,
+        item.name,
+        item.slug,
+        item.category,
+        item.description,
+        item.excerpt,
+        item.subject,
+        item.email,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return text.includes(q);
+    });
+  }, [items, searchQuery]);
+
   return (
     <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col min-h-[550px] w-full min-w-0 overflow-hidden">
       <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
@@ -61,6 +85,9 @@ export default function ResourceList({
             </h2>
             <p className="text-[10px] text-[#7A8B9E] font-mono lowercase truncate">/{active}</p>
           </div>
+          <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
+            {filteredItems.length}
+          </span>
         </div>
         <button
           onClick={() => loadItems()}
@@ -71,8 +98,29 @@ export default function ResourceList({
         </button>
       </div>
 
+      {/* SEARCH INPUT BAR */}
+      <div className="px-4 py-2.5 bg-white border-b border-[#E8E1D4] flex items-center gap-2">
+        <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={`Search ${activeResource.label.toLowerCase()}...`}
+          className="w-full text-xs outline-none bg-transparent placeholder:text-gray-400 font-medium"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition"
+            title="Clear search"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const labelText = item.title ?? item.name ?? item.slug ?? item.id ?? "Untitled Entry";
           const isCurrentSelected = selectedId === item.id;
           const itemTimeDisplay = item.publishedAt || item.createdAt || null;
