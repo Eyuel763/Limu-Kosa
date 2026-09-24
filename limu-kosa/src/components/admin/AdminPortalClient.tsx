@@ -216,6 +216,15 @@ export default function AdminPortalClient() {
       delete payloadData.createdAt;
       delete payloadData.updatedAt;
 
+      // Auto-generate slug from title or name if the resource has a slug field
+      const baseVal = (payloadData.title || payloadData.name || "") as string;
+      if (baseVal && active !== "leaders" && active !== "gallery" && active !== "downloads" && active !== "messages") {
+        payloadData.slug = baseVal
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+      }
+
       const response = await fetch(url, {
         method: selectedId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

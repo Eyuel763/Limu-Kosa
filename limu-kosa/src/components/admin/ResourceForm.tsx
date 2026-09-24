@@ -65,36 +65,6 @@ export default function ResourceForm({
     </div>
   );
 
-  const slugInput = (key = "slug", label = "URL Slug") => (
-    <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
-      <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
-      <div className="flex gap-2 w-full">
-        <input
-          type="text"
-          value={formState[key] ?? ""}
-          onChange={(e) => handleChange(key, e.target.value)}
-          placeholder="e.g., sample-item-slug"
-          className="flex-1 min-w-0 rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-        />
-        <button
-          type="button"
-          onClick={() => {
-            const baseVal = formState.title || formState.name || "";
-            const generated = baseVal
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/(^-|-$)/g, "");
-            handleChange(key, generated);
-          }}
-          className="rounded-lg border border-[#D7DED5] bg-gray-50 px-4 py-2 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition active:scale-95 shrink-0"
-          title="Auto-generate slug from Title/Name"
-        >
-          Auto
-        </button>
-      </div>
-    </div>
-  );
-
   const textareaInput = (key: string, label: string, rows = 3, placeholder = "") => (
     <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
       <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
@@ -641,7 +611,6 @@ export default function ResourceForm({
   } else if (active === "news") {
     fields.push(
       textInput("title", "News Title", "e.g., Coffee harvest expands"),
-      slugInput(),
       textInput("category", "Category", "e.g., Agriculture"),
       textareaInput("excerpt", "Short Excerpt Summary", 2, "Summary of the article..."),
       textareaInput("body", "Article Body Content", 8, "Full article body content..."),
@@ -663,7 +632,6 @@ export default function ResourceForm({
   } else if (active === "announcements") {
     fields.push(
       textInput("title", "Announcement Title", "e.g., Town hall notice"),
-      slugInput(),
       textInput("category", "Category / Type", "e.g., Community meeting, Office notice"),
       textareaInput("body", "Content Description", 5),
       (
@@ -683,7 +651,6 @@ export default function ResourceForm({
   } else if (active === "departments") {
     fields.push(
       textInput("name", "Department Name", "e.g., Woreda Agriculture Office"),
-      slugInput(),
       textInput("shortName", "Short Display Name", "e.g., Agriculture"),
       textareaInput("description", "Office Description", 4),
       textInput("contact", "Contact Email", "e.g., agriculture@limukosa.gov.et"),
@@ -705,7 +672,6 @@ export default function ResourceForm({
   } else if (active === "projects") {
     fields.push(
       textInput("title", "Project Name"),
-      slugInput(),
       textInput("location", "Project Location", "e.g., Selected rural kebeles"),
       textareaInput("body", "Project Description (Body)", 5),
       fileUrlInput("imageUrl", "Project Feature Image"),
@@ -742,7 +708,6 @@ export default function ResourceForm({
   } else if (active === "investment" || active === "tourism" || active === "settings") {
     fields.push(
       textInput("title", "Title"),
-      slugInput(),
       textInput("category", "Category"),
       textareaInput("body", "Content Description", 6),
       (
