@@ -1,5 +1,6 @@
 import { Camera } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 
 // Define the interface to ensure type safety during the build process
@@ -52,10 +53,10 @@ export default async function GalleryPage() {
                   <div className="p-5">
                     {img.category && (
                       <span className="inline-block rounded bg-[#E8F0EA] px-2.5 py-0.5 text-xs font-bold text-[#1E5631]">
-                        {img.category}
+                        <DynamicText item={img} field="category" fallback={img.category} />
                       </span>
                     )}
-                    <h2 className="mt-2 text-base font-black text-[#2C2C2C] leading-snug">{img.title}</h2>
+                    <DynamicText item={img} field="title" fallback={img.title} className="mt-2 text-base font-black text-[#2C2C2C] leading-snug" as="h2" />
                   </div>
                 </article>
               );

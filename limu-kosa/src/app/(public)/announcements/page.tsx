@@ -1,5 +1,6 @@
 import { Megaphone } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { announcements as fallbackAnnouncements } from "@/lib/publicContent";
 
@@ -31,9 +32,9 @@ export default async function AnnouncementsPage() {
             return (
               <article key={notice.title} className="rounded-lg border-t-4 border-[#D4A017] bg-white p-6 shadow-sm">
                 <div className="text-[11px] font-bold uppercase tracking-wide text-[#6F4E37]">{typeDisplay}</div>
-                <h2 className="mt-3 text-xl font-black leading-tight text-[#2C2C2C]">{notice.title}</h2>
+                <DynamicText item={notice} field="title" fallback={notice.title} className="mt-3 text-xl font-black leading-tight text-[#2C2C2C]" as="h2" />
                 <p className="mt-2 text-xs font-bold uppercase tracking-wide text-[#6B7280]">{dateDisplay}</p>
-                <p className="mt-4 text-sm leading-7 text-[#6B7280]">{notice.body}</p>
+                <DynamicText item={notice} field="body" fallback={notice.body} className="mt-4 text-sm leading-7 text-[#6B7280]" as="p" />
               </article>
             );
           })}

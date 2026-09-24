@@ -45,7 +45,7 @@ const getFullImageUrl = (url: string) => {
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef<number | null>(null);
-  const { t } = useLanguage();
+  const { t, tDynamic } = useLanguage();
 
   const [slider, setSlider] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
@@ -207,13 +207,13 @@ export default function Home() {
                   <div className="max-w-3xl">
                     <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.22em] text-[#F4D06F]">
                       <Landmark className="h-4 w-4" />
-                      {slide.tagline}
+                      {tDynamic(slide, "tagline") || slide.tagline}
                     </div>
                     <h1 className="mt-6 text-5xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl">
-                      {slide.title}
+                      {tDynamic(slide, "title") || slide.title}
                     </h1>
                     <p className="mt-6 max-w-2xl text-lg leading-8 text-white/90 sm:text-xl">
-                      {slide.description}
+                      {tDynamic(slide, "description") || slide.description}
                     </p>
                     <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                       <Link
@@ -329,9 +329,9 @@ export default function Home() {
             <div className="space-y-6">
               {news.slice(0, 3).map((item) => (
                 <article key={item.title} className="border-b border-[#E8E1D4] pb-5 last:border-b-0">
-                  <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">{item?.category || "News"}</div>
-                  <h3 className="mt-2 text-xl font-black text-[#2C2C2C]">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-[#50627A]">{item?.excerpt || item?.description || ""}</p>
+                  <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">{tDynamic(item, "category") || item?.category || "News"}</div>
+                  <h3 className="mt-2 text-xl font-black text-[#2C2C2C]">{tDynamic(item, "title") || item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-[#50627A]">{tDynamic(item, "excerpt") || item?.excerpt || item?.description || ""}</p>
                 </article>
               ))}
             </div>

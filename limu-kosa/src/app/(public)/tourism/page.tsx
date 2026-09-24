@@ -1,5 +1,6 @@
 import { Mountain } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { tourismSites as fallbackTourism } from "@/lib/publicContent";
 
@@ -22,8 +23,8 @@ export default async function TourismPage() {
           <div className="divide-y divide-[#E8E1D4] border-y border-[#E8E1D4]">
             {tourismSites.map((site) => (
               <div key={site.title} className="py-6">
-                <h2 className="text-2xl font-black text-[#2C2C2C]">{site.title}</h2>
-                <p className="mt-3 text-base leading-8 text-[#50627A]">{site.body}</p>
+                <DynamicText item={site} field="title" fallback={site.title} className="text-2xl font-black text-[#2C2C2C]" as="h2" />
+                <DynamicText item={site} field="body" fallback={site.body} className="mt-3 text-base leading-8 text-[#50627A]" as="p" />
               </div>
             ))}
           </div>

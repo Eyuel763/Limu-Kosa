@@ -7,12 +7,14 @@ interface LanguageContextValue {
   language: LangCode;
   setLanguage: (lang: LangCode) => void;
   t: (key: TranslationKey) => string;
+  tDynamic: (item: any, field: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
   language: 'en',
   setLanguage: () => {},
   t: (key) => translations[key]?.en ?? key,
+  tDynamic: (item, field) => item?.[field] ?? '',
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -41,8 +43,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return translations[key]?.[language] ?? translations[key]?.en ?? key;
   }, [language]);
 
+  const tDynamic = useCallback((item: any, field: string): string => {
+    if (!item) return '';
+    if (language !== 'en' && item?.translations && item?.translations[language] && item?.translations[language][field]) {
+      return item.translations[language][field];
+    }
+    return item[field] ?? '';
+  }, [language]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, tDynamic }}>
       {children}
     </LanguageContext.Provider>
   );

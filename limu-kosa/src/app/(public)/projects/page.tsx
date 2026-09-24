@@ -1,6 +1,7 @@
 import { Building2, MapPin, Waves, Coffee, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { projects as fallbackProjects } from "@/lib/publicContent";
 
@@ -82,13 +83,9 @@ export default async function ProjectsPage() {
                         </div>
                       </div>
                       
-                      <h2 className="mt-3 text-xl lg:text-2xl font-black text-[#2C2C2C] leading-snug tracking-tight group-hover:text-[#1E5631] transition-colors break-words">
-                        {project.title}
-                      </h2>
+                      <DynamicText item={project} field="title" fallback={project.title} className="mt-3 text-xl lg:text-2xl font-black text-[#2C2C2C] leading-snug tracking-tight group-hover:text-[#1E5631] transition-colors break-words" as="h2" />
                       
-                      <p className="mt-3 text-sm leading-relaxed text-[#50627A] line-clamp-3 break-words">
-                        {description}
-                      </p>
+                      <DynamicText item={project} field="excerpt" fallback={description} className="mt-3 text-sm leading-relaxed text-[#50627A] line-clamp-3 break-words" as="p" />
                     </div>
 
                     <div className="mt-6 flex items-center gap-1 text-sm font-black text-[#D4A017] group-hover:text-[#B88714] transition-colors">

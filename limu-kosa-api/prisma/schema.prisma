@@ -44,6 +44,7 @@ model ContentItem {
   imageUrl    String?
   publishedAt DateTime?
   metadata    Json?
+  translations Json?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -61,6 +62,7 @@ model Department {
   contact          String?
   imageUrl         String?
   published        Boolean  @default(true)
+  translations     Json?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -75,30 +77,33 @@ model Leader {
   photoUrl         String?
   sortOrder        Int      @default(0)
   published        Boolean  @default(true)
+  translations     Json?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
 
 model GalleryImage {
-  id        String   @id @default(cuid())
-  title     String
-  category  String
-  imageUrl  String
-  altText   String?
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  title        String
+  category     String
+  imageUrl     String
+  altText      String?
+  published    Boolean  @default(true)
+  translations Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Download {
-  id          String   @id @default(cuid())
-  title       String
-  category    String
-  fileUrl     String
-  description String?
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  title        String
+  category     String
+  fileUrl      String
+  description  String?
+  published    Boolean  @default(true)
+  translations Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Upload {

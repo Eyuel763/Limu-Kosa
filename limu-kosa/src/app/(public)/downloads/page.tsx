@@ -1,5 +1,6 @@
 import { Download, FileText, BookOpen, Coins, MapPin, Scale } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { downloads as fallbackDownloads } from "@/lib/publicContent";
 
@@ -56,8 +57,8 @@ export default async function DownloadsPage() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-black text-[#2C2C2C]">{item.title}</h2>
-                    <p className="text-xs text-[#6B7280]">{categoryDisplay}</p>
+                    <DynamicText item={item} field="title" fallback={item.title} className="text-sm font-black text-[#2C2C2C]" as="h2" />
+                    <DynamicText item={item} field="category" fallback={categoryDisplay} className="text-xs text-[#6B7280]" as="p" />
                     {item.description && <p className="mt-1 text-xs text-[#50627A]">{item.description}</p>}
                   </div>
                 </div>

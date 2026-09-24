@@ -3,6 +3,7 @@ import { ArrowRight, Building2, Landmark, Sprout, HeartPulse, GraduationCap, Coi
 import { getPublicResource } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
 import PageHero from "@/components/common/PageHero";
+import DynamicText from "@/components/common/DynamicText";
 
 // Define the interface to satisfy TypeScript's strict type checking
 interface Department {
@@ -79,8 +80,8 @@ export default async function Departments() {
               >
                 <Icon className="h-7 w-7 text-[#1E5631]" />
                 <div>
-                  <h3 className="text-lg font-black text-[#2C2C2C]">{department.name}</h3>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#50627A]">{department.description}</p>
+                  <DynamicText item={department} field="name" fallback={department.name} className="text-lg font-black text-[#2C2C2C]" as="h3" />
+                  <DynamicText item={department} field="description" fallback={department.description} className="mt-2 max-w-3xl text-sm leading-6 text-[#50627A]" as="p" />
                 </div>
                 <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#6F4E37]">
                   View office

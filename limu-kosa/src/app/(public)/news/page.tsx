@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import PageHero from "@/components/common/PageHero";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface NewsItem {
   id?: string;
@@ -16,9 +17,11 @@ interface NewsItem {
   imageUrl?: string;
   publishedAt?: string | Date;
   date?: string;
+  translations?: any;
 }
 
 export default function NewsPage() {
+  const { tDynamic } = useLanguage();
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -124,7 +127,7 @@ export default function NewsPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black uppercase tracking-wider text-[#6F4E37]">
-                            {item.category ?? "General"}
+                            {tDynamic(item, "category") || "General"}
                           </span>
                           <span className="text-xs text-[#A0AEC0]">•</span>
                           <span className="text-xs font-medium text-[#7A8B9E] flex items-center gap-1">
@@ -134,11 +137,11 @@ export default function NewsPage() {
                         </div>
                         
                         <h2 className="mt-2.5 text-xl lg:text-2xl font-black text-[#2C2C2C] leading-snug tracking-tight group-hover:text-[#1E5631] transition-colors break-words">
-                          {item.title}
+                          {tDynamic(item, "title")}
                         </h2>
                         
                         <p className="mt-3 text-sm leading-relaxed text-[#50627A] line-clamp-3 break-words">
-                          {item.excerpt}
+                          {tDynamic(item, "excerpt")}
                         </p>
                       </div>
 
