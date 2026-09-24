@@ -1,14 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Mountain } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { tourismSites as fallbackTourism } from "@/lib/publicContent";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const tourismImage =
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
 
-export default async function TourismPage() {
-  const tourismSites = await getPublicResource("tourism", fallbackTourism);
+export default function TourismPage() {
+  const { t, tDynamic } = useLanguage();
+  const [tourismSites, setTourismSites] = useState<any[]>(fallbackTourism);
+
+  useEffect(() => {
+    async function loadTourism() {
+      const res = await getPublicResource("tourism", fallbackTourism);
+      if (res) setTourismSites(res);
+    }
+    loadTourism();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">

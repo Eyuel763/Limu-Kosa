@@ -1,6 +1,9 @@
+"use client";
+
 import { Compass, Leaf, Sprout, Users2 } from "lucide-react";
 import { economyHighlights, values } from "@/lib/publicContent";
 import PageHero from "@/components/common/PageHero";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const landscapeImage =
   "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1200&q=80";
@@ -21,6 +24,8 @@ const timeline = [
 ];
 
 export default function About() {
+  const { t, tDynamic } = useLanguage();
+
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
       <PageHero
@@ -35,18 +40,24 @@ export default function About() {
           <div className="space-y-8">
             <div>
               <p className="text-xl leading-9 text-[#50627A]">
-                Limu Kosa is one of the woredas in Jimma Zone of Oromia Region, Ethiopia. Its identity is tied to the historic Limmu-Ennarea kingdom, highland and midland farming systems, protected montane forests, and coffee-centered livelihoods.
+                {tDynamic(
+                  "Limu Kosa is one of the woredas in Jimma Zone of Oromia Region, Ethiopia. Its identity is tied to the historic Limmu-Ennarea kingdom, highland and midland farming systems, protected montane forests, and coffee-centered livelihoods.",
+                  ""
+                )}
               </p>
               <p className="mt-5 text-lg leading-8 text-[#50627A]">
-                The woreda includes river basins, valleys, hills, forest areas, rural kebeles, and urban centers. Coffee, mixed farming, livestock, forest resources, and community institutions remain central to local development.
+                {tDynamic(
+                  "The woreda includes river basins, valleys, hills, forest areas, rural kebeles, and urban centers. Coffee, mixed farming, livestock, forest resources, and community institutions remain central to local development.",
+                  ""
+                )}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-5 border-y border-[#E8E1D4] py-6 sm:grid-cols-3">
               {profile.map(([label, value]) => (
                 <div key={label}>
-                  <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">{label}</div>
-                  <div className="mt-1 font-black text-[#2C2C2C]">{value}</div>
+                  <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">{tDynamic(label, "")}</div>
+                  <div className="mt-1 font-black text-[#2C2C2C]">{tDynamic(value, "")}</div>
                 </div>
               ))}
             </div>
@@ -59,16 +70,16 @@ export default function About() {
 
         <section className="grid grid-cols-1 gap-10 py-14 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <h2 className="text-3xl font-black text-[#1E5631]">History and identity</h2>
+            <h2 className="text-3xl font-black text-[#1E5631]">{tDynamic("History and identity", "")}</h2>
             <p className="mt-3 text-sm leading-7 text-[#50627A]">
-              The name and administration reflect both historical kingdom roots and local geographic identity.
+              {tDynamic("The name and administration reflect both historical kingdom roots and local geographic identity.", "")}
             </p>
           </div>
           <div className="space-y-6 border-l-2 border-[#D4A017] pl-6">
             {timeline.map(([period, body]) => (
               <div key={period}>
-                <div className="text-sm font-black text-[#6F4E37]">{period}</div>
-                <p className="mt-1 text-base leading-7 text-[#50627A]">{body}</p>
+                <div className="text-sm font-black text-[#6F4E37]">{tDynamic(period, "")}</div>
+                <p className="mt-1 text-base leading-7 text-[#50627A]">{tDynamic(body, "")}</p>
               </div>
             ))}
           </div>
@@ -78,10 +89,10 @@ export default function About() {
           <div>
             <h2 className="flex items-center gap-2 text-3xl font-black text-[#1E5631]">
               <Leaf className="h-7 w-7 text-[#6F4E37]" />
-              Climate and landscape
+              {tDynamic("Climate and landscape", "")}
             </h2>
             <p className="mt-4 text-base leading-8 text-[#50627A]">
-              Limu Kosa includes dega, woina dega, and kola agro-ecological zones. Seasonal rainfall, varied elevation, and forest systems support coffee, cereals, livestock, fruits, sugar cane, honey, and natural resource livelihoods.
+              {tDynamic("Limu Kosa includes dega, woina dega, and kola agro-ecological zones. Seasonal rainfall, varied elevation, and forest systems support coffee, cereals, livestock, fruits, sugar cane, honey, and natural resource livelihoods.", "")}
             </p>
           </div>
           <div className="grid grid-cols-3 gap-6">
@@ -92,7 +103,7 @@ export default function About() {
             ].map(([value, label]) => (
               <div key={label} className="border-l-2 border-[#D4A017] pl-4">
                 <div className="text-3xl font-black text-[#1E5631]">{value}</div>
-                <div className="mt-1 text-sm font-bold text-[#50627A]">{label}</div>
+                <div className="mt-1 text-sm font-bold text-[#50627A]">{tDynamic(label, "")}</div>
               </div>
             ))}
           </div>
@@ -102,14 +113,14 @@ export default function About() {
           <div>
             <h2 className="flex items-center gap-2 text-3xl font-black text-[#1E5631]">
               <Sprout className="h-7 w-7 text-[#6F4E37]" />
-              Economy
+              {tDynamic("Economy", "")}
             </h2>
           </div>
           <div className="space-y-6">
             {economyHighlights.map((item) => (
               <div key={item.title} className="border-b border-[#E8E1D4] pb-5 last:border-b-0">
-                <h3 className="text-xl font-black text-[#2C2C2C]">{item.title}</h3>
-                <p className="mt-2 text-base leading-7 text-[#50627A]">{item.body}</p>
+                <h3 className="text-xl font-black text-[#2C2C2C]">{tDynamic(item, "title")}</h3>
+                <p className="mt-2 text-base leading-7 text-[#50627A]">{tDynamic(item, "body")}</p>
               </div>
             ))}
           </div>
@@ -119,21 +130,21 @@ export default function About() {
           <div>
             <h2 className="flex items-center gap-2 text-3xl font-black text-[#1E5631]">
               <Users2 className="h-7 w-7 text-[#6F4E37]" />
-              People and society
+              {tDynamic("People and society", "")}
             </h2>
             <p className="mt-4 text-base leading-8 text-[#50627A]">
-              Oromo is the largest community and Afaan Oromoo is the leading local language. The woreda is also home to Amhara, Kullo, Kafficho, Tigrayan, and other communities, with Muslim and Christian residents contributing to local society.
+              {tDynamic("Oromo is the largest community and Afaan Oromoo is the leading local language. The woreda is also home to Amhara, Kullo, Kafficho, Tigrayan, and other communities, with Muslim and Christian residents contributing to local society.", "")}
             </p>
           </div>
           <div>
-            <h2 className="text-3xl font-black text-[#1E5631]">Vision and values</h2>
+            <h2 className="text-3xl font-black text-[#1E5631]">{tDynamic("Vision and values", "")}</h2>
             <p className="mt-4 text-base leading-8 text-[#50627A]">
-              The public portal supports transparent, inclusive, and development-focused administration.
+              {tDynamic("The public portal supports transparent, inclusive, and development-focused administration.", "")}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {values.map((value) => (
                 <span key={value} className="rounded-full border border-[#D4A017]/50 px-3 py-1 text-xs font-bold text-[#6F4E37]">
-                  {value}
+                  {tDynamic(value, "")}
                 </span>
               ))}
             </div>

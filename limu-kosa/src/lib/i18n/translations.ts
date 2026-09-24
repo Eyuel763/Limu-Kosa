@@ -150,6 +150,17 @@ export const translations = {
   'footer.rights':       { en: 'All rights reserved.',  am: 'ሁሉም መብቶች የተጠበቁ ናቸው።', om: 'Mirgoota hundi eegamaniiru.' },
   'footer.portal':       { en: 'Government Portal',     am: 'የመንግስት ፖርታል',          om: 'Kutaa Argannoo Mootummaa' },
 
+  // ── Home Page Notices & Stats ───────────────────────────
+  'home.notices.title':          { en: 'Notices and featured work', am: 'ማስታወቂያዎች እና ልዩ ስራዎች', om: 'Beeksisaalee fi Hojiiwwan Ijoo' },
+  'home.notices.subtitle':       { en: 'Public notices, development highlights, and tourism information are loaded dynamically from the woreda database.', am: 'የህዝብ ማስታወቂያዎች፣ የልማት ጎላ ያሉ ቦታዎች እና የቱሪዝም መረጃዎች ከወረዳው ዳታቤዝ በድይናሚክ ይጫናሉ።', om: 'Beeksisaaleen ummataa, mul\'isawwan guddinaa fi odeeffannoon turizimii kuusaa ragaa aanaa irraa ni fe\'amu.' },
+
+  // ── Departments Directory ────────────────────────────────
+  'departments.directoryDesc':   { en: 'Each office page includes a public overview, responsibilities, major programs, and contact placeholders. Later, these pages can be managed from the NestJS administration portal.', am: 'እያንዳንዱ ቢሮ ገጽ የህዝብ አጠቃላይ እይታ፣ ሃላፊነቶች፣ ዋና ፕሮግራሞች እና የግንኙነት መረጃዎችን ያካትታል።', om: 'Fuulli waajjira kantaa gabaasa ummataa, itti-gaafatamummaa, sagantaalee ijoo fi quunnamsa qaba.' },
+  'departments.listedOffices':    { en: 'LISTED OFFICES',                      am: 'ዝርዝር ቢሮዎች',                 om: 'Waajjiraalee Galmaa\'an' },
+
+  // ── Footer Location ──────────────────────────────────────
+  'footer.location':             { en: 'Jimma Zone, Oromia, Ethiopia',        am: 'ጅማ ዞን፣ ኦሮሚያ፣ ኢትዮጵያ',         om: 'Godina Jimmaa, Oromiyaa, Itoophiyaa' },
+
   // ── Admin Panel ──────────────────────────────────────────
   'admin.title':         { en: 'Administration Panel',  am: 'አስተዳደር ፓነል',   om: 'Paanelii Bulchiinsaa' },
   'admin.signin':        { en: 'Sign In to Admin Panel', am: 'ወደ አስተዳደር ፓነል ይግቡ', om: 'Paanelii Bulchiinsiitti seeni' },
@@ -179,20 +190,39 @@ export const dynamicFallbackMap: Record<string, { am: string; om: string }> = {
   "Nature, Culture, and Development": { am: "ተፈጥሮ፣ ባህል እና ልማት", om: "Uumamaa, Aadaa fi Guddinaa" },
   "Nature and Community Care": { am: "ተፈጥሮ እና የህብረተሰብ እንክብካቤ", om: "Uumamaa fi Kunuunsa Hawaasaa" },
 
+  // Home Stats
+  "Projected Population": { am: "የተገመተው ህዝብ", om: "Ummatni Tilmaamame" },
+  "2022 projection": { am: "2022 ግምት", om: "Tilmaama 2022" },
+  "Surface Area": { am: "የወለል ስፋት", om: "Bal'ina Lafa" },
+  "current woreda boundary": { am: "የአሁኑ የወረዳ ወሰን", om: "Daangaa Aanaa Ammee" },
+  "Rural Kebeles": { am: "የገጠር ቀበሌዎች", om: "Ganda Baadiyyaa" },
+  "plus 4 urban kebeles": { am: "ሲደመር 4 የከተማ ቀበሌዎች", om: "ida'amudhaan ganda magaalaa 4" },
+  "Forest Cover": { am: "የደን ሸፈን", om: "Uffisa Bosonaa" },
+  "including protected areas": { am: "የተጠበቁ ቦታዎችን ጨምሮ", om: "Bakkeewwan eegaman dabalatee" },
+
   // News Titles & Excerpts
   "Tourism profile highlights Bolo Caves and Lake Cheleleki": { am: "የቱሪዝም መገለጫ ቦሎ ዋሻዎችን እና ቼለለኪ ሀይቅን ያጎላል", om: "Seenaa turizimii Holqa Bolo fi Baala Cheleleki mul'isa" },
   "Culture and tourism teams are preparing destination information to promote responsible local tourism and heritage awareness.": { am: "የባህልና ቱሪዝም ቡድኖች ሀላፊነት ያለው የሀገር ውስጥ ቱሪዝምና የቅርስ ግንዛቤን ለማሳደግ የመዳረሻ መረጃ እያዘጋጁ ነው።", om: "Gareewwan aadaa fi turizimii beeksisa turizimii naannoo fi hubannoo dhaalaa guddisuuf odeeffannoo iddoo qopheessaa jiru." },
   "Woreda offices prepare updated public document registry": { am: "የወረዳ ቢሮዎች የተሻሻለ የህዝብ ሰነዶች መመዝገቢያ ያዘጋጃሉ", om: "Waajjiraaleen aanaa galmee sanadoota ummataa haaromfame qopheessu" },
+  "Sector offices are organizing annual plans, brochures, and reports for easier public access through the downloads section.": { am: "የዘርፍ ቢሮዎች በማውረጃዎች ክፍል በኩል ለህዝብ በቀላሉ ተዳራሽ እንዲሆኑ ዓመታዊ እቅዶችን፣ ብሮሹሮችን እና ሪፖርቶችን እያደራጁ ነው።", om: "Waajjiraaleen damee karoora waggaa, birooshura fi gabaasa seensa ummataaf akka salphatuus kuusaa buusii keessatti qopheessaa jiru." },
   "Limu Kosa Woreda launches watershed conservation campaign": { am: "ሊሙ ኮሳ ወረዳ የተፋሰስ ጥበቃ ዘመቻ ጀምሯል", om: "Aanaan Limu Kossaa duula kunuunsa lolaa jalqabe" },
   "Public document registry update": { am: "የህዝብ ሰነዶች መመዝገቢያ ማሻሻያ", om: "Haaromsa galmee sanadoota ummataa" },
 
-  // Categories
+  // Categories & Badges
   "Tourism": { am: "ቱሪዝም", om: "Turizimii" },
   "Administration": { am: "አስተዳደር", om: "Bulchiinsa" },
   "Agriculture": { am: "ግብርና", om: "Qonnaa" },
   "General": { am: "አጠቃላይ", om: "Waliigala" },
   "Notice": { am: "ማስታወቂያ", om: "Beeksisa" },
+  "ANNOUNCEMENT": { am: "ማስታወቂያ", om: "BEEKSIISA" },
+  "PUBLISHED": { am: "የታተመ", om: "MAXXANFAME" },
   "Community Notice": { am: "የማህበረሰብ ማስታወቂያ", om: "Beeksisa Hawaasaa" },
+
+  // Notices on Home Page (Screenshot 2)
+  "Investment information desk open": { am: "የኢንቨስትመንት መረጃ ዴስክ ክፍት ነው", om: "Banninsa Teessoo Odeeffannoo Maallaqaa" },
+  "The Trade and Industry Office has established a dedicated focal desk to guide potential investors through licensing, land verification, and local agricultural cooperative partnerships. Inquiries regarding coffee processing, eco-tourism, and agro-processing investments are highly welcome during standard working hours.": { am: "የንግድና ኢንዱስትሪ ጽሕፈት ቤት ሊሆኑ የሚችሉ ኢንቨስተሮችን በፈቃድ አሰጣጥ፣ በቦታ ማረጋገጫ እና በሀገር ውስጥ የግብርና ህብረት ስራ ማህበራት አጋርነት ለመምራት የተለየ መረጃ ዴስክ አቋቁሟል። የቡና ማቀናበር፣ የስነ-ምህዳር ቱሪዝም እና የግብርና-ሂደት ኢንቨስትመንት ጥያቄዎች በመደበኛ የስራ ሰዓታት እንኳን ደህና መጡ።", om: "Waajjirri Daldalaa fi Industrii teessoo odeeffannoo maallaqaa maallaqa qusatan hayyama, mirkaneessaa lafaa fi leenjii waldaalee qonnaa naannootiin qajeelchuuf hundeesseera. Gaaffiin maallaqa bunaa, eco-turizimii fi oomisha qonnaa hojii sa'aatii idileetti simatamaa." },
+  "Coffee Culture": { am: "የቡና ባህል", om: "Aadaa Bunaa" },
+  "Visiting Limu Kosa is an immersion into coffee culture. Visitors can witness traditional coffee ceremonies, tour cooperative farms, learn about ancient shade-growing methods passed down generations, and taste fresh, single-origin coffee directly from the source.": { am: "ሊሙ ኮሳን መጎብኘት በቡና ባህል ውስጥ መጥለቅ ነው። ጎብኚዎች ባህላዊ የቡና ስነ-ስርዓቶችን መመልከት፣ የህብረት ስራ እርሻዎችን መጎብኘት፣ በትውልድ የተላለፉ ጥንታዊ ጥላ-አበቃቀል ዘዴዎችን መማር እና ትኩስ የቡና ጣዕምን በቀጥታ ከመንጩ መቅመስ ይችላሉ።", om: "Limu Kossaa daawwachuun aadaa bunaa keessa loluudha. Daawwattoonni ayyaana bunaa aadaa ilaaluu, qonnaa waldaalee daawwachuu, mala buna bosonaa dhaloota irraa dhalootatti darbe barachuu fi buna qulqulluu madda irraa dhandhamuu danda'u." },
 
   // Departments
   "Agriculture & Natural Resources Office": { am: "የግብርና እና ተፈጥሮ ሀብት ጽሕፈት ቤት", om: "Waajjira Qonnaa fi Qabeenya Uumamaa" },
@@ -200,21 +230,54 @@ export const dynamicFallbackMap: Record<string, { am: string; om: string }> = {
   "Woreda Health Office": { am: "የወረዳ ጤና ጽሕፈት ቤት", om: "Waajjira Fayyaa Aanaa" },
   "Coordinates public health services, disease prevention, sanitation, maternal care, and community health education.": { am: "የህዝብ ጤና አገልግሎቶችን፣ የበሽታ መከላከያን፣ ጽዳትን፣ የነፍሰ ጡራት እንክብካቤን እና የማህበረሰብ ጤና ትምህርትን ያነጻጽራል።", om: "Tajaajilawwan Fayyaa Ummataa, Ittisa Dhukkubaa, Qulqullina, Kunuunsa Haadholii fi Barnoota Fayyaa Hawaasaa Koordineessaa." },
   "Education Office": { am: "የትምህርት ጽሕፈት ቤት", om: "Waajjira Barnootaa" },
+  "Administers public education planning, school support, teacher coordination, and learning improvement programs.": { am: "የህዝብ ትምህርት እቅድን፣ የትምህርት ቤት ድጋፍን፣ የኦዲተሮች ማስተባበርን እና የትምህርት ማሻሻያ ፕሮግራሞችን ያስተዳድራል።", om: "Karoora barnoota ummataa, deeggarsa mana barumsaa, koordineeshinii barsiisotaa fi sagantaalee fooyya'iinsa barnootaa bulchaa." },
   "Finance & Economic Development Office": { am: "የፋይናንስ እና ኢኮኖሚ ልማት ጽሕፈት ቤት", om: "Waajjira Maallaqaa fi Guddina Dinagdee" },
+  "Handles local budget coordination, revenue planning, procurement support, and development finance reporting.": { am: "የሀገር ውስጥ በጀት ማስተባበርን፣ የገቢ እቅድን፣ የግዥ ድጋፍን እና የልማት ፋይናንስ ሪፖርትን ያስተናግዳል።", om: "Koordineeshinii bajata naannoo, karoora galii, deeggarsa bittaadhaa fi gabaasa maallaqa guddinaa raawwata." },
+
+  // Leadership (Screenshot 5)
+  "Woreda Chief Administrator": { am: "የወረዳው ዋና አስተዳዳሪ", om: "Hoogganaa Ol'aanaa Aanaa" },
+  "Head of Woreda Administration": { am: "የወረዳ አስተዳደር ኃላፊ", om: "Hoogganaa Bulchiinsa Aanaa" },
+  "Leads overall public administration, inter-office coordination, and woreda development priorities.": { am: "አጠቃላይ የህዝብ አስተዳደርን፣ የቢሮዎችን ማስተባበር እና የወረዳ ልማት ቅድሚያ የሚሰጣቸውን ጉዳዮች ይመራል፤ በግብርና ማዘመን እና በផ្លូវ ግንኙነት ላይ ትኩረት ያደርጋል።", om: "Bulchiinsa ummataa waliigalaa, koordineeshinii waajjiraalee fi dursa guddina aanaa Limu Kossaa keessatti hooggana." },
+  "Strategic leadership": { am: "ስትራቴጂካዊ አመራር", om: "Hooggansa Istiraateejikii" },
+  "Public accountability": { am: "የህዝብ ተጠያቂነት", om: "Itti-Gaafatamummaa Ummataa" },
+  "Development coordination": { am: "የልማት ማስተባበር", om: "Koordineeshinii Guddinaa" },
+
+  "Deputy Administrator": { am: "ምክትል አስተዳዳሪ", om: "Itti-Aanaa Hoogganaa" },
+  "Deputy Woreda Administrator": { am: "ምክትል የወረዳ አስተዳዳሪ", om: "Itti-Aanaa Bulchiinsa Aanaa" },
+  "Deputy Head of Administration": { am: "ምክትል የአስተዳደር ኃላፊ", om: "Itti-Aanaa Hoogganaa Bulchiinsaa" },
+  "Supports daily government coordination and follows sector implementation across departments.": { am: "የዕለት ተዕለት የመንግስት ማስተባበርን ይደግፋል እና በመምሪያዎች ውስጥ የዘርፍ ትግበራን ይከታተላል።", om: "Koordineeshinii mootummaa guyyaa guyyaa deeggara fi raawwii damee waajjiraalee keessatti hordofa." },
+  "Sector follow-up": { am: "የዘርፍ ክትትል", om: "Hordoffii Damee" },
+  "Office coordination": { am: "የቢሮ ማስተባበር", om: "Koordineeshinii Waajjiraa" },
+  "Community response": { am: "የማህበረሰብ ምላሽ", om: "Deebii Hawaasaa" },
+
+  "Administration Council Secretary": { am: "የአስተዳደር ምክር ቤት ጸሐፊ", om: "Barreessaa Caffee Bulchiinsaa" },
+  "Council and Records Coordination": { am: "የምክር ቤት እና ሰነዶች ማስተባበር", om: "Koordineeshinii Caffee fi Galmee" },
+  "Supports official meeting records, public notices, and administrative communication workflows.": { am: "ይፋዊ የስብሰባ ሰነዶችን፣ የህዝብ ማስታወቂያዎችን እና የአስተዳደር ግንኙነት የስራ ሂደቶችን ይደግፋል።", om: "Galmee walga'ii mootummaa, beeksisa ummataa fi hojii komunikeeshinii bulchiinsaa deeggara." },
+  "Council records": { am: "የምክር ቤት ሰነዶች", om: "Galmee Caffee" },
+  "Notice coordination": { am: "የማስታወቂያ ማስተባበር", om: "Koordineeshinii Beeksisaa" },
+  "Document routing": { am: "የሰነድ ስርጭት", om: "Raabsa Sanadaa" },
 
   // Projects
   "Rural Water Access Extension": { am: "የገጠር የንጹህ ውኃ አቅርቦት ማስፋፊያ", om: "Dheerissaa Dhiyeessii Bishaan Baadiyyaa" },
   "Forest Coffee Conservation Support": { am: "የደና ቡና ጥበቃ ድጋፍ", om: "Deeggarsa Kunuunsa Buna Bosonaa" },
   "Public Document Digitization": { am: "የህዝብ ሰነዶችን ዲጂታላይዝ ማድረግ", om: "Dijitaalaayizeeshinii Sanadoota Ummataa" },
+  "An administrative modernization project to scan, clean, and categorize historic and current woreda policies, public statistics, and official service request forms. The end goal is to ensure easy access to public information, supporting transparency and administrative speed.": { am: "ታሪካዊ እና የአሁኑ የወረዳ ፖሊሲዎችን፣ የህዝብ ስታቲስቲክስን እና ይፋዊ የአገልግሎት መጠየቂያ ቅጾችን ለመቃኘት፣ ለማጽዳት እና ለመደገፍ የአስተዳደር ዘመናዊነት ፕሮጀክት። የመጨረሻው ግብ የህዝብ መረጃዎችን በቀላሉ ማግኘት ማረጋገጥ ነው፤ ይህም ግልጽነትን እና የአስተዳደር ፍጥነትን ይደግፋል።", om: "Pirojektootii haaromsaa bulchiinsaa sanadoota, istaatistiksii fi fooromii tajaajila mootummaa scan gochuu, qulqulleessuu fi qooduudha. Kaayyoon dhumaa seensa odeeffannoo ummataa salphaa mirkaneessuu, iftoomina fi ariiti bulchiinsaa deeggaruudha." },
 
   // Tourism Sites
   "Bolo Caves Eco-Tourism": { am: "የቦሎ ዋሻዎች ስነ-ምህዳር ቱሪዝም", om: "Eco-Turizimii Holqa Bolo" },
   "Lake Cheleleki Wetlands": { am: "የጨለለቂ ሀይቅ ረግረጋማ ቦታዎች", om: "Lafa Jiidhaa Baala Cheleleki" },
   "Limu Shade-Grown Forest Coffee Trail": { am: "የሊሙ ጥላ-ቡና ደን መንገድ", om: "Daandii Buna Bosonaa Limu" },
+  "Lake Cheleleki": { am: "ጨለለቂ ሀይቅ", om: "Baala Cheleleki" },
+  "A notable natural landmark suitable for visitor information, conservation awareness, and local destination storytelling.": { am: "ለጎብኚዎች መረጃ፣ ለጥበቃ ግንዛቤ እና ለሀገር ውስጥ መዳረሻ ታሪክ ተስማሚ የሆነ ታዋቂ የተፈጥሮ መታወቂያ።", om: "Bakka uumamaa beekamaa odeeffannoo daawwattootaa, hubannoo kunuunsaa fi seenaa iddoo naannoof ta'u." },
+  "Bolo Caves": { am: "ቦሎ ዋሻዎች", om: "Holqa Bolo" },
+  "A distinctive landscape feature that can anchor heritage tourism and guided exploration programs.": { am: "የቅርስ ቱሪዝምን እና የሚመሩ የዳሰሳ ፕሮግራሞችን መልህቅ ሊያደርግ የሚችል ልዩ የገጽታ ባህሪ።", om: "Bala uumamaa addaa turizimii dhaalaa fi sagantaalee qorannoo hoogganamu lafa qabsiisuu danda'u." },
+  "Tiro Boter Becho and Babia Folla Forests": { am: "ቲሮ ቦተር በቾ እና ባቢያ ፎላ ደኖች", om: "Bosona Tiro Boter Bechoo fi Babii Follaa" },
+  "Protected montane forest systems tied to biodiversity, rainfall regulation, and wild Arabica coffee heritage.": { am: "ከብዝሃ-ሕይወት፣ ከዝናብ ቁጥጥር እና ከዱር አረቢካ ቡና ቅርስ ጋር የተያያዙ የተጠበቁ የተራራ ደን ስርዓቶች።", om: "Sirna bosona gaaraa eegamaa biodiversity, to'annoo bakkalchaa fi dhaalaa buna Arabika bosonaatiin hidhata qabu." },
 
   // Downloads & Announcements
   "Public Consultation on Woreda Development Plan": { am: "በወረዳ ልማት እቅድ ላይ የህዝብ ውይይት", om: "Mari'annoo Ummataa Karoora Guddina Aanaa" },
   "Off-Grid Solar Distribution Initiative": { am: "ከግሪድ ውጭ የሶላር ስርጭት ተሳሳቢ", om: "Tattaaffii Raabsa Solaaraa Saab-Giriidii" },
   "Coffee Harvest Quality & Export Training": { am: "የቡና ምርት ጥራት እና ኤክስፖርት ስልጠና", om: "Leenjii Qulqullina Oomisha Bunaa fi Ergisaa" },
 };
+
 

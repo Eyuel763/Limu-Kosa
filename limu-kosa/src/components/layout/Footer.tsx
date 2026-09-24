@@ -66,7 +66,7 @@ export default function Footer() {
           <h4 className="text-white font-semibold mb-4">{t('footer.contact')}</h4>
           <ul className="space-y-3 text-sm text-gray-300">
             <li className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-[#D4A017]" /> Jimma Zone, Oromia, Ethiopia
+              <MapPin className="h-4 w-4 text-[#D4A017]" /> {t('footer.location')}
             </li>
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-[#D4A017]" /> {customPhone || "+251 97 111 XXXX"}

@@ -288,8 +288,8 @@ export default function Home() {
                 <Icon className="mt-1 h-5 w-5 shrink-0 text-[#6F4E37]" />
                 <div>
                   <div className="text-2xl font-black text-[#2C2C2C]">{stat.value}</div>
-                  <div className="mt-1 text-xs font-bold uppercase tracking-wide text-[#6B7280]">{stat.label}</div>
-                  <div className="mt-1 text-xs text-[#6B7280]">{stat.detail}</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-wide text-[#6B7280]">{tDynamic(stat, "label")}</div>
+                  <div className="mt-1 text-xs text-[#6B7280]">{tDynamic(stat, "detail")}</div>
                 </div>
               </div>
             );
@@ -358,25 +358,25 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div className="lg:col-span-1">
-          <h2 className="text-2xl font-black text-[#1E5631]">Notices and featured work</h2>
+          <h2 className="text-2xl font-black text-[#1E5631]">{t("home.notices.title")}</h2>
           <p className="mt-3 text-sm leading-7 text-[#50627A]">
-            Public notices, development highlights, and tourism information are loaded dynamically from the woreda database.
+            {t("home.notices.subtitle")}
           </p>
         </div>
         <div className="space-y-6 lg:col-span-2">
           {[
-            announ[0] ? { title: announ[0].title, type: announ[0]?.type || announ[0]?.category || "Community Notice", desc: announ[0]?.body || announ[0]?.description || announ[0]?.excerpt || "" } : null,
-            proj[0] ? { title: proj[0].title, type: proj[0]?.status || "Ongoing", desc: proj[0]?.description || proj[0]?.body || proj[0]?.excerpt || "" } : null,
-            tourism[0] ? { title: tourism[0].title, type: "Tourism", desc: tourism[0]?.body || tourism[0]?.description || tourism[0]?.excerpt || "" } : null
+            announ[0] ? { ...announ[0], rawItem: announ[0], title: announ[0].title, type: announ[0]?.type || announ[0]?.category || "Community Notice", desc: announ[0]?.body || announ[0]?.description || announ[0]?.excerpt || "" } : null,
+            proj[0] ? { ...proj[0], rawItem: proj[0], title: proj[0].title, type: proj[0]?.status || "Ongoing", desc: proj[0]?.description || proj[0]?.body || proj[0]?.excerpt || "" } : null,
+            tourism[0] ? { ...tourism[0], rawItem: tourism[0], title: tourism[0].title, type: "Tourism", desc: tourism[0]?.body || tourism[0]?.description || tourism[0]?.excerpt || "" } : null
           ].filter(Boolean).map((item: any) => (
             <div key={item.title} className="grid gap-2 border-b border-[#E8E1D4] pb-5 sm:grid-cols-[180px_1fr]">
               <div className="text-xs font-bold uppercase tracking-wide text-[#6F4E37]">
-                {item.type}
+                {tDynamic(item, "type") || tDynamic(item, "category")}
               </div>
               <div>
-                <h3 className="font-black text-[#2C2C2C]">{item.title}</h3>
+                <h3 className="font-black text-[#2C2C2C]">{tDynamic(item, "title")}</h3>
                 <p className="mt-2 text-sm leading-7 text-[#50627A]">
-                  {item.desc}
+                  {tDynamic(item, "desc") || tDynamic(item, "body") || tDynamic(item, "description")}
                 </p>
               </div>
             </div>

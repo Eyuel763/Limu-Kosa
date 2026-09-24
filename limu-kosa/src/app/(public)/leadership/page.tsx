@@ -1,10 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Landmark, Mail, UserRound } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { leaders as fallbackLeaders } from "@/lib/publicContent";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Define the interface to ensure type safety
 interface Leader {
   name: string;
   position?: string;
@@ -16,12 +19,21 @@ interface Leader {
   contact?: string;
 }
 
-export default async function LeadershipPage() {
-  // Explicitly type the leaders array as Leader[]
-  const leaders: Leader[] = await getPublicResource("leaders", fallbackLeaders);
+export default function LeadershipPage() {
+  const { t, tDynamic } = useLanguage();
+  const [leaders, setLeaders] = useState<Leader[]>(fallbackLeaders as any);
+
   const apiBase = process.env.NEXT_PUBLIC_API_URL 
     ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "") 
     : "http://127.0.0.1:4000";
+
+  useEffect(() => {
+    async function loadLeaders() {
+      const res = await getPublicResource("leaders", fallbackLeaders);
+      if (res) setLeaders(res as Leader[]);
+    }
+    loadLeaders();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -58,7 +70,7 @@ export default async function LeadershipPage() {
                 <div className="mt-5 space-y-2">
                   {responsibilities.map((item) => (
                     <div key={item} className="rounded-md bg-[#F8F6F1] px-3 py-2 text-xs font-bold text-[#2C2C2C]">
-                      {item}
+                      {tDynamic(item, "")}
                     </div>
                   ))}
                 </div>

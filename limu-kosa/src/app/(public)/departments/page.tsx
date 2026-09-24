@@ -1,11 +1,14 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Building2, Landmark, Sprout, HeartPulse, GraduationCap, Coins, MapPin, Droplets, Briefcase, Users, BadgeCheck, Mountain, ShieldCheck, Scale } from "lucide-react";
 import { getPublicResource } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Define the interface to satisfy TypeScript's strict type checking
 interface Department {
   id: string;
   name: string;
@@ -33,9 +36,17 @@ const iconMap: Record<string, any> = {
   "justice": Scale,
 };
 
-export default async function Departments() {
-  // Explicitly typing the array as Department[]
-  const departments: Department[] = await getPublicResource("departments", fallbackDepts);
+export default function Departments() {
+  const { t, tDynamic } = useLanguage();
+  const [departments, setDepartments] = useState<Department[]>(fallbackDepts as any);
+
+  useEffect(() => {
+    async function loadDepts() {
+      const res = await getPublicResource("departments", fallbackDepts);
+      if (res) setDepartments(res as Department[]);
+    }
+    loadDepts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -51,14 +62,14 @@ export default async function Departments() {
           <div>
             <h2 className="flex items-center gap-2 text-3xl font-black text-[#1E5631]">
               <Building2 className="h-7 w-7 text-[#6F4E37]" />
-              Core sector directory
+              {t("departments.directory")}
             </h2>
             <p className="mt-4 text-base leading-8 text-[#50627A]">
-              Each office page includes a public overview, responsibilities, major programs, and contact placeholders. Later, these pages can be managed from the NestJS administration portal.
+              {t("departments.directoryDesc")}
             </p>
             <div className="mt-6 border-l-2 border-[#D4A017] pl-4">
               <div className="text-4xl font-black text-[#1E5631]">{departments.length}</div>
-              <div className="text-sm font-bold uppercase tracking-wide text-[#6B7280]">Listed offices</div>
+              <div className="text-sm font-bold uppercase tracking-wide text-[#6B7280]">{t("departments.listedOffices")}</div>
             </div>
           </div>
           <div className="overflow-hidden rounded-lg shadow-lg">
