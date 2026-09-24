@@ -167,3 +167,54 @@ export const translations = {
 } as const;
 
 export type TranslationKey = keyof typeof translations;
+
+export const dynamicFallbackMap: Record<string, { am: string; om: string }> = {
+  // Hero & General
+  "Limu Kosa Coffee Heritage": { am: "የሊሙ ኮሳ ቡና ቅርስ", om: "Dhaalaa Buna Limu Kossaa" },
+  "A public portal rooted in the woreda's shade-grown Arabica coffee, forests, agriculture, and community service.": { am: "በወረዳው ጥላ-ቡና፣ ደኖች፣ ግብርና እና የማህበረሰብ አገልግሎት ላይ የተመሰረተ የህዝብ ፖርታል።", om: "Kutaa argannoo buna Arabika, bosonaa, qonnaa fi tajaajila hawaasaa irratti hundaa'ame." },
+  "Explore tourism": { am: "ቱሪዝም ያስሱ", om: "Turizimii qoradhu" },
+  "Limu Kosa Woreda Administration": { am: "የሊሙ ኮሳ ወረዳ አስተዳደር", om: "Bulchiinsa Aanaa Limu Kossaa" },
+  "Official public information portal": { am: "ይፋዊ የህዝብ መረጃ ፖርታል", om: "Kutaa odeeffannoo ummataa mootummaa" },
+  "Follow government updates, public notices, development work, departments, documents, and local opportunities.": { am: "የመንግስት ዜናዎችን፣ የህዝብ ማስታወቂያዎችን፣ ልማት ስራዎችን፣ መምሪያዎችን፣ ሰነዶችን እና የሀገር ውስጥ እድሎችን ይከታተሉ።", om: "Beeksisa mootummaa, waamicha ummataa, hojii guddinaa, waajjiraalee, sanadoota fi carraalee naannoo hordofi." },
+  "Nature, Culture, and Development": { am: "ተፈጥሮ፣ ባህል እና ልማት", om: "Uumamaa, Aadaa fi Guddinaa" },
+  "Nature and Community Care": { am: "ተፈጥሮ እና የህብረተሰብ እንክብካቤ", om: "Uumamaa fi Kunuunsa Hawaasaa" },
+
+  // News Titles & Excerpts
+  "Tourism profile highlights Bolo Caves and Lake Cheleleki": { am: "የቱሪዝም መገለጫ ቦሎ ዋሻዎችን እና ቼለለኪ ሀይቅን ያጎላል", om: "Seenaa turizimii Holqa Bolo fi Baala Cheleleki mul'isa" },
+  "Culture and tourism teams are preparing destination information to promote responsible local tourism and heritage awareness.": { am: "የባህልና ቱሪዝም ቡድኖች ሀላፊነት ያለው የሀገር ውስጥ ቱሪዝምና የቅርስ ግንዛቤን ለማሳደግ የመዳረሻ መረጃ እያዘጋጁ ነው።", om: "Gareewwan aadaa fi turizimii beeksisa turizimii naannoo fi hubannoo dhaalaa guddisuuf odeeffannoo iddoo qopheessaa jiru." },
+  "Woreda offices prepare updated public document registry": { am: "የወረዳ ቢሮዎች የተሻሻለ የህዝብ ሰነዶች መመዝገቢያ ያዘጋጃሉ", om: "Waajjiraaleen aanaa galmee sanadoota ummataa haaromfame qopheessu" },
+  "Limu Kosa Woreda launches watershed conservation campaign": { am: "ሊሙ ኮሳ ወረዳ የተፋሰስ ጥበቃ ዘመቻ ጀምሯል", om: "Aanaan Limu Kossaa duula kunuunsa lolaa jalqabe" },
+  "Public document registry update": { am: "የህዝብ ሰነዶች መመዝገቢያ ማሻሻያ", om: "Haaromsa galmee sanadoota ummataa" },
+
+  // Categories
+  "Tourism": { am: "ቱሪዝም", om: "Turizimii" },
+  "Administration": { am: "አስተዳደር", om: "Bulchiinsa" },
+  "Agriculture": { am: "ግብርና", om: "Qonnaa" },
+  "General": { am: "አጠቃላይ", om: "Waliigala" },
+  "Notice": { am: "ማስታወቂያ", om: "Beeksisa" },
+  "Community Notice": { am: "የማህበረሰብ ማስታወቂያ", om: "Beeksisa Hawaasaa" },
+
+  // Departments
+  "Agriculture & Natural Resources Office": { am: "የግብርና እና ተፈጥሮ ሀብት ጽሕፈት ቤት", om: "Waajjira Qonnaa fi Qabeenya Uumamaa" },
+  "Supports crop production, livestock, coffee development, watershed care, and natural resource protection across rural kebeles.": { am: "በገጠር ቀበሌዎች የሰብል ምርትን፣ እንስሳትን፣ የቡና ልማትን፣ የተፋሰስ እንክብካቤን እና የተፈጥሮ ሀብት ጥበቃን ይደግፋል።", om: "Oomisha Midhaanii, Beeylada, Misooma Bunaa, Kunuunsa Loolaa fi Eegumsa Qabeenya Uumamaa Baadiyyaa Keessatti Deeggara." },
+  "Woreda Health Office": { am: "የወረዳ ጤና ጽሕፈት ቤት", om: "Waajjira Fayyaa Aanaa" },
+  "Coordinates public health services, disease prevention, sanitation, maternal care, and community health education.": { am: "የህዝብ ጤና አገልግሎቶችን፣ የበሽታ መከላከያን፣ ጽዳትን፣ የነፍሰ ጡራት እንክብካቤን እና የማህበረሰብ ጤና ትምህርትን ያነጻጽራል።", om: "Tajaajilawwan Fayyaa Ummataa, Ittisa Dhukkubaa, Qulqullina, Kunuunsa Haadholii fi Barnoota Fayyaa Hawaasaa Koordineessaa." },
+  "Education Office": { am: "የትምህርት ጽሕፈት ቤት", om: "Waajjira Barnootaa" },
+  "Finance & Economic Development Office": { am: "የፋይናንስ እና ኢኮኖሚ ልማት ጽሕፈት ቤት", om: "Waajjira Maallaqaa fi Guddina Dinagdee" },
+
+  // Projects
+  "Rural Water Access Extension": { am: "የገጠር የንጹህ ውኃ አቅርቦት ማስፋፊያ", om: "Dheerissaa Dhiyeessii Bishaan Baadiyyaa" },
+  "Forest Coffee Conservation Support": { am: "የደና ቡና ጥበቃ ድጋፍ", om: "Deeggarsa Kunuunsa Buna Bosonaa" },
+  "Public Document Digitization": { am: "የህዝብ ሰነዶችን ዲጂታላይዝ ማድረግ", om: "Dijitaalaayizeeshinii Sanadoota Ummataa" },
+
+  // Tourism Sites
+  "Bolo Caves Eco-Tourism": { am: "የቦሎ ዋሻዎች ስነ-ምህዳር ቱሪዝም", om: "Eco-Turizimii Holqa Bolo" },
+  "Lake Cheleleki Wetlands": { am: "የጨለለቂ ሀይቅ ረግረጋማ ቦታዎች", om: "Lafa Jiidhaa Baala Cheleleki" },
+  "Limu Shade-Grown Forest Coffee Trail": { am: "የሊሙ ጥላ-ቡና ደን መንገድ", om: "Daandii Buna Bosonaa Limu" },
+
+  // Downloads & Announcements
+  "Public Consultation on Woreda Development Plan": { am: "በወረዳ ልማት እቅድ ላይ የህዝብ ውይይት", om: "Mari'annoo Ummataa Karoora Guddina Aanaa" },
+  "Off-Grid Solar Distribution Initiative": { am: "ከግሪድ ውጭ የሶላር ስርጭት ተሳሳቢ", om: "Tattaaffii Raabsa Solaaraa Saab-Giriidii" },
+  "Coffee Harvest Quality & Export Training": { am: "የቡና ምርት ጥራት እና ኤክስፖርት ስልጠና", om: "Leenjii Qulqullina Oomisha Bunaa fi Ergisaa" },
+};
+

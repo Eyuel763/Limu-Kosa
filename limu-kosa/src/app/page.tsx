@@ -85,7 +85,14 @@ export default function Home() {
     },
   ];
 
-  const activeSlider = slider.length > 0 ? slider : sliderItems;
+  const rawSlider = slider.length > 0 ? slider : sliderItems;
+  const activeSlider = rawSlider.map((slide, idx) => ({
+    ...slide,
+    tagline: tDynamic(slide, "tagline") || (t(`hero.slide${idx + 1}.tagline` as any) !== `hero.slide${idx + 1}.tagline` ? t(`hero.slide${idx + 1}.tagline` as any) : slide.tagline),
+    title: tDynamic(slide, "title") || (t(`hero.slide${idx + 1}.title` as any) !== `hero.slide${idx + 1}.title` ? t(`hero.slide${idx + 1}.title` as any) : slide.title),
+    description: tDynamic(slide, "description") || (t(`hero.slide${idx + 1}.description` as any) !== `hero.slide${idx + 1}.description` ? t(`hero.slide${idx + 1}.description` as any) : slide.description),
+    primaryLabel: tDynamic(slide, "primaryLabel") || (t(`hero.slide${idx + 1}.primary` as any) !== `hero.slide${idx + 1}.primary` ? t(`hero.slide${idx + 1}.primary` as any) : slide.primaryLabel),
+  }));
 
   const activeStats = stats.length > 0
     ? stats.map(s => ({
