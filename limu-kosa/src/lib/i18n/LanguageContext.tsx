@@ -45,8 +45,29 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const t = useCallback((key: TranslationKey): string => {
-    return translations[key]?.[language] ?? translations[key]?.en ?? key;
-  }, [language]);
+    // 1. Check static translations dictionary
+    if (translations[key]?.[language]) return translations[key][language];
+    // 2. Fall back to English if available
+    if (translations[key]?.en) return translations[key].en;
+    // 3. Use MyMemory Translate API as last resort
+    if (typeof window !== 'undefined' && key.length > 1 && !key.startsWith('http')) {
+      const langPair = language === 'am' ? 'en|am' : 'en|or';
+      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(key.slice(0, 500))}&langpair=${langPair}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const translated = data?.responseData?.translatedText;
+          if (translated && typeof translated === 'string' && !translated.startsWith('MYMEMORY WARNING')) {
+            setClientCache((prev) => {
+              const updated = { ...prev, [`${language}:${key}`]: translated };
+              try { localStorage.setItem('limu-kosa-trans-cache', JSON.stringify(updated)); } catch {}
+              return updated;
+            });
+          }
+        })
+        .catch(() => {});
+    }
+    return key;
+  }, [language, clientCache]);
 
   const tDynamic = useCallback((item: any, field: string): string => {
     if (!item) return '';
