@@ -22,6 +22,7 @@ import {
   Key,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import AdminLogin from "./AdminLogin";
 import AdminSidebar from "./AdminSidebar";
 import ResourceList from "./ResourceList";
@@ -62,6 +63,7 @@ const templates: Record<string, Record<string, any>> = {
 type AnyRecord = Record<string, any> & { id?: string; title?: string; name?: string; slug?: string };
 
 export default function AdminPortalClient() {
+  const { t } = useLanguage();
   const [isMounted, setIsMounted] = useState(false);
   const [token, setToken] = useState("");
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -335,7 +337,7 @@ export default function AdminPortalClient() {
                 <Menu className="h-6 w-6" />
               </button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl font-black text-[#1E5631] truncate">Administration Panel</h1>
+                <h1 className="text-xl font-black text-[#1E5631] truncate">{t("admin.title")}</h1>
                 <p className="mt-0.5 text-xs text-[#50627A] font-medium truncate max-w-xs sm:max-w-md">{message}</p>
               </div>
             </div>
@@ -351,13 +353,13 @@ export default function AdminPortalClient() {
               </button>
 
               <div className="flex items-center gap-3 bg-[#EEF2ED] rounded-lg px-3 py-1.5 border border-[#D7DED5]">
-                <span className="text-[10px] font-black text-[#1E5631] uppercase tracking-wider hidden sm:inline">Admin Session</span>
+                <span className="text-[10px] font-black text-[#1E5631] uppercase tracking-wider hidden sm:inline">{t("admin.session")}</span>
                 <button
                   onClick={logout}
                   className="inline-flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-900 transition"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                  Logout
+                  {t("admin.logout")}
                 </button>
               </div>
             </div>
@@ -369,10 +371,10 @@ export default function AdminPortalClient() {
             {/* TABS SELECTOR */}
             <div className="flex flex-wrap gap-2 border-b border-[#D7DED5] pb-4">
               {[
-                { slug: "homepage-hero", label: "Homepage Hero Slider" },
-                { slug: "site-stats", label: "Woreda Statistics" },
-                { slug: "contact-info", label: "Contact Channels" },
-                { slug: "security", label: "Security & Password" },
+                { slug: "homepage-hero", label: t("admin.tab.hero") },
+                { slug: "site-stats", label: t("admin.tab.stats") },
+                { slug: "contact-info", label: t("admin.tab.contactInfo") },
+                { slug: "security", label: t("admin.tab.security") },
               ].map(tab => (
                 <button
                   key={tab.slug}
@@ -394,7 +396,7 @@ export default function AdminPortalClient() {
                   <div className="flex items-center gap-2">
                     <Lock className="h-4 w-4 text-[#1E5631]" />
                     <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C]">
-                      Change Admin Password
+                      {t("admin.changePassword")}
                     </h2>
                   </div>
                 </div>
@@ -402,7 +404,7 @@ export default function AdminPortalClient() {
                 <form onSubmit={changeAdminPassword} className="p-6 space-y-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
-                      Current Password
+                      {t("admin.currentPassword")}
                     </label>
                     <input
                       type="password"
@@ -416,7 +418,7 @@ export default function AdminPortalClient() {
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
-                      New Password
+                      {t("admin.newPassword")}
                     </label>
                     <input
                       type="password"
@@ -431,7 +433,7 @@ export default function AdminPortalClient() {
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
-                      Confirm New Password
+                      {t("admin.confirmPassword")}
                     </label>
                     <input
                       type="password"
@@ -451,7 +453,7 @@ export default function AdminPortalClient() {
                       className="inline-flex items-center gap-2 rounded-lg bg-[#1E5631] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#12351E] transition disabled:opacity-40 shadow-sm"
                     >
                       <Key className="h-4 w-4" />
-                      Update Password
+                      {t("admin.updatePassword")}
                     </button>
                   </div>
                 </form>
@@ -462,7 +464,7 @@ export default function AdminPortalClient() {
                 <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col w-full min-w-0 overflow-hidden">
                   <div className="flex items-center justify-between border-b border-[#E8E1D4] px-5 py-4 bg-[#FAF9F5] rounded-t-2xl shrink-0 gap-4">
                     <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
-                      Settings Manager
+                      {t("admin.settingsManager")}
                     </h2>
                   </div>
                   
@@ -483,7 +485,7 @@ export default function AdminPortalClient() {
                       className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
                     >
                       <Save className="h-4 w-4" />
-                      Apply and Save Settings
+                      {t("admin.saveSettings")}
                     </button>
                   </div>
                 </section>
@@ -529,7 +531,9 @@ export default function AdminPortalClient() {
                 <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
                   {active === "messages" 
                     ? "Message Details" 
-                    : (selected ? `Edit ${activeResource.label}` : `New ${activeResource.label}`)}
+                    : (selected 
+                        ? `${t("admin.editRecord")} ${t(`admin.tab.${activeResource.key}` as any)}` 
+                        : `${t("admin.newRecord")} ${t(`admin.tab.${activeResource.key}` as any)}`)}
                 </h2>
                 {active !== "messages" && (
                   <button
@@ -541,7 +545,7 @@ export default function AdminPortalClient() {
                     className="inline-flex items-center gap-1 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition shrink-0"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    Clear Form
+                    {t("admin.clearForm")}
                   </button>
                 )}
               </div>
@@ -575,7 +579,7 @@ export default function AdminPortalClient() {
                       className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
                     >
                       <Save className="h-4 w-4" />
-                      Save Record
+                      {t("admin.saveRecord")}
                     </button>
                     {selectedId && (
                       <button
@@ -585,7 +589,7 @@ export default function AdminPortalClient() {
                         }}
                         className="text-xs font-bold text-[#50627A] hover:text-red-600 transition"
                       >
-                        Cancel
+                        {t("admin.cancel")}
                       </button>
                     )}
                   </div>

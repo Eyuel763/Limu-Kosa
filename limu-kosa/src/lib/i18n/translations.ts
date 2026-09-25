@@ -6,7 +6,10 @@
 export type LangCode = 'en' | 'am' | 'om';
 
 export const translations = {
-  // ── Navigation ──────────────────────────────────────────
+  // ── Navigation & Brand ────────────────────────────────────
+  'brand.name':        { en: 'Limu Kosa',    am: 'ሊሙ ኮሳ',        om: 'Limu Kossaa' },
+  'brand.title':       { en: 'Limu Kosa Woreda', am: 'ሊሙ ኮሳ ወረዳ',   om: 'Aanaa Limu Kossaa' },
+
   'nav.home':          { en: 'Home',         am: 'መነሻ',         om: 'Mana' },
   'nav.about':         { en: 'About',        am: 'ስለ እኛ',       om: "Waa'ee Keenya" },
   'nav.departments':   { en: 'Departments',  am: 'መምሪያዎች',     om: 'Waajjiraalee' },
@@ -246,6 +249,53 @@ export const translations = {
   'admin.tab.messages':      { en: 'Public Messages',       am: 'የህዝብ መልዕክቶች',    om: 'Ergaa Ummataa' },
   'admin.tab.settings':      { en: 'Site Settings',         am: 'የጣቢያ ቅንብሮች',    om: 'Sajoo Marsariitii' },
   'admin.tab.security':      { en: 'Change Password',       am: 'የምስጢር ቁጥር ይቀይሩ', om: 'Jecha-iccitii Jijjiiri' },
+
+  // Admin UI Actions & Headings
+  'admin.registry':         { en: 'Registry',              am: 'መዝገብ',            om: 'Galmee' },
+  'admin.search':           { en: 'Search',                am: 'ፈልግ',             om: 'Barbaadi' },
+  'admin.newRecord':        { en: 'New',                   am: 'አዲስ',             om: 'Haaraa' },
+  'admin.editRecord':       { en: 'Edit',                  am: 'ማረም',            om: 'Gulaali' },
+  'admin.saveRecord':       { en: 'Save Record',           am: 'መዝገቡን አስቀምጥ',   om: 'Galmee kuusi' },
+  'admin.cancel':           { en: 'Cancel',                am: 'ሰርዝ',            om: 'Dhiisi' },
+  'admin.changePassword':   { en: 'Change Admin Password', am: 'የምስጢር ቁጥር ይቀይሩ', om: 'Jecha-iccitii Jijjiiri' },
+  'admin.currentPassword':  { en: 'Current Password',      am: 'የአሁኑ የምስጢር ቁጥር', om: 'Jecha-iccitii Ammee' },
+  'admin.newPassword':      { en: 'New Password',          am: 'አዲስ የምስጢር ቁጥር', om: 'Jecha-iccitii Haaraa' },
+  'admin.confirmPassword':  { en: 'Confirm New Password',  am: 'ምስጢር ቁጥር ያረጋግጡ', om: 'Jecha-iccitii Mirkaneessi' },
+  'admin.updatePassword':   { en: 'Update Password',       am: 'ምስጢር ቁጥር አዘምን', om: 'Jecha-iccitii Haaromsi' },
+  'admin.settingsManager':  { en: 'Settings Manager',      am: 'የቅንብሮች ማኔጀር', om: 'Bulchaa Sajoo' },
+  'admin.saveSettings':     { en: 'Apply and Save Settings', am: 'ቅንብሮችን አስቀምጥ', om: 'Sajoo Kuusi' },
+  'admin.tab.hero':         { en: 'Homepage Hero Slider',  am: 'የመነሻ ገጽ ስላይደር', om: 'Subiisa Giddugalaa' },
+  'admin.tab.stats':        { en: 'Woreda Statistics',     am: 'የወረዳው ስታቲስቲክስ', om: 'Istaatistiksii Aanaa' },
+  'admin.tab.contactInfo':   { en: 'Contact Channels',      am: 'የግንኙነት መስመሮች', om: 'Karaalee Quunnamsaa' },
+
+  // Admin Form Fields
+  'admin.field.title':         { en: 'Title',                 am: 'ርዕስ',             om: 'Mata-duree' },
+  'admin.field.newsTitle':     { en: 'News Title',            am: 'የዜናው ርዕስ',        om: 'Mata-duree Oduu' },
+  'admin.field.announcementTitle': { en: 'Announcement Title', am: 'የማስታወቂያው ርዕስ', om: 'Mata-duree Beeksisaa' },
+  'admin.field.category':      { en: 'Category',              am: 'ምድብ',             om: 'Kutaa' },
+  'admin.field.excerpt':       { en: 'Short Excerpt Summary', am: 'አጭር ማጠቃለያ',     om: 'Gabaasa Gabaabaa' },
+  'admin.field.body':          { en: 'Article Body Content',  am: 'የጽሑፉ ይዘት',        om: 'Qabiyyee Barruu' },
+  'admin.field.contentDesc':   { en: 'Content Description',   am: 'የይዘት መግለጫ',      om: 'Ibsa Qabiyyee' },
+  'admin.field.imageUrl':      { en: 'Featured Image',        am: 'ዋና ምስል',          om: 'Suuraa Ijoo' },
+  'admin.field.status':        { en: 'Publication Status',    am: 'የህትመት ሁኔታ',     om: 'Haala Maxxansaa' },
+  'admin.field.name':          { en: 'Full Name',             am: 'ሙሉ ስም',           om: 'Maqaa Guutuu' },
+  'admin.field.deptName':      { en: 'Department Name',       am: 'የመምሪያው ስም',       om: 'Maqaa Waajjiraa' },
+  'admin.field.shortName':     { en: 'Short Display Name',    am: 'አጭር መጠሪያ',       om: 'Maqaa Gabaabaa' },
+  'admin.field.description':   { en: 'Office Description',    am: 'የቢሮው መግለጫ',      om: 'Ibsa Waajjiraa' },
+  'admin.field.position':      { en: 'Official Position',     am: 'የስራ መደብ',         om: 'Gita Hojii' },
+  'admin.field.biography':     { en: 'Biography Detail',      am: 'የህይወት ታሪክ',     om: 'Seenaa Jireenyaa' },
+  'admin.field.projectName':   { en: 'Project Name',          am: 'የፕሮጀክቱ ስም',       om: 'Maqaa Pirojektootaa' },
+  'admin.field.location':      { en: 'Project Location',      am: 'የፕሮጀክቱ ቦታ',      om: 'Bakka Pirojektootaa' },
+  'admin.field.imageTitle':    { en: 'Image Title',           am: 'የምስሉ ርዕስ',        om: 'Mata-duree Suuraa' },
+  'admin.field.docTitle':      { en: 'Document Title',        am: 'የሰነዱ ርዕስ',        om: 'Mata-duree Sanadaa' },
+  'admin.field.docDesc':       { en: 'Document Description',  am: 'የሰነዱ መግለጫ',      om: 'Ibsa Sanadaa' },
+  'admin.field.responsibilities': { en: 'Responsibilities',   am: 'ኃላፊነቶች',         om: 'Itti-gaafatamummaa' },
+  'admin.field.programs':      { en: 'Major Programs',        am: 'ዋና ፕሮግራሞች',     om: 'Sagantaalee Ijoo' },
+  'admin.field.contact':       { en: 'Contact Info',          am: 'የግንኙነት መረጃ',     om: 'Odeeffannoo Quunnamsaa' },
+  'admin.field.photoUrl':      { en: 'Leader Photo',          am: 'የመሪው ፎቶ',        om: 'Suuraa Hoogganaa' },
+  'admin.field.fileUrl':       { en: 'Document PDF/File',     am: 'የሰነድ ፋይል',        om: 'Fayilii Sanadaa' },
+  'admin.field.altText':       { en: 'Accessibility Alt Text', am: 'የምስል መግለጫ',      om: 'Ibsa Suuraa' },
+  'admin.field.publishedToggle': { en: 'Published / Publicly visible', am: 'የታተመ / ለህዝብ የሚታይ', om: 'Maxxanfame / Ummataaf Mul\'atu' },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

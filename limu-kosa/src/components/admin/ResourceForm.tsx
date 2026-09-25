@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Upload, Plus, Trash2, Languages } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface ResourceFormProps {
   active: string;
@@ -18,8 +19,15 @@ export default function ResourceForm({
   apiBase,
   uploadFile,
 }: ResourceFormProps) {
+  const { t } = useLanguage();
   const apiBaseRoot = apiBase.replace("/api", "");
   const [inputLang, setInputLang] = useState<"en" | "am" | "om">("en");
+
+  const getLabel = (fieldKey: string, fallbackLabel: string) => {
+    const transKey = `admin.field.${fieldKey}` as any;
+    const res = t(transKey);
+    return res !== transKey ? res : fallbackLabel;
+  };
 
   const handleChange = (key: string, value: any) => {
     setFormState((prev: any) => ({ ...prev, [key]: value }));
@@ -104,7 +112,8 @@ export default function ResourceForm({
     </div>
   );
 
-  const trilingualTextInput = (key: string, label: string, placeholder = "") => {
+  const trilingualTextInput = (key: string, fallbackLabel: string, placeholder = "") => {
+    const label = getLabel(key, fallbackLabel);
     const enVal = formState[key] ?? "";
     const amVal = formState.translations?.am?.[key] ?? "";
     const omVal = formState.translations?.om?.[key] ?? "";
@@ -146,7 +155,8 @@ export default function ResourceForm({
     );
   };
 
-  const trilingualTextareaInput = (key: string, label: string, rows = 3, placeholder = "") => {
+  const trilingualTextareaInput = (key: string, fallbackLabel: string, rows = 3, placeholder = "") => {
+    const label = getLabel(key, fallbackLabel);
     const enVal = formState[key] ?? "";
     const amVal = formState.translations?.am?.[key] ?? "";
     const omVal = formState.translations?.om?.[key] ?? "";
@@ -188,33 +198,40 @@ export default function ResourceForm({
     );
   };
 
-  const textInput = (key: string, label: string, placeholder = "") => (
-    <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
-      <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
-      <input
-        type="text"
-        value={formState[key] ?? ""}
-        onChange={(e) => handleChange(key, e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-      />
-    </div>
-  );
+  const textInput = (key: string, fallbackLabel: string, placeholder = "") => {
+    const label = getLabel(key, fallbackLabel);
+    return (
+      <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
+        <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
+        <input
+          type="text"
+          value={formState[key] ?? ""}
+          onChange={(e) => handleChange(key, e.target.value)}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+        />
+      </div>
+    );
+  };
 
-  const textareaInput = (key: string, label: string, rows = 3, placeholder = "") => (
-    <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
-      <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
-      <textarea
-        rows={rows}
-        value={formState[key] ?? ""}
-        onChange={(e) => handleChange(key, e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631] font-sans leading-relaxed"
-      />
-    </div>
-  );
+  const textareaInput = (key: string, fallbackLabel: string, rows = 3, placeholder = "") => {
+    const label = getLabel(key, fallbackLabel);
+    return (
+      <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
+        <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">{label}</label>
+        <textarea
+          rows={rows}
+          value={formState[key] ?? ""}
+          onChange={(e) => handleChange(key, e.target.value)}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631] font-sans leading-relaxed"
+        />
+      </div>
+    );
+  };
 
-  const fileUrlInput = (key: string, label: string, isImage = true) => {
+  const fileUrlInput = (key: string, fallbackLabel: string, isImage = true) => {
+    const label = getLabel(key, fallbackLabel);
     const currentUrl = formState[key] ?? "";
     const fullPreviewUrl = currentUrl
       ? currentUrl.startsWith("http")
@@ -260,22 +277,26 @@ export default function ResourceForm({
     );
   };
 
-  const publishedToggle = (key = "published", label = "Published / Publicly visible") => (
-    <div key={key} className="flex items-center gap-3 py-2 min-w-0 w-full text-left">
-      <input
-        type="checkbox"
-        id={key}
-        checked={!!formState[key]}
-        onChange={(e) => handleChange(key, e.target.checked)}
-        className="h-4 w-4 rounded border-[#D7DED5] text-[#1E5631] focus:ring-[#1E5631] shrink-0"
-      />
-      <label htmlFor={key} className="text-xs font-bold text-[#2C2C2C] select-none cursor-pointer truncate">
-        {label}
-      </label>
-    </div>
-  );
+  const publishedToggle = (key = "published", fallbackLabel = "Published / Publicly visible") => {
+    const label = getLabel("publishedToggle", fallbackLabel);
+    return (
+      <div key={key} className="flex items-center gap-3 py-2 min-w-0 w-full text-left">
+        <input
+          type="checkbox"
+          id={key}
+          checked={!!formState[key]}
+          onChange={(e) => handleChange(key, e.target.checked)}
+          className="h-4 w-4 rounded border-[#D7DED5] text-[#1E5631] focus:ring-[#1E5631] shrink-0"
+        />
+        <label htmlFor={key} className="text-xs font-bold text-[#2C2C2C] select-none cursor-pointer truncate">
+          {label}
+        </label>
+      </div>
+    );
+  };
 
-  const arrayInput = (key: string, label: string) => {
+  const arrayInput = (key: string, fallbackLabel: string) => {
+    const label = getLabel(key, fallbackLabel);
     const arr = Array.isArray(formState[key]) ? formState[key] : [];
     return (
       <div key={key} className="flex flex-col gap-1.5 border-t border-[#EEF2ED] pt-3 mt-3 min-w-0 w-full text-left">

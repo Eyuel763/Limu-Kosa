@@ -54,7 +54,7 @@ export default function Navbar() {
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 font-black text-lg tracking-tight z-50">
             <Image src="/limu-kosa-logo.png" alt="Limu Kosa Woreda logo" width={44} height={44} className="h-11 w-11 rounded-full" />
-            <span>Limu Kosa Woreda</span>
+            <span>{t('brand.title')}</span>
           </Link>
 
           {/* DESKTOP NAVIGATION LINKS */}

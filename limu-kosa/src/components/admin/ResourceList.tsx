@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon, Search, X } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface ResourceItem {
   key: string;
@@ -23,6 +24,7 @@ interface AnyRecord {
   description?: string;
   subject?: string;
   email?: string;
+  translations?: any;
 }
 
 interface ResourceListProps {
@@ -48,7 +50,10 @@ export default function ResourceList({
   loadItems,
   isBusy,
 }: ResourceListProps) {
+  const { t, tDynamic } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const translatedResourceLabel = t(`admin.tab.${activeResource.key}` as any);
 
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return items;
@@ -81,7 +86,7 @@ export default function ResourceList({
           })()}
           <div className="min-w-0">
             <h2 className="text-xs font-black uppercase tracking-wider text-[#2C2C2C] truncate">
-              {activeResource.label} Registry
+              {translatedResourceLabel} {t("admin.registry")}
             </h2>
           </div>
           <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
@@ -93,7 +98,7 @@ export default function ResourceList({
           disabled={isBusy}
           className="rounded-md border border-[#D7DED5] bg-white px-3 py-1.5 text-xs font-bold text-[#6F4E37] shadow-2xs hover:bg-[#FAF9F5] transition disabled:opacity-40 shrink-0"
         >
-          Refresh Data
+          {t("admin.refresh")}
         </button>
       </div>
 
@@ -104,7 +109,7 @@ export default function ResourceList({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={`Search ${activeResource.label.toLowerCase()}...`}
+          placeholder={`${t("admin.search")} ${translatedResourceLabel.toLowerCase()}...`}
           className="w-full text-xs outline-none bg-transparent placeholder:text-gray-400 font-medium"
         />
         {searchQuery && (
@@ -120,9 +125,19 @@ export default function ResourceList({
 
       <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
         {filteredItems.map((item) => {
-          const labelText = item.title ?? item.name ?? item.slug ?? item.id ?? "Untitled Entry";
+          const rawTitle = item.title ?? item.name;
+          const labelText = rawTitle ? tDynamic(item, item.title ? "title" : "name") : (item.slug ?? item.id ?? "Untitled Entry");
           const isCurrentSelected = selectedId === item.id;
           const itemTimeDisplay = item.publishedAt || item.createdAt || null;
+
+          const rawCategory = item.category;
+          const categoryText = rawCategory ? tDynamic(item, "category") : null;
+
+          const isPublished = item.status === "PUBLISHED" || item.published === true;
+          const statusText = isPublished ? t("common.published") : t("common.draft");
+
+          const rawDesc = item.excerpt || item.description;
+          const descText = rawDesc ? tDynamic(item, item.excerpt ? "excerpt" : "description") : item.slug;
 
           return (
             <div
@@ -137,20 +152,20 @@ export default function ResourceList({
             >
               <div className="min-w-0 flex-1 space-y-1.5 w-full">
                 <div className="flex flex-wrap items-center gap-2">
-                  {item.category && (
+                  {categoryText && (
                     <span className="bg-white px-2 py-0.5 border border-[#E8E1D4] text-[10px] font-black uppercase tracking-wider rounded text-[#6F4E37] shadow-3xs break-all max-w-[150px] truncate">
-                      {item.category}
+                      {categoryText}
                     </span>
                   )}
                   {(item.status || item.published !== undefined) && (
                     <span
                       className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded shrink-0 ${
-                        item.status === "PUBLISHED" || item.published === true
+                        isPublished
                           ? "bg-green-50 text-green-700 border border-green-200"
                           : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}
                     >
-                      {item.status ?? (item.published ? "Published" : "Draft")}
+                      {statusText}
                     </span>
                   )}
                   {itemTimeDisplay && (
@@ -169,11 +184,11 @@ export default function ResourceList({
                   {labelText}
                 </h3>
 
-                {(item.excerpt || item.description || item.slug || item.subject || item.email) && (
+                {(descText || item.subject || item.email) && (
                   <p className="text-xs text-[#50627A] pr-4 font-mono opacity-80 break-words break-all line-clamp-2">
                     {item.subject 
                       ? `${item.subject} (${item.email ?? ""})` 
-                      : (item.excerpt || item.description || item.slug)}
+                      : descText}
                   </p>
                 )}
               </div>
@@ -188,7 +203,7 @@ export default function ResourceList({
                     }}
                     className="p-2 text-xs font-bold rounded-lg border border-[#E8E1D4] bg-white hover:bg-[#FAF9F5] hover:border-[#1E5631]/30 text-[#50627A] hover:text-[#1E5631] transition flex items-center gap-1 shadow-3xs shrink-0"
                   >
-                    <span>Edit</span>
+                    <span>{t("admin.edit")}</span>
                     <ArrowUpRight className="h-3 w-3 opacity-60" />
                   </button>
                 )}
@@ -212,8 +227,7 @@ export default function ResourceList({
         {!items.length ? (
           <div className="py-20 px-4 text-center text-[#50627A] w-full">
             <Layers className="h-10 w-10 mx-auto text-gray-300 stroke-[1.5] mb-3" />
-            <p className="text-xs font-bold">No data entries mapped here inside this section yet.</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">Use the workflow tools block to append structural fields.</p>
+            <p className="text-xs font-bold">{t("common.noItems")}</p>
           </div>
         ) : null}
       </div>

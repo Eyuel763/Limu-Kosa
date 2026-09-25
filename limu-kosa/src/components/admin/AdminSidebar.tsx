@@ -59,7 +59,7 @@ export default function AdminSidebar({
               className="h-12 w-12 rounded-full bg-white p-0.5 shrink-0"
             />
             <div>
-              <div className="text-lg font-black tracking-tight leading-tight">Limu Kosa</div>
+              <div className="text-lg font-black tracking-tight leading-tight">{t("brand.name")}</div>
               <div className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">{t("admin.title")}</div>
             </div>
           </Link>
