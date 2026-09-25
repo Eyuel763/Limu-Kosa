@@ -21,7 +21,7 @@ interface NewsItem {
 }
 
 export default function NewsPage() {
-  const { tDynamic } = useLanguage();
+  const { t, tDynamic } = useLanguage();
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -147,7 +147,7 @@ export default function NewsPage() {
 
                       {/* Unified Read More styling matching projects page layout action */}
                       <div className="mt-6 flex items-center gap-1 text-sm font-black text-[#D4A017] group-hover:text-[#B88714] transition-colors">
-                        <span>Read full article</span>
+                        <span>{t("news.readFull")}</span>
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </div>
                     </div>

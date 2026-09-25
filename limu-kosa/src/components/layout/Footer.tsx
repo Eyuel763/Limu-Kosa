@@ -8,7 +8,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function Footer() {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, tDynamic } = useLanguage();
 
   const [generalSettings, setGeneralSettings] = useState<any>(null);
   const [channels, setChannels] = useState<any[]>([]);
@@ -41,6 +41,14 @@ export default function Footer() {
   const customPhone = channels.find(c => c.label.toLowerCase() === 'telephone')?.value;
   const customEmail = channels.find(c => c.label.toLowerCase() === 'email')?.value;
 
+  const taglineText = generalSettings?.footerTagline 
+    ? tDynamic(generalSettings, "footerTagline") 
+    : t('footer.tagline');
+
+  const rightsText = generalSettings?.copyrightText
+    ? tDynamic(generalSettings, "copyrightText")
+    : t('footer.rights');
+
   return (
     <footer className="bg-[#16361F] text-gray-200 pt-12 pb-6 border-t-4 border-[#D4A017]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -49,7 +57,7 @@ export default function Footer() {
             <Coffee className="h-5 w-5 text-[#D4A017]" /> Limu Kosa Woreda
           </h3>
           <p className="text-sm text-gray-300 leading-relaxed">
-            {generalSettings?.footerTagline || t('footer.tagline')}
+            {taglineText}
           </p>
         </div>
 
@@ -79,7 +87,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-emerald-900 text-center text-xs text-gray-400">
-        &copy; {new Date().getFullYear()} Limu Kosa Woreda Administration. {generalSettings?.copyrightText || t('footer.rights')}
+        &copy; {new Date().getFullYear()} Limu Kosa Woreda Administration. {rightsText}
       </div>
     </footer>
   );
