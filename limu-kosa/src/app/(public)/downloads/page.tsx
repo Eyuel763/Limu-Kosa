@@ -1,10 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Download, FileText, BookOpen, Coins, MapPin, Scale } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { downloads as fallbackDownloads } from "@/lib/publicContent";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Define the interface to satisfy TypeScript
 interface DownloadItem {
   title: string;
   category?: string;
@@ -23,12 +26,27 @@ const dlIconMap: Record<string, any> = {
   "Policies": Scale,
 };
 
-export default async function DownloadsPage() {
-  // Explicitly type the array as DownloadItem[]
-  const downloads: DownloadItem[] = await getPublicResource("downloads", fallbackDownloads);
+export default function DownloadsPage() {
+  const { t } = useLanguage();
+  const [downloads, setDownloads] = useState<DownloadItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const apiBase = process.env.NEXT_PUBLIC_API_URL 
     ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "") 
     : "http://127.0.0.1:4000";
+
+  useEffect(() => {
+    async function loadDownloads() {
+      try {
+        const fetched: DownloadItem[] = await getPublicResource("downloads", fallbackDownloads);
+        setDownloads(fetched);
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDownloads();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -41,11 +59,13 @@ export default async function DownloadsPage() {
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
           <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-gray-100 bg-[#F8F6F1] px-5 py-3 text-xs font-black uppercase tracking-wide text-[#6B7280]">
-            <span>Document category</span>
-            <span>Status</span>
+            <span>{t("downloads.category")}</span>
+            <span>{t("downloads.status")}</span>
           </div>
           
-          {downloads.map((item: DownloadItem) => {
+          {loading ? (
+            <div className="p-8 text-center text-xs font-bold text-[#50627A]">{t("common.loading")}</div>
+          ) : downloads.map((item: DownloadItem) => {
             const categoryDisplay = item.category || item.type || "General";
             const Icon = dlIconMap[categoryDisplay] || item.icon || FileText;
             const fileUrl = item.fileUrl;
@@ -59,7 +79,7 @@ export default async function DownloadsPage() {
                   <div>
                     <DynamicText item={item} field="title" fallback={item.title} className="text-sm font-black text-[#2C2C2C]" as="h2" />
                     <DynamicText item={item} field="category" fallback={categoryDisplay} className="text-xs text-[#6B7280]" as="p" />
-                    {item.description && <p className="mt-1 text-xs text-[#50627A]">{item.description}</p>}
+                    {item.description && <DynamicText item={item} field="description" fallback={item.description} className="mt-1 text-xs text-[#50627A]" as="p" />}
                   </div>
                 </div>
                 {fileUrl ? (
@@ -69,10 +89,10 @@ export default async function DownloadsPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 rounded bg-[#1E5631] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#6F4E37]"
                   >
-                    Download
+                    {t("common.download")}
                   </a>
                 ) : (
-                  <span className="rounded-full bg-[#F8F6F1] px-3 py-1 text-xs font-bold text-[#6F4E37]">Prepared</span>
+                  <span className="rounded-full bg-[#F8F6F1] px-3 py-1 text-xs font-bold text-[#6F4E37]">{t("downloads.prepared")}</span>
                 )}
               </div>
             );

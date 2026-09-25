@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Upload, Plus, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import { Upload, Plus, Trash2, Languages } from "lucide-react";
 
 interface ResourceFormProps {
   active: string;
@@ -19,9 +19,23 @@ export default function ResourceForm({
   uploadFile,
 }: ResourceFormProps) {
   const apiBaseRoot = apiBase.replace("/api", "");
+  const [inputLang, setInputLang] = useState<"en" | "am" | "om">("en");
 
   const handleChange = (key: string, value: any) => {
     setFormState((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  const handleTranslationChange = (lang: "am" | "om", fieldKey: string, val: string) => {
+    setFormState((prev: any) => ({
+      ...prev,
+      translations: {
+        ...(prev.translations || {}),
+        [lang]: {
+          ...(prev.translations?.[lang] || {}),
+          [fieldKey]: val,
+        },
+      },
+    }));
   };
 
   const handleMetadataChange = (key: string, value: any) => {
@@ -37,7 +51,6 @@ export default function ResourceForm({
   const handleArrayMetadataChange = (metaKey: string, index: number, field: string, value: any) => {
     setFormState((prev: any) => {
       const list = [...(prev.metadata?.[metaKey] || [])];
-      // Ensure index is filled
       while (list.length <= index) {
         list.push({});
       }
@@ -50,6 +63,129 @@ export default function ResourceForm({
         },
       };
     });
+  };
+
+  // Helper header bar with 3 language tabs
+  const LanguageTabBar = () => (
+    <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg border border-[#D7DED5] text-[11px] font-bold shrink-0">
+      <button
+        type="button"
+        onClick={() => setInputLang("en")}
+        className={`px-2 py-0.5 rounded transition ${
+          inputLang === "en"
+            ? "bg-[#1E5631] text-white shadow-3xs"
+            : "text-[#50627A] hover:bg-gray-200"
+        }`}
+      >
+        🇬🇧 EN
+      </button>
+      <button
+        type="button"
+        onClick={() => setInputLang("am")}
+        className={`px-2 py-0.5 rounded transition ${
+          inputLang === "am"
+            ? "bg-[#1E5631] text-white shadow-3xs"
+            : "text-[#50627A] hover:bg-gray-200"
+        }`}
+      >
+        🇪🇹 አማ
+      </button>
+      <button
+        type="button"
+        onClick={() => setInputLang("om")}
+        className={`px-2 py-0.5 rounded transition ${
+          inputLang === "om"
+            ? "bg-[#1E5631] text-white shadow-3xs"
+            : "text-[#50627A] hover:bg-gray-200"
+        }`}
+      >
+        ORO
+      </button>
+    </div>
+  );
+
+  const trilingualTextInput = (key: string, label: string, placeholder = "") => {
+    const enVal = formState[key] ?? "";
+    const amVal = formState.translations?.am?.[key] ?? "";
+    const omVal = formState.translations?.om?.[key] ?? "";
+
+    const currentVal = inputLang === "en" ? enVal : inputLang === "am" ? amVal : omVal;
+
+    return (
+      <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-xs font-black uppercase tracking-wider text-[#50627A] flex items-center gap-1.5">
+            {label}
+            <span className="text-[10px] font-normal text-gray-400 capitalize">({inputLang})</span>
+          </label>
+          <div className="flex items-center gap-1">
+            <span className={`h-1.5 w-1.5 rounded-full ${enVal ? "bg-green-600" : "bg-gray-300"}`} title="EN filled" />
+            <span className={`h-1.5 w-1.5 rounded-full ${amVal ? "bg-green-600" : "bg-gray-300"}`} title="Amharic filled" />
+            <span className={`h-1.5 w-1.5 rounded-full ${omVal ? "bg-green-600" : "bg-gray-300"}`} title="Oromoo filled" />
+            <LanguageTabBar />
+          </div>
+        </div>
+        <input
+          type="text"
+          value={currentVal}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (inputLang === "en") handleChange(key, v);
+            else handleTranslationChange(inputLang, key, v);
+          }}
+          placeholder={
+            inputLang === "en"
+              ? placeholder
+              : inputLang === "am"
+              ? `አማርኛ ትርጉም ለ: ${label}...`
+              : `Hiika Afaan Oromoo: ${label}...`
+          }
+          className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+        />
+      </div>
+    );
+  };
+
+  const trilingualTextareaInput = (key: string, label: string, rows = 3, placeholder = "") => {
+    const enVal = formState[key] ?? "";
+    const amVal = formState.translations?.am?.[key] ?? "";
+    const omVal = formState.translations?.om?.[key] ?? "";
+
+    const currentVal = inputLang === "en" ? enVal : inputLang === "am" ? amVal : omVal;
+
+    return (
+      <div key={key} className="flex flex-col gap-1.5 min-w-0 w-full text-left">
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-xs font-black uppercase tracking-wider text-[#50627A] flex items-center gap-1.5">
+            {label}
+            <span className="text-[10px] font-normal text-gray-400 capitalize">({inputLang})</span>
+          </label>
+          <div className="flex items-center gap-1">
+            <span className={`h-1.5 w-1.5 rounded-full ${enVal ? "bg-green-600" : "bg-gray-300"}`} title="EN filled" />
+            <span className={`h-1.5 w-1.5 rounded-full ${amVal ? "bg-green-600" : "bg-gray-300"}`} title="Amharic filled" />
+            <span className={`h-1.5 w-1.5 rounded-full ${omVal ? "bg-green-600" : "bg-gray-300"}`} title="Oromoo filled" />
+            <LanguageTabBar />
+          </div>
+        </div>
+        <textarea
+          rows={rows}
+          value={currentVal}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (inputLang === "en") handleChange(key, v);
+            else handleTranslationChange(inputLang, key, v);
+          }}
+          placeholder={
+            inputLang === "en"
+              ? placeholder
+              : inputLang === "am"
+              ? `አማርኛ ትርጉም ለ: ${label}...`
+              : `Hiika Afaan Oromoo: ${label}...`
+          }
+          className="w-full rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631] font-sans leading-relaxed"
+        />
+      </div>
+    );
   };
 
   const textInput = (key: string, label: string, placeholder = "") => (
@@ -610,10 +746,10 @@ export default function ResourceForm({
     );
   } else if (active === "news") {
     fields.push(
-      textInput("title", "News Title", "e.g., Coffee harvest expands"),
-      textInput("category", "Category", "e.g., Agriculture"),
-      textareaInput("excerpt", "Short Excerpt Summary", 2, "Summary of the article..."),
-      textareaInput("body", "Article Body Content", 8, "Full article body content..."),
+      trilingualTextInput("title", "News Title", "e.g., Coffee harvest expands"),
+      trilingualTextInput("category", "Category", "e.g., Agriculture"),
+      trilingualTextareaInput("excerpt", "Short Excerpt Summary", 2, "Summary of the article..."),
+      trilingualTextareaInput("body", "Article Body Content", 8, "Full article body content..."),
       fileUrlInput("imageUrl", "Featured Image"),
       (
         <div key="status" className="flex flex-col gap-1.5 min-w-0 w-full text-left">
@@ -631,9 +767,9 @@ export default function ResourceForm({
     );
   } else if (active === "announcements") {
     fields.push(
-      textInput("title", "Announcement Title", "e.g., Town hall notice"),
-      textInput("category", "Category / Type", "e.g., Community meeting, Office notice"),
-      textareaInput("body", "Content Description", 5),
+      trilingualTextInput("title", "Announcement Title", "e.g., Town hall notice"),
+      trilingualTextInput("category", "Category / Type", "e.g., Community meeting, Office notice"),
+      trilingualTextareaInput("body", "Content Description", 5),
       (
         <div key="status" className="flex flex-col gap-1.5 min-w-0 w-full text-left">
           <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Status</label>
@@ -650,9 +786,9 @@ export default function ResourceForm({
     );
   } else if (active === "departments") {
     fields.push(
-      textInput("name", "Department Name", "e.g., Woreda Agriculture Office"),
-      textInput("shortName", "Short Display Name", "e.g., Agriculture"),
-      textareaInput("description", "Office Description", 4),
+      trilingualTextInput("name", "Department Name", "e.g., Woreda Agriculture Office"),
+      trilingualTextInput("shortName", "Short Display Name", "e.g., Agriculture"),
+      trilingualTextareaInput("description", "Office Description", 4),
       textInput("contact", "Contact Email", "e.g., agriculture@limukosa.gov.et"),
       fileUrlInput("imageUrl", "Banner Image"),
       publishedToggle(),
@@ -661,9 +797,9 @@ export default function ResourceForm({
     );
   } else if (active === "leaders") {
     fields.push(
-      textInput("name", "Leader Full Name", "e.g., Ato Lemma Negash"),
-      textInput("position", "Official Position", "e.g., Woreda Chief Administrator"),
-      textareaInput("biography", "Biography Detail", 4),
+      trilingualTextInput("name", "Leader Full Name", "e.g., Ato Lemma Negash"),
+      trilingualTextInput("position", "Official Position", "e.g., Woreda Chief Administrator"),
+      trilingualTextareaInput("biography", "Biography Detail", 4),
       textInput("contact", "Official Contact Info", "e.g., lemma.n@limukosa.gov.et"),
       fileUrlInput("photoUrl", "Leader Photo"),
       publishedToggle(),
@@ -671,9 +807,9 @@ export default function ResourceForm({
     );
   } else if (active === "projects") {
     fields.push(
-      textInput("title", "Project Name"),
-      textInput("location", "Project Location", "e.g., Selected rural kebeles"),
-      textareaInput("body", "Project Description (Body)", 5),
+      trilingualTextInput("title", "Project Name"),
+      trilingualTextInput("location", "Project Location", "e.g., Selected rural kebeles"),
+      trilingualTextareaInput("body", "Project Description (Body)", 5),
       fileUrlInput("imageUrl", "Project Feature Image"),
       (
         <div key="status" className="flex flex-col gap-1.5 min-w-0 w-full text-left">
@@ -691,25 +827,25 @@ export default function ResourceForm({
     );
   } else if (active === "gallery") {
     fields.push(
-      textInput("title", "Image Title"),
-      textInput("category", "Gallery Category", "e.g., Agriculture, Infrastructure"),
+      trilingualTextInput("title", "Image Title"),
+      trilingualTextInput("category", "Gallery Category", "e.g., Agriculture, Infrastructure"),
       fileUrlInput("imageUrl", "Gallery Image File"),
       textInput("altText", "Accessibility Alt Text"),
       publishedToggle()
     );
   } else if (active === "downloads") {
     fields.push(
-      textInput("title", "Document Title"),
-      textInput("category", "Document Category", "e.g., Reports, Forms, Policies"),
-      textareaInput("description", "Document Description", 2),
+      trilingualTextInput("title", "Document Title"),
+      trilingualTextInput("category", "Document Category", "e.g., Reports, Forms, Policies"),
+      trilingualTextareaInput("description", "Document Description", 2),
       fileUrlInput("fileUrl", "Document PDF/File", false),
       publishedToggle()
     );
   } else if (active === "investment" || active === "tourism" || active === "settings") {
     fields.push(
-      textInput("title", "Title"),
-      textInput("category", "Category"),
-      textareaInput("body", "Content Description", 6),
+      trilingualTextInput("title", "Title"),
+      trilingualTextInput("category", "Category"),
+      trilingualTextareaInput("body", "Content Description", 6),
       (
         <div key="status" className="flex flex-col gap-1.5 min-w-0 w-full text-left">
           <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Status</label>

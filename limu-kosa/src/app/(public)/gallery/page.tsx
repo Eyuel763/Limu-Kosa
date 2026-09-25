@@ -1,9 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Camera } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Define the interface to ensure type safety during the build process
 interface GalleryImage {
   id: string;
   imageUrl: string;
@@ -12,12 +15,27 @@ interface GalleryImage {
   altText?: string;
 }
 
-export default async function GalleryPage() {
-  // Explicitly type the array as GalleryImage[]
-  const images: GalleryImage[] = await getPublicResource("gallery", []);
+export default function GalleryPage() {
+  const { t } = useLanguage();
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const apiBase = process.env.NEXT_PUBLIC_API_URL 
     ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "") 
     : "http://127.0.0.1:4000";
+
+  useEffect(() => {
+    async function loadGallery() {
+      try {
+        const fetched: GalleryImage[] = await getPublicResource("gallery", []);
+        setImages(fetched);
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadGallery();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -28,11 +46,13 @@ export default async function GalleryPage() {
         iconName="Camera"
       />
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
-        {images.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-16 text-xs font-bold text-[#50627A]">{t("common.loading")}</div>
+        ) : images.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border border-gray-100 shadow-sm">
             <Camera className="mx-auto h-12 w-12 text-gray-300" />
-            <h3 className="mt-4 text-sm font-black text-[#2C2C2C]">No images found</h3>
-            <p className="mt-2 text-xs text-[#50627A]">Official photo records will be shown once they are published by the admin.</p>
+            <h3 className="mt-4 text-sm font-black text-[#2C2C2C]">{t("gallery.empty")}</h3>
+            <p className="mt-2 text-xs text-[#50627A]">{t("gallery.emptyDesc")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">

@@ -19,19 +19,14 @@ const LanguageContext = createContext<LanguageContextValue>({
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<LangCode>('en');
-  const [clientCache, setClientCache] = useState<Record<string, string>>({});
 
-  // Restore language & client translation cache from localStorage on mount
+  // Restore language preference from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('limu-kosa-lang') as LangCode | null;
       if (saved && ['en', 'am', 'om'].includes(saved)) {
         setLanguageState(saved);
         document.documentElement.setAttribute('lang', saved === 'am' ? 'am' : saved === 'om' ? 'om' : 'en');
-      }
-      const savedCache = localStorage.getItem('limu-kosa-trans-cache');
-      if (savedCache) {
-        setClientCache(JSON.parse(savedCache));
       }
     } catch {}
   }, []);
@@ -45,29 +40,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const t = useCallback((key: TranslationKey): string => {
-    // 1. Check static translations dictionary
+    // 1. Check static translations dictionary for active language
     if (translations[key]?.[language]) return translations[key][language];
     // 2. Fall back to English if available
     if (translations[key]?.en) return translations[key].en;
-    // 3. Use MyMemory Translate API as last resort
-    if (typeof window !== 'undefined' && key.length > 1 && !key.startsWith('http')) {
-      const langPair = language === 'am' ? 'en|am' : 'en|or';
-      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(key.slice(0, 500))}&langpair=${langPair}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const translated = data?.responseData?.translatedText;
-          if (translated && typeof translated === 'string' && !translated.startsWith('MYMEMORY WARNING')) {
-            setClientCache((prev) => {
-              const updated = { ...prev, [`${language}:${key}`]: translated };
-              try { localStorage.setItem('limu-kosa-trans-cache', JSON.stringify(updated)); } catch {}
-              return updated;
-            });
-          }
-        })
-        .catch(() => {});
-    }
+    // 3. Fall back to key itself
     return key;
-  }, [language, clientCache]);
+  }, [language]);
 
   const tDynamic = useCallback((item: any, field: string): string => {
     if (!item) return '';
@@ -75,8 +54,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (!rawVal || typeof rawVal !== 'string') return rawVal ?? '';
     if (language === 'en') return rawVal;
 
-    // 1. Check if item has explicit translations object from DB
-    if (item?.translations?.[language]?.[field]) {
+    // 1. Check if item has explicit translations object from DB/Admin input
+    if (typeof item !== 'string' && item?.translations?.[language]?.[field]) {
       return item.translations[language][field];
     }
 
@@ -85,32 +64,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       return dynamicFallbackMap[rawVal][language];
     }
 
-    // 3. Check client translation cache
-    const cacheKey = `${language}:${rawVal}`;
-    if (clientCache[cacheKey]) {
-      return clientCache[cacheKey];
-    }
-
-    // 4. Trigger background client fetch translation if not cached
-    if (typeof window !== 'undefined' && rawVal.length > 1 && !rawVal.startsWith('http')) {
-      const langPair = language === 'am' ? 'en|am' : 'en|or';
-      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawVal.slice(0, 500))}&langpair=${langPair}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const translated = data?.responseData?.translatedText;
-          if (translated && typeof translated === 'string' && !translated.startsWith('MYMEMORY WARNING')) {
-            setClientCache((prev) => {
-              const updated = { ...prev, [cacheKey]: translated };
-              try { localStorage.setItem('limu-kosa-trans-cache', JSON.stringify(updated)); } catch {}
-              return updated;
-            });
-          }
-        })
-        .catch(() => {});
-    }
-
+    // 3. Fall back to English string
     return rawVal;
-  }, [language, clientCache]);
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, tDynamic }}>

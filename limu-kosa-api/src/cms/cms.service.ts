@@ -52,13 +52,7 @@ export class CmsService {
   async create(resource: string, dto: UpsertResourceDto) {
     const contentType = contentResourceTypes[resource];
     if (contentType) {
-      const translatable = {
-        title: dto.title ?? "Untitled",
-        excerpt: dto.excerpt,
-        body: dto.body,
-        category: dto.category,
-      };
-      const autoTranslations = await this.translationService.translateFields(translatable);
+      const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? { am: {}, om: {} };
 
       return this.prisma.contentItem.create({
         data: {
@@ -73,7 +67,7 @@ export class CmsService {
           imageUrl: dto.imageUrl,
           publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
           metadata: dto.metadata as Prisma.InputJsonValue | undefined,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          translations: translationsPayload,
         },
       });
     }
@@ -85,13 +79,7 @@ export class CmsService {
     if (contentType) {
       await this.findContent(contentType, id, false);
 
-      const translatable = {
-        title: dto.title,
-        excerpt: dto.excerpt,
-        body: dto.body,
-        category: dto.category,
-      };
-      const autoTranslations = await this.translationService.translateFields(translatable);
+      const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? undefined;
 
       return this.prisma.contentItem.update({
         where: { id },
@@ -106,7 +94,7 @@ export class CmsService {
           imageUrl: dto.imageUrl,
           publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
           metadata: dto.metadata as Prisma.InputJsonValue | undefined,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          ...(translationsPayload !== undefined ? { translations: translationsPayload } : {}),
         },
       });
     }
@@ -158,9 +146,9 @@ export class CmsService {
           },
         });
       } catch (error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  throw new BadRequestException(`ImageKit upload failed: ${message}`);
-}
+        const message = error instanceof Error ? error.message : String(error);
+        throw new BadRequestException(`ImageKit upload failed: ${message}`);
+      }
     } else {
       // Local fallback pathway
       try {
@@ -186,12 +174,11 @@ export class CmsService {
           },
         });
       } catch (error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  throw new BadRequestException(`Local file write failed: ${message}`);
-}
+        const message = error instanceof Error ? error.message : String(error);
+        throw new BadRequestException(`Local file write failed: ${message}`);
+      }
     }
   }
-
 
   private async findContent(type: ContentType, idOrSlug: string, publicOnly: boolean) {
     const item = await this.prisma.contentItem.findFirst({
@@ -225,10 +212,9 @@ export class CmsService {
   }
 
   private async createStandalone(resource: string, dto: UpsertResourceDto) {
-    if (resource === "departments") {
-      const translatable = { name: dto.name ?? dto.title, shortName: dto.shortName, description: dto.description ?? dto.body };
-      const autoTranslations = await this.translationService.translateFields(translatable);
+    const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? { am: {}, om: {} };
 
+    if (resource === "departments") {
       return this.prisma.department.create({
         data: {
           name: dto.name ?? dto.title ?? "Untitled department",
@@ -240,14 +226,11 @@ export class CmsService {
           contact: dto.contact,
           imageUrl: dto.imageUrl,
           published: dto.published ?? true,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          translations: translationsPayload,
         },
       });
     }
     if (resource === "leaders") {
-      const translatable = { name: dto.name, position: dto.position, biography: dto.biography ?? dto.body };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-
       return this.prisma.leader.create({
         data: {
           name: dto.name ?? "Unnamed leader",
@@ -257,14 +240,11 @@ export class CmsService {
           contact: dto.contact,
           photoUrl: dto.photoUrl ?? dto.imageUrl,
           published: dto.published ?? true,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          translations: translationsPayload,
         },
       });
     }
     if (resource === "gallery") {
-      const translatable = { title: dto.title, category: dto.category };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-
       return this.prisma.galleryImage.create({
         data: {
           title: dto.title ?? "Gallery image",
@@ -272,14 +252,11 @@ export class CmsService {
           imageUrl: dto.imageUrl ?? "",
           altText: dto.altText,
           published: dto.published ?? true,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          translations: translationsPayload,
         },
       });
     }
     if (resource === "downloads") {
-      const translatable = { title: dto.title, description: dto.description ?? dto.body, category: dto.category };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-
       return this.prisma.download.create({
         data: {
           title: dto.title ?? "Document",
@@ -287,7 +264,7 @@ export class CmsService {
           fileUrl: dto.fileUrl ?? "",
           description: dto.description ?? dto.body,
           published: dto.published ?? true,
-          translations: autoTranslations as Prisma.InputJsonValue,
+          translations: translationsPayload,
         },
       });
     }
@@ -305,25 +282,27 @@ export class CmsService {
   }
 
   private async updateStandalone(resource: string, id: string, dto: UpsertResourceDto) {
+    const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? undefined;
+
     if (resource === "departments") {
-      const translatable = { name: dto.name ?? dto.title, shortName: dto.shortName, description: dto.description ?? dto.body };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-      return this.prisma.department.update({ where: { id }, data: { ...(dto as object), translations: autoTranslations as Prisma.InputJsonValue } as never });
+      const dataToUpdate: any = { ...(dto as object) };
+      if (translationsPayload !== undefined) dataToUpdate.translations = translationsPayload;
+      return this.prisma.department.update({ where: { id }, data: dataToUpdate as never });
     }
     if (resource === "leaders") {
-      const translatable = { name: dto.name, position: dto.position, biography: dto.biography ?? dto.body };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-      return this.prisma.leader.update({ where: { id }, data: { ...(dto as object), translations: autoTranslations as Prisma.InputJsonValue } as never });
+      const dataToUpdate: any = { ...(dto as object) };
+      if (translationsPayload !== undefined) dataToUpdate.translations = translationsPayload;
+      return this.prisma.leader.update({ where: { id }, data: dataToUpdate as never });
     }
     if (resource === "gallery") {
-      const translatable = { title: dto.title, category: dto.category };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-      return this.prisma.galleryImage.update({ where: { id }, data: { ...(dto as object), translations: autoTranslations as Prisma.InputJsonValue } as never });
+      const dataToUpdate: any = { ...(dto as object) };
+      if (translationsPayload !== undefined) dataToUpdate.translations = translationsPayload;
+      return this.prisma.galleryImage.update({ where: { id }, data: dataToUpdate as never });
     }
     if (resource === "downloads") {
-      const translatable = { title: dto.title, description: dto.description ?? dto.body, category: dto.category };
-      const autoTranslations = await this.translationService.translateFields(translatable);
-      return this.prisma.download.update({ where: { id }, data: { ...(dto as object), translations: autoTranslations as Prisma.InputJsonValue } as never });
+      const dataToUpdate: any = { ...(dto as object) };
+      if (translationsPayload !== undefined) dataToUpdate.translations = translationsPayload;
+      return this.prisma.download.update({ where: { id }, data: dataToUpdate as never });
     }
     if (resource === "messages") {
       return this.prisma.message.update({

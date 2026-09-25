@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { X, LucideIcon } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { TranslationKey } from "@/lib/i18n/translations";
 
 interface ResourceItem {
   key: string;
@@ -31,6 +33,8 @@ export default function AdminSidebar({
   isSidebarOpen,
   setIsSidebarOpen,
 }: AdminSidebarProps) {
+  const { t } = useLanguage();
+
   return (
     <>
       {isSidebarOpen && (
@@ -56,7 +60,7 @@ export default function AdminSidebar({
             />
             <div>
               <div className="text-lg font-black tracking-tight leading-tight">Limu Kosa</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">Admin portal</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">{t("admin.title")}</div>
             </div>
           </Link>
           <button
@@ -70,6 +74,9 @@ export default function AdminSidebar({
         <nav className="space-y-1">
           {resources.map((item) => {
             const Icon = item.icon;
+            const translationKey = `admin.tab.${item.key}` as TranslationKey;
+            const translatedLabel = t(translationKey) !== translationKey ? t(translationKey) : item.label;
+
             return (
               <button
                 key={item.key}
@@ -84,7 +91,7 @@ export default function AdminSidebar({
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span>{item.label}</span>
+                <span>{translatedLabel}</span>
               </button>
             );
           })}

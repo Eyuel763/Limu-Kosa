@@ -1,9 +1,13 @@
+"use client";
+
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Mail, Target, Sprout, HeartPulse, GraduationCap, Coins, MapPin, Droplets, Briefcase, Users, BadgeCheck, Mountain, ShieldCheck, Scale, Building2 } from "lucide-react";
 import PublicHero from "@/components/common/PublicHero";
+import DynamicText from "@/components/common/DynamicText";
 import { getPublicResource } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const iconMap: Record<string, any> = {
   "agriculture": Sprout,
@@ -20,30 +24,50 @@ const iconMap: Record<string, any> = {
   "justice": Scale,
 };
 
-export function generateStaticParams() {
-  return fallbackDepts.map((department) => ({ id: department.id }));
-}
+export default function DepartmentDetail({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const { t, tDynamic } = useLanguage();
+  const [department, setDepartment] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function DepartmentDetail({ params }: PageProps<"/departments/[id]">) {
-  const { id } = await params;
-  const departments = await getPublicResource("departments", fallbackDepts);
-  const department = departments.find((item: any) => item.id === id || item.slug === id);
+  useEffect(() => {
+    async function loadDepartment() {
+      try {
+        const fetched = await getPublicResource("departments", fallbackDepts);
+        const found = fetched.find((item: any) => item.id === resolvedParams.id || item.slug === resolvedParams.id);
+        if (found) setDepartment(found);
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDepartment();
+  }, [resolvedParams.id]);
 
-  if (!department) {
-    notFound();
+  if (loading) {
+    return <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center text-xs font-bold text-[#50627A]">{t("common.loading")}</div>;
   }
 
-  const deptAny = department as any;
-  const Icon = iconMap[deptAny.id] || iconMap[deptAny.slug] || deptAny.icon || Building2;
+  if (!department) {
+    return (
+      <div className="min-h-screen bg-[#F8F6F1] flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-2xl font-black text-[#2C2C2C]">{t("common.noItems")}</h2>
+        <Link href="/departments" className="mt-4 text-sm font-bold text-[#1E5631] underline">{t("deptDetail.backTo")}</Link>
+      </div>
+    );
+  }
 
-
+  const Icon = iconMap[department.id] || iconMap[department.slug] || department.icon || Building2;
+  const deptName = tDynamic(department, "name");
+  const deptDesc = tDynamic(department, "description");
+  const deptShort = tDynamic(department, "shortName") || deptName;
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
       <PublicHero
-        eyebrow="Department portal"
-        title={department.name}
-        description={department.description}
+        eyebrow={t("deptDetail.portal")}
+        title={deptName}
+        description={deptDesc}
         icon={Icon}
       />
 
@@ -51,54 +75,50 @@ export default async function DepartmentDetail({ params }: PageProps<"/departmen
         <section className="space-y-8">
           <Link href="/departments" className="inline-flex items-center gap-2 text-sm font-bold text-[#6F4E37] hover:text-[#1E5631]">
             <ArrowLeft className="h-4 w-4" />
-            Back to departments
+            {t("deptDetail.backTo")}
           </Link>
 
           <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
             <h2 className="flex items-center gap-2 text-2xl font-black text-[#2C2C2C]">
               <Target className="h-5 w-5 text-[#1E5631]" />
-              Public responsibilities
+              {t("deptDetail.responsibilities")}
             </h2>
             <div className="mt-6 grid gap-4">
-              {department.responsibilities.map((responsibility) => (
+              {(department.responsibilities || []).map((responsibility: string) => (
                 <div key={responsibility} className="flex gap-3 rounded-md bg-[#F8F6F1] p-4">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1E5631]" />
-                  <p className="text-sm leading-6 text-[#2C2C2C]">{responsibility}</p>
+                  <p className="text-sm leading-6 text-[#2C2C2C]">{tDynamic(responsibility, "")}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-[#2C2C2C]">Major programs</h2>
+            <h2 className="text-2xl font-black text-[#2C2C2C]">{t("deptDetail.programs")}</h2>
             <div className="mt-5 flex flex-wrap gap-2">
-              {department.programs.map((program) => (
+              {(department.programs || []).map((program: string) => (
                 <span key={program} className="rounded-full bg-[#E8F0EA] px-3 py-1 text-xs font-bold text-[#1E5631]">
-                  {program}
+                  {tDynamic(program, "")}
                 </span>
               ))}
             </div>
-            <p className="mt-5 text-sm leading-7 text-[#6B7280]">
-              Detailed activities, progress updates, and downloadable documents can be connected to this page later through the NestJS content management API.
-            </p>
           </div>
         </section>
 
         <aside className="space-y-6">
           <div className="rounded-lg bg-[#16361F] p-6 text-white shadow-sm">
             <Icon className="mb-4 h-8 w-8 text-[#D4A017]" />
-            <h2 className="text-xl font-black">{department.shortName}</h2>
+            <h2 className="text-xl font-black">{deptShort}</h2>
             <p className="mt-3 text-sm leading-7 text-emerald-50/80">
-              This office page is prepared as a public information view. Administrative editing will be handled in the future portal.
+              {deptDesc}
             </p>
           </div>
           <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
             <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-[#2C2C2C]">
               <Mail className="h-4 w-4 text-[#6F4E37]" />
-              Contact channel
+              {t("deptDetail.contactChannel")}
             </h2>
             <p className="mt-3 break-words text-sm font-bold text-[#1E5631]">{department.contact}</p>
-            <p className="mt-2 text-xs leading-5 text-[#6B7280]">Placeholder address for public directory planning.</p>
           </div>
         </aside>
       </main>
