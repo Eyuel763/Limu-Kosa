@@ -68,8 +68,8 @@ export default function AdminPortalClient() {
   const [token, setToken] = useState("");
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  const [email, setEmail] = useState("admin@limukosa.gov.et");
-  const [password, setPassword] = useState("Admin@12345");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [active, setActive] = useState("news");
   const [items, setItems] = useState<AnyRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -84,6 +84,51 @@ export default function AdminPortalClient() {
   const [newPasswordInput, setNewPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
 
+  async function refreshSession(): Promise<string | null> {
+    try {
+      const response = await fetch(`${apiBase}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      setToken(data.accessToken);
+      return data.accessToken;
+    } catch {
+      return null;
+    }
+  }
+
+  async function authenticatedFetch(url: string, options: RequestInit = {}, currentToken = token): Promise<Response> {
+    const headers = new Headers(options.headers || {});
+    if (currentToken) {
+      headers.set("Authorization", `Bearer ${currentToken}`);
+    }
+
+    let response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: "include",
+    });
+
+    if (response.status === 401) {
+      const newToken = await refreshSession();
+      if (newToken) {
+        const retryHeaders = new Headers(options.headers || {});
+        retryHeaders.set("Authorization", `Bearer ${newToken}`);
+        response = await fetch(url, {
+          ...options,
+          headers: retryHeaders,
+          credentials: "include",
+        });
+      } else {
+        setToken("");
+      }
+    }
+
+    return response;
+  }
+
   async function changeAdminPassword(e: FormEvent) {
     e.preventDefault();
     if (newPasswordInput !== confirmPasswordInput) {
@@ -96,12 +141,9 @@ export default function AdminPortalClient() {
     }
     setIsBusy(true);
     try {
-      const response = await fetch(`${apiBase}/auth/change-password`, {
+      const response = await authenticatedFetch(`${apiBase}/auth/change-password`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           currentPassword: currentPasswordInput,
           newPassword: newPasswordInput,
@@ -125,12 +167,14 @@ export default function AdminPortalClient() {
 
   useEffect(() => {
     setIsMounted(true);
-    const savedToken = window.localStorage.getItem("limu-kosa-admin-token") ?? "";
-    if (savedToken) {
-      setToken(savedToken);
-    }
-    const currentTheme = document.documentElement.getAttribute('data-theme') as 'light' | 'dark' || 'light';
+    // Clean up legacy localStorage token if present
+    window.localStorage.removeItem("limu-kosa-admin-token");
+
+    const currentTheme = (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
     setTheme(currentTheme);
+
+    // Attempt silent session recovery using HttpOnly cookie
+    void refreshSession();
   }, []);
 
   const toggleTheme = () => {
@@ -165,12 +209,15 @@ export default function AdminPortalClient() {
       const response = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-      if (!response.ok) throw new Error("Login failed. Check your credentials.");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Login failed. Check your credentials.");
+      }
       const data = await response.json();
       setToken(data.accessToken);
-      window.localStorage.setItem("limu-kosa-admin-token", data.accessToken);
       setMessage(`Logged in as ${data.user.email}`);
       await loadItems(active, data.accessToken);
     } catch (error) {
@@ -180,9 +227,14 @@ export default function AdminPortalClient() {
     }
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await fetch(`${apiBase}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
     setToken("");
-    window.localStorage.removeItem("limu-kosa-admin-token");
     setItems([]);
     setSelectedId(null);
     setFormState({ ...templates[active] });
@@ -192,9 +244,7 @@ export default function AdminPortalClient() {
   async function loadItems(resource = active, authToken = token) {
     setIsBusy(true);
     try {
-      const response = await fetch(`${apiBase}/admin/${resource}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const response = await authenticatedFetch(`${apiBase}/admin/${resource}`, {}, authToken);
       if (!response.ok) throw new Error("Could not load resource. Is the backend running?");
       const data = await response.json();
       setItems(data);
@@ -227,9 +277,9 @@ export default function AdminPortalClient() {
           .replace(/(^-|-$)/g, "");
       }
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method: selectedId ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payloadData),
       });
       if (!response.ok) throw new Error("Save operation failed. Please check form data.");
@@ -249,9 +299,8 @@ export default function AdminPortalClient() {
     if (!confirm("Are you sure you want to delete this record?")) return;
     setIsBusy(true);
     try {
-      const response = await fetch(`${apiBase}/admin/${active}/${id}`, {
+      const response = await authenticatedFetch(`${apiBase}/admin/${active}/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error("Delete failed");
@@ -275,9 +324,8 @@ export default function AdminPortalClient() {
     form.append("file", file);
     setIsBusy(true);
     try {
-      const response = await fetch(`${apiBase}/admin/uploads/file`, {
+      const response = await authenticatedFetch(`${apiBase}/admin/uploads/file`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
       if (!response.ok) throw new Error("Upload failed");
