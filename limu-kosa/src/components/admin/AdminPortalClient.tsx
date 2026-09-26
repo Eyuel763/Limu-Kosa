@@ -92,8 +92,12 @@ export default function AdminPortalClient() {
       });
       if (!response.ok) return null;
       const data = await response.json();
-      setToken(data.accessToken);
-      return data.accessToken;
+      if (data?.accessToken) {
+        setToken(data.accessToken);
+        return data.accessToken;
+      }
+      setToken("");
+      return null;
     } catch {
       return null;
     }

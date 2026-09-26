@@ -67,12 +67,20 @@ export class AuthController {
   @Post("refresh")
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshTokenStr = req.cookies?.[REFRESH_COOKIE_NAME];
-    const result = await this.authService.refreshToken(refreshTokenStr);
-    setRefreshCookie(res, result.refreshToken);
-    return {
-      accessToken: result.accessToken,
-      user: result.user,
-    };
+    if (!refreshTokenStr) {
+      return { accessToken: null, user: null };
+    }
+    try {
+      const result = await this.authService.refreshToken(refreshTokenStr);
+      setRefreshCookie(res, result.refreshToken);
+      return {
+        accessToken: result.accessToken,
+        user: result.user,
+      };
+    } catch {
+      clearRefreshCookie(res);
+      return { accessToken: null, user: null };
+    }
   }
 
   @ApiOperation({ summary: "Log out administrator and clear session cookie" })
