@@ -138,22 +138,34 @@ export default function Home() {
     
     fetch(`${apiBase}/public/news`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && data.length > 0 && setNews(data))
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        if (list && list.length > 0) setNews(list);
+      })
       .catch(() => {});
 
     fetch(`${apiBase}/public/announcements`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && data.length > 0 && setAnnoun(data))
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        if (list && list.length > 0) setAnnoun(list);
+      })
       .catch(() => {});
 
     fetch(`${apiBase}/public/projects`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && data.length > 0 && setProj(data))
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        if (list && list.length > 0) setProj(list);
+      })
       .catch(() => {});
 
     fetch(`${apiBase}/public/tourism`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && data.length > 0 && setTourism(data))
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        if (list && list.length > 0) setTourism(list);
+      })
       .catch(() => {});
   }, []);
 

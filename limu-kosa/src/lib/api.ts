@@ -41,3 +41,18 @@ export async function getPublicResource<T>(
     return fallback;
   }
 }
+
+export async function getPublicResourceItems<T>(
+  resource: string,
+  fallback: T[],
+  queryParams?: Record<string, string | number | undefined>
+): Promise<T[]> {
+  const result: any = await getPublicResource(resource, fallback, queryParams);
+  if (result && typeof result === "object" && "data" in result && Array.isArray(result.data)) {
+    return result.data as T[];
+  }
+  if (Array.isArray(result)) {
+    return result as T[];
+  }
+  return fallback;
+}

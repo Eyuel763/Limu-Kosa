@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { Newspaper, Calendar, ArrowLeft, Tag, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getPublicResource } from "@/lib/api";
+import { getPublicResource, getPublicResourceItems } from "@/lib/api";
 import { newsItems as fallbackNews } from "@/lib/publicContent";
 import DynamicText from "@/components/common/DynamicText";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -34,10 +34,19 @@ export default function NewsDetailPage({ params }: { params: Promise<{ slug: str
   useEffect(() => {
     async function loadArticle() {
       try {
-        const newsItems = (await getPublicResource("news", fallbackNews)) as NewsItem[];
-        const found = newsItems.find((item) => item.slug === resolvedParams.slug);
+        // Try fetching single item directly from backend first
+        const fetchedSingle = await getPublicResource<NewsItem | null>(`news/${resolvedParams.slug}`, null);
+        if (fetchedSingle && fetchedSingle.slug) {
+          setArticle(fetchedSingle);
+          return;
+        }
+
+        // Fallback search in list
+        const newsList = await getPublicResourceItems<NewsItem>("news", fallbackNews as any);
+        const found = newsList.find((item) => item.slug === resolvedParams.slug);
         if (found) setArticle(found);
       } catch (err) {
+        console.error("Failed to load news article", err);
       } finally {
         setLoading(false);
       }

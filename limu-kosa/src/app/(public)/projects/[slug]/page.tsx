@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { Building2, MapPin, ArrowLeft, Tag, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import Link from "next/link";
-import { getPublicResource } from "@/lib/api";
+import { getPublicResource, getPublicResourceItems } from "@/lib/api";
 import { projects as fallbackProjects } from "@/lib/publicContent";
 import DynamicText from "@/components/common/DynamicText";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -32,10 +32,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     async function loadProject() {
       try {
-        const projects: Project[] = (await getPublicResource("projects", fallbackProjects)) as any;
-        const found = projects.find((p) => p.slug === resolvedParams.slug);
+        // Try fetching single item directly from backend first
+        const fetchedSingle = await getPublicResource<Project | null>(`projects/${resolvedParams.slug}`, null);
+        if (fetchedSingle && fetchedSingle.slug) {
+          setProject(fetchedSingle);
+          return;
+        }
+
+        // Fallback search in list
+        const projectsList = await getPublicResourceItems<Project>("projects", fallbackProjects as any);
+        const found = projectsList.find((p) => p.slug === resolvedParams.slug);
         if (found) setProject(found);
       } catch (err) {
+        console.error("Failed to load project detail", err);
       } finally {
         setLoading(false);
       }

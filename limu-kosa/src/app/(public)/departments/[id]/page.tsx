@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Mail, Target, Sprout, HeartPulse, GraduationCap, Coins, MapPin, Droplets, Briefcase, Users, BadgeCheck, Mountain, ShieldCheck, Scale, Building2 } from "lucide-react";
 import PublicHero from "@/components/common/PublicHero";
 import DynamicText from "@/components/common/DynamicText";
-import { getPublicResource } from "@/lib/api";
+import { getPublicResource, getPublicResourceItems } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -33,10 +33,19 @@ export default function DepartmentDetail({ params }: { params: Promise<{ id: str
   useEffect(() => {
     async function loadDepartment() {
       try {
-        const fetched = await getPublicResource("departments", fallbackDepts);
-        const found = fetched.find((item: any) => item.id === resolvedParams.id || item.slug === resolvedParams.id);
+        // Try fetching single item directly from backend first
+        const fetchedSingle = await getPublicResource<any | null>(`departments/${resolvedParams.id}`, null);
+        if (fetchedSingle && (fetchedSingle.id || fetchedSingle.slug)) {
+          setDepartment(fetchedSingle);
+          return;
+        }
+
+        // Fallback search in list
+        const fetchedList = await getPublicResourceItems<any>("departments", fallbackDepts as any);
+        const found = fetchedList.find((item: any) => item.id === resolvedParams.id || item.slug === resolvedParams.id);
         if (found) setDepartment(found);
       } catch (err) {
+        console.error("Failed to load department", err);
       } finally {
         setLoading(false);
       }
