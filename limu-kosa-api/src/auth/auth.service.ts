@@ -134,4 +134,63 @@ export class AuthService {
 
     return { message: "Password changed successfully" };
   }
+
+  // ── User Management (ADMIN only) ──────────────────────────────
+
+  async listUsers() {
+    const users = await this.prisma.user.findMany({
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+    return users;
+  }
+
+  async createUser(name: string, email: string, password: string, role: "ADMIN" | "EDITOR") {
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new UnauthorizedException("A user with this email already exists.");
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await this.prisma.user.create({
+      data: { name, email, passwordHash, role },
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+    });
+    return user;
+  }
+
+  async resetUserPassword(targetUserId: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { passwordHash: newHash },
+    });
+
+    // Revoke all sessions for the target user
+    await this.prisma.refreshToken.updateMany({
+      where: { userId: targetUserId },
+      data: { revoked: true },
+    });
+
+    return { message: `Password reset successfully for ${user.email}` };
+  }
+
+  async deleteUser(targetUserId: string, requestingUserId: string) {
+    if (targetUserId === requestingUserId) {
+      throw new UnauthorizedException("You cannot delete your own account.");
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    await this.prisma.user.delete({ where: { id: targetUserId } });
+    return { message: `User ${user.email} deleted successfully` };
+  }
 }

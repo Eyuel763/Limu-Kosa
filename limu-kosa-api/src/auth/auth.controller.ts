@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from "@nestjs/swagger";
-import { IsEmail, IsString, MinLength } from "class-validator";
+import { IsEmail, IsEnum, IsString, MinLength } from "class-validator";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
+import { Roles, RolesGuard } from "./roles.guard";
 
 class LoginDto {
   @ApiProperty({ example: "admin@limukosa.gov.et" })
@@ -22,6 +23,32 @@ class ChangePasswordDto {
   currentPassword!: string;
 
   @ApiProperty({ example: "NewSecurePassword123!", minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+}
+
+class CreateUserDto {
+  @ApiProperty({ example: "John Doe" })
+  @IsString()
+  name!: string;
+
+  @ApiProperty({ example: "john@limukosa.gov.et" })
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ example: "SecurePass123!", minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @ApiProperty({ example: "EDITOR", enum: ["ADMIN", "EDITOR"] })
+  @IsEnum(["ADMIN", "EDITOR"])
+  role!: "ADMIN" | "EDITOR";
+}
+
+class ResetPasswordDto {
+  @ApiProperty({ example: "NewPassword123!", minLength: 8 })
   @IsString()
   @MinLength(8)
   newPassword!: string;
@@ -104,5 +131,43 @@ export class AuthController {
     const result = await this.authService.changePassword(req.user.id, dto.currentPassword, dto.newPassword);
     clearRefreshCookie(res);
     return result;
+  }
+
+  // ── User Management (ADMIN only) ──────────────────────────────
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "List all users (ADMIN only)" })
+  @Get("users")
+  async listUsers() {
+    return this.authService.listUsers();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Create a new user (ADMIN only)" })
+  @Post("users")
+  async createUser(@Body() dto: CreateUserDto) {
+    return this.authService.createUser(dto.name, dto.email, dto.password, dto.role);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Reset a user's password (ADMIN only)" })
+  @Post("users/:id/reset-password")
+  async resetUserPassword(@Param("id") id: string, @Body() dto: ResetPasswordDto) {
+    return this.authService.resetUserPassword(id, dto.newPassword);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "Delete a user (ADMIN only)" })
+  @Delete("users/:id")
+  async deleteUser(@Param("id") id: string, @Req() req: any) {
+    return this.authService.deleteUser(id, req.user.id);
   }
 }

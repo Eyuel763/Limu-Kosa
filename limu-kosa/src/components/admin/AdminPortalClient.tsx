@@ -20,6 +20,7 @@ import {
   Mail,
   Lock,
   Key,
+  Users,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -29,6 +30,7 @@ import ResourceList from "./ResourceList";
 import ResourcePreview from "./ResourcePreview";
 import ResourceForm from "./ResourceForm";
 import MessagesInbox from "./MessagesInbox";
+import UserManagement from "./UserManagement";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
 
@@ -43,6 +45,7 @@ const resources = [
   { key: "investment", label: "Investment", icon: Globe2 },
   { key: "tourism", label: "Tourism", icon: Globe2 },
   { key: "messages", label: "Messages", icon: Mail },
+  { key: "users", label: "Users", icon: Users },
   { key: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -84,6 +87,9 @@ export default function AdminPortalClient() {
   const [newPasswordInput, setNewPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
 
+  const [adminUsers, setAdminUsers] = useState<AnyRecord[]>([]);
+  const [currentUserRole, setCurrentUserRole] = useState("");
+
   async function refreshSession(): Promise<string | null> {
     try {
       const response = await fetch(`${apiBase}/auth/refresh`, {
@@ -94,6 +100,7 @@ export default function AdminPortalClient() {
       const data = await response.json();
       if (data?.accessToken) {
         setToken(data.accessToken);
+        if (data.user?.role) setCurrentUserRole(data.user.role);
         return data.accessToken;
       }
       setToken("");
@@ -189,7 +196,13 @@ export default function AdminPortalClient() {
   };
 
   useEffect(() => {
-    if (token) void loadItems(active, token);
+    if (token) {
+      if (active === "users") {
+        void loadUsers();
+      } else {
+        void loadItems(active, token);
+      }
+    }
   }, [active, token]);
 
   // Load settings based on active tab
@@ -222,6 +235,7 @@ export default function AdminPortalClient() {
       }
       const data = await response.json();
       setToken(data.accessToken);
+      if (data.user?.role) setCurrentUserRole(data.user.role);
       setMessage(`Logged in as ${data.user.email}`);
       await loadItems(active, data.accessToken);
     } catch (error) {
@@ -256,6 +270,75 @@ export default function AdminPortalClient() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not load records");
       setItems([]);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function loadUsers() {
+    setIsBusy(true);
+    try {
+      const response = await authenticatedFetch(`${apiBase}/auth/users`);
+      if (!response.ok) throw new Error("Could not load users.");
+      const data = await response.json();
+      setAdminUsers(data);
+      setMessage("Users loaded successfully.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not load users.");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleCreateUser(name: string, email: string, password: string, role: "ADMIN" | "EDITOR") {
+    setIsBusy(true);
+    try {
+      const response = await authenticatedFetch(`${apiBase}/auth/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to create user");
+      setMessage(`User ${data.email} created successfully.`);
+      await loadUsers();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Failed to create user.");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleResetUserPassword(userId: string, newPassword: string) {
+    setIsBusy(true);
+    try {
+      const response = await authenticatedFetch(`${apiBase}/auth/users/${userId}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPassword }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to reset password.");
+      setMessage(data.message || "Password reset successfully.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Failed to reset password.");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleDeleteUser(userId: string) {
+    setIsBusy(true);
+    try {
+      const response = await authenticatedFetch(`${apiBase}/auth/users/${userId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to delete user.");
+      setMessage(data.message || "User deleted successfully.");
+      await loadUsers();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Failed to delete user.");
     } finally {
       setIsBusy(false);
     }
@@ -418,7 +501,16 @@ export default function AdminPortalClient() {
           </div>
         </header>
 
-        {active === "settings" ? (
+        {active === "users" ? (
+          <UserManagement
+            users={adminUsers as any}
+            onCreateUser={handleCreateUser}
+            onResetPassword={handleResetUserPassword}
+            onDeleteUser={handleDeleteUser}
+            isBusy={isBusy}
+            currentUserRole={currentUserRole}
+          />
+        ) : active === "settings" ? (
           <div className="px-4 py-6 lg:px-8 space-y-6 flex-1 w-full min-w-0">
             {/* TABS SELECTOR */}
             <div className="flex flex-wrap gap-2 border-b border-[#D7DED5] pb-4">
