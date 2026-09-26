@@ -159,27 +159,55 @@ export class CmsService {
     throw new BadRequestException("Unsupported resource");
   }
 
+  private async ensureUniqueSlug(resource: string, rawTitle: string, userSlug?: string, currentId?: string): Promise<string> {
+    const contentType = contentResourceTypes[resource];
+    const baseSlug = userSlug?.trim() ? this.slugify(userSlug) : this.slugify(rawTitle || "item");
+    let candidate = baseSlug || "item";
+    let counter = 1;
+
+    while (true) {
+      let existing: any = null;
+      if (contentType) {
+        existing = await this.prisma.contentItem.findUnique({ where: { slug: candidate } });
+      } else if (resource === "departments") {
+        existing = await this.prisma.department.findUnique({ where: { slug: candidate } });
+      }
+
+      if (!existing || (currentId && existing.id === currentId)) {
+        return candidate;
+      }
+
+      counter++;
+      candidate = `${baseSlug}-${counter}`;
+    }
+  }
+
   async create(resource: string, dto: UpsertResourceDto) {
     const contentType = contentResourceTypes[resource];
     if (contentType) {
       const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? { am: {}, om: {} };
+      const uniqueSlug = await this.ensureUniqueSlug(resource, dto.title ?? "Untitled", dto.slug);
 
-      return this.prisma.contentItem.create({
-        data: {
-          type: contentType,
-          title: dto.title ?? "Untitled",
-          slug: dto.slug ?? this.slugify(dto.title ?? "untitled"),
-          excerpt: dto.excerpt,
-          body: dto.body,
-          category: dto.category,
-          status: dto.status ?? "DRAFT",
-          location: dto.location,
-          imageUrl: dto.imageUrl,
-          publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
-          metadata: dto.metadata as Prisma.InputJsonValue | undefined,
-          translations: translationsPayload,
-        },
-      });
+      try {
+        return await this.prisma.contentItem.create({
+          data: {
+            type: contentType,
+            title: dto.title ?? "Untitled",
+            slug: uniqueSlug,
+            excerpt: dto.excerpt,
+            body: dto.body,
+            category: dto.category,
+            status: dto.status ?? "DRAFT",
+            location: dto.location,
+            imageUrl: dto.imageUrl,
+            publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
+            metadata: dto.metadata as Prisma.InputJsonValue | undefined,
+            translations: translationsPayload,
+          },
+        });
+      } catch (err: any) {
+        throw new BadRequestException(err.message || "Failed to create resource entry");
+      }
     }
     return this.createStandalone(resource, dto);
   }
@@ -188,25 +216,31 @@ export class CmsService {
     const contentType = contentResourceTypes[resource];
     if (contentType) {
       await this.findContent(contentType, id, false);
-
       const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? undefined;
+      const uniqueSlug = dto.slug
+        ? await this.ensureUniqueSlug(resource, dto.title ?? "Untitled", dto.slug, id)
+        : undefined;
 
-      return this.prisma.contentItem.update({
-        where: { id },
-        data: {
-          title: dto.title,
-          slug: dto.slug,
-          excerpt: dto.excerpt,
-          body: dto.body,
-          category: dto.category,
-          status: dto.status,
-          location: dto.location,
-          imageUrl: dto.imageUrl,
-          publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
-          metadata: dto.metadata as Prisma.InputJsonValue | undefined,
-          ...(translationsPayload !== undefined ? { translations: translationsPayload } : {}),
-        },
-      });
+      try {
+        return await this.prisma.contentItem.update({
+          where: { id },
+          data: {
+            title: dto.title,
+            ...(uniqueSlug ? { slug: uniqueSlug } : {}),
+            excerpt: dto.excerpt,
+            body: dto.body,
+            category: dto.category,
+            status: dto.status,
+            location: dto.location,
+            imageUrl: dto.imageUrl,
+            publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
+            metadata: dto.metadata as Prisma.InputJsonValue | undefined,
+            ...(translationsPayload !== undefined ? { translations: translationsPayload } : {}),
+          },
+        });
+      } catch (err: any) {
+        throw new BadRequestException(err.message || "Failed to update resource entry");
+      }
     }
     return this.updateStandalone(resource, id, dto);
   }
@@ -361,10 +395,11 @@ export class CmsService {
     const translationsPayload = (dto.translations as Prisma.InputJsonValue) ?? { am: {}, om: {} };
 
     if (resource === "departments") {
+      const uniqueSlug = await this.ensureUniqueSlug(resource, dto.name ?? dto.title ?? "department", dto.slug);
       return this.prisma.department.create({
         data: {
           name: dto.name ?? dto.title ?? "Untitled department",
-          slug: dto.slug ?? this.slugify(dto.name ?? dto.title ?? "department"),
+          slug: uniqueSlug,
           shortName: dto.shortName,
           description: dto.description ?? dto.body ?? "",
           responsibilities: dto.responsibilities ?? [],
