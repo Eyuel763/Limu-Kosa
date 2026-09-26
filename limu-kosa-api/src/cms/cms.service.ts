@@ -13,19 +13,123 @@ export class CmsService {
     private readonly translationService: TranslationService,
   ) {}
 
-  async listPublic(resource: string) {
+  private parsePagination(params?: { page?: string | number; limit?: string | number; category?: string; search?: string }, defaultLimit = 10) {
+    const page = Math.max(1, parseInt(String(params?.page || "1"), 10) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(String(params?.limit || defaultLimit), 10) || defaultLimit));
+    const skip = (page - 1) * limit;
+    const category = params?.category && params.category !== "All" ? params.category : undefined;
+    const search = params?.search ? params.search.trim() : undefined;
+    return { page, limit, skip, category, search };
+  }
+
+  private buildMeta(total: number, page: number, limit: number) {
+    const totalPages = Math.ceil(total / limit) || 1;
+    return {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+  }
+
+  async listPublic(resource: string, params?: { page?: string | number; limit?: string | number; category?: string; search?: string }) {
+    const { page, limit, skip, category, search } = this.parsePagination(params);
     const contentType = contentResourceTypes[resource];
+
     if (contentType) {
-      return this.prisma.contentItem.findMany({
-        where: { type: contentType, status: "PUBLISHED" },
-        orderBy: { updatedAt: "desc" },
-      });
+      const where: Prisma.ContentItemWhereInput = {
+        type: contentType,
+        status: "PUBLISHED",
+        ...(category ? { category } : {}),
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { body: { contains: search, mode: "insensitive" } },
+                { excerpt: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      };
+
+      const [total, data] = await Promise.all([
+        this.prisma.contentItem.count({ where }),
+        this.prisma.contentItem.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { updatedAt: "desc" },
+        }),
+      ]);
+
+      return { data, meta: this.buildMeta(total, page, limit) };
     }
 
-    if (resource === "departments") return this.prisma.department.findMany({ where: { published: true }, orderBy: { name: "asc" } });
-    if (resource === "leaders") return this.prisma.leader.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" } });
-    if (resource === "gallery") return this.prisma.galleryImage.findMany({ where: { published: true }, orderBy: { createdAt: "desc" } });
-    if (resource === "downloads") return this.prisma.download.findMany({ where: { published: true }, orderBy: { createdAt: "desc" } });
+    if (resource === "departments") {
+      const where: Prisma.DepartmentWhereInput = {
+        published: true,
+        ...(search
+          ? {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { description: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      };
+      const [total, data] = await Promise.all([
+        this.prisma.department.count({ where }),
+        this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "leaders") {
+      const where: Prisma.LeaderWhereInput = {
+        published: true,
+        ...(search
+          ? {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { position: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      };
+      const [total, data] = await Promise.all([
+        this.prisma.leader.count({ where }),
+        this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "gallery") {
+      const where: Prisma.GalleryImageWhereInput = {
+        published: true,
+        ...(category ? { category } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
+      };
+      const [total, data] = await Promise.all([
+        this.prisma.galleryImage.count({ where }),
+        this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "downloads") {
+      const where: Prisma.DownloadWhereInput = {
+        published: true,
+        ...(category ? { category } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
+      };
+      const [total, data] = await Promise.all([
+        this.prisma.download.count({ where }),
+        this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
 
     throw new BadRequestException("Unsupported resource");
   }
@@ -38,13 +142,31 @@ export class CmsService {
     return this.findStandalone(resource, idOrSlug, true);
   }
 
-  async listAdmin(resource: string) {
+  async listAdmin(resource: string, params?: { page?: string | number; limit?: string | number; search?: string }) {
+    const { page, limit, skip, search } = this.parsePagination(params);
     const contentType = contentResourceTypes[resource];
+
     if (contentType) {
-      return this.prisma.contentItem.findMany({ where: { type: contentType }, orderBy: { updatedAt: "desc" } });
+      const where: Prisma.ContentItemWhereInput = {
+        type: contentType,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { body: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      };
+      const [total, data] = await Promise.all([
+        this.prisma.contentItem.count({ where }),
+        this.prisma.contentItem.findMany({ where, skip, take: limit, orderBy: { updatedAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
     }
+
     if (isStandaloneResource(resource)) {
-      return this.listStandalone(resource);
+      return this.listStandaloneAdmin(resource, page, limit, skip, search);
     }
     throw new BadRequestException("Unsupported resource");
   }
@@ -202,12 +324,58 @@ export class CmsService {
     throw new BadRequestException("Unsupported resource");
   }
 
-  private listStandalone(resource: string) {
-    if (resource === "departments") return this.prisma.department.findMany({ orderBy: { name: "asc" } });
-    if (resource === "leaders") return this.prisma.leader.findMany({ orderBy: { sortOrder: "asc" } });
-    if (resource === "gallery") return this.prisma.galleryImage.findMany({ orderBy: { createdAt: "desc" } });
-    if (resource === "downloads") return this.prisma.download.findMany({ orderBy: { createdAt: "desc" } });
-    if (resource === "messages") return this.prisma.message.findMany({ orderBy: { createdAt: "desc" } });
+  private async listStandaloneAdmin(resource: string, page: number, limit: number, skip: number, search?: string) {
+    if (resource === "departments") {
+      const where: Prisma.DepartmentWhereInput = search
+        ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }] }
+        : {};
+      const [total, data] = await Promise.all([
+        this.prisma.department.count({ where }),
+        this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "leaders") {
+      const where: Prisma.LeaderWhereInput = search
+        ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { position: { contains: search, mode: "insensitive" } }] }
+        : {};
+      const [total, data] = await Promise.all([
+        this.prisma.leader.count({ where }),
+        this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "gallery") {
+      const where: Prisma.GalleryImageWhereInput = search ? { title: { contains: search, mode: "insensitive" } } : {};
+      const [total, data] = await Promise.all([
+        this.prisma.galleryImage.count({ where }),
+        this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "downloads") {
+      const where: Prisma.DownloadWhereInput = search ? { title: { contains: search, mode: "insensitive" } } : {};
+      const [total, data] = await Promise.all([
+        this.prisma.download.count({ where }),
+        this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
+    if (resource === "messages") {
+      const where: Prisma.MessageWhereInput = search
+        ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { subject: { contains: search, mode: "insensitive" } }] }
+        : {};
+      const [total, data] = await Promise.all([
+        this.prisma.message.count({ where }),
+        this.prisma.message.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      ]);
+      return { data, meta: this.buildMeta(total, page, limit) };
+    }
+
     throw new BadRequestException("Unsupported resource");
   }
 

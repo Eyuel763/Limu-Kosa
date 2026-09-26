@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Mail, Calendar, Trash2, RefreshCw, Inbox, Send, User, Search, X } from "lucide-react";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 
 interface MessageRecord {
   id?: string;
@@ -20,6 +21,8 @@ interface MessagesInboxProps {
   deleteItem: (id: string) => void;
   loadItems: () => void;
   isBusy: boolean;
+  paginationMeta?: PaginationMeta | null;
+  onPageChange?: (page: number) => void;
 }
 
 export default function MessagesInbox({
@@ -30,6 +33,8 @@ export default function MessagesInbox({
   deleteItem,
   loadItems,
   isBusy,
+  paginationMeta,
+  onPageChange,
 }: MessagesInboxProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -181,6 +186,12 @@ export default function MessagesInbox({
               </div>
             )}
           </div>
+
+          {paginationMeta && onPageChange && (
+            <div className="border-t border-[#E8E1D4] px-4 py-3 bg-[#FAF9F5]">
+              <PaginationControls meta={paginationMeta} onPageChange={onPageChange} />
+            </div>
+          )}
         </section>
 
         {/* RIGHT COLUMN: MESSAGE READER VIEW */}

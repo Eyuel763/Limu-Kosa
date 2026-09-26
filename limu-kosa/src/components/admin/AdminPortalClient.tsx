@@ -31,6 +31,7 @@ import ResourcePreview from "./ResourcePreview";
 import ResourceForm from "./ResourceForm";
 import MessagesInbox from "./MessagesInbox";
 import UserManagement from "./UserManagement";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api";
 
@@ -89,6 +90,9 @@ export default function AdminPortalClient() {
 
   const [adminUsers, setAdminUsers] = useState<AnyRecord[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState("");
+
+  const [adminPage, setAdminPage] = useState(1);
+  const [adminMeta, setAdminMeta] = useState<PaginationMeta | null>(null);
 
   async function refreshSession(): Promise<string | null> {
     try {
@@ -196,11 +200,15 @@ export default function AdminPortalClient() {
   };
 
   useEffect(() => {
+    setAdminPage(1);
+  }, [active]);
+
+  useEffect(() => {
     if (token) {
       if (active === "users") {
         void loadUsers();
       } else {
-        void loadItems(active, token);
+        void loadItems(active, 1, token);
       }
     }
   }, [active, token]);
@@ -237,7 +245,7 @@ export default function AdminPortalClient() {
       setToken(data.accessToken);
       if (data.user?.role) setCurrentUserRole(data.user.role);
       setMessage(`Logged in as ${data.user.email}`);
-      await loadItems(active, data.accessToken);
+      await loadItems(active, 1, data.accessToken);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed");
     } finally {
@@ -259,17 +267,24 @@ export default function AdminPortalClient() {
     setMessage("Logged out successfully.");
   }
 
-  async function loadItems(resource = active, authToken = token) {
+  async function loadItems(resource = active, pageNum = adminPage, authToken = token) {
     setIsBusy(true);
     try {
-      const response = await authenticatedFetch(`${apiBase}/admin/${resource}`, {}, authToken);
+      const response = await authenticatedFetch(`${apiBase}/admin/${resource}?page=${pageNum}&limit=10`, {}, authToken);
       if (!response.ok) throw new Error("Could not load resource. Is the backend running?");
       const data = await response.json();
-      setItems(data);
+      if (data && typeof data === "object" && "data" in data) {
+        setItems(data.data);
+        setAdminMeta(data.meta);
+      } else if (Array.isArray(data)) {
+        setItems(data);
+        setAdminMeta(null);
+      }
       setMessage(`${resource} loaded successfully.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not load records");
       setItems([]);
+      setAdminMeta(null);
     } finally {
       setIsBusy(false);
     }
@@ -654,6 +669,11 @@ export default function AdminPortalClient() {
             deleteItem={deleteItem}
             loadItems={loadItems}
             isBusy={isBusy}
+            paginationMeta={adminMeta}
+            onPageChange={(p) => {
+              setAdminPage(p);
+              void loadItems(active, p);
+            }}
           />
         ) : (
           /* STANDARD REGISTRY GRID LAYOUT */
@@ -668,6 +688,11 @@ export default function AdminPortalClient() {
               deleteItem={deleteItem}
               loadItems={loadItems}
               isBusy={isBusy}
+              paginationMeta={adminMeta}
+              onPageChange={(p) => {
+                setAdminPage(p);
+                void loadItems(active, p);
+              }}
             />
 
             <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col min-h-[550px] lg:sticky lg:top-24 w-full min-w-0 overflow-hidden">

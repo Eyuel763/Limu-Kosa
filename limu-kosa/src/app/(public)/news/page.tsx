@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Newspaper, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import PageHero from "@/components/common/PageHero";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
+import { getPublicResource } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface NewsItem {
@@ -20,10 +22,14 @@ interface NewsItem {
   translations?: any;
 }
 
+const categoriesList = ["All", "Administration", "Public notice", "Development", "Events"];
+
 export default function NewsPage() {
   const { t, tDynamic } = useLanguage();
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [page, setPage] = useState(1);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL 
@@ -32,11 +38,20 @@ export default function NewsPage() {
 
   useEffect(() => {
     async function fetchNews() {
+      setLoading(true);
       try {
-        const response = await fetch(`${apiBase}/api/public/news`);
-        if (response.ok) {
-          const data = await response.json();
-          setNewsItems(data);
+        const res: any = await getPublicResource("news", [], {
+          page,
+          limit: 6,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
+        });
+
+        if (res && typeof res === "object" && "data" in res) {
+          setNewsItems(res.data);
+          setPaginationMeta(res.meta);
+        } else if (Array.isArray(res)) {
+          setNewsItems(res);
+          setPaginationMeta(null);
         }
       } catch (error) {
         console.error("Failed to fetch news", error);
@@ -45,13 +60,12 @@ export default function NewsPage() {
       }
     }
     fetchNews();
-  }, [apiBase]);
+  }, [page, selectedCategory]);
 
-  const categories = ["All", ...Array.from(new Set(newsItems.map((item) => item.category).filter(Boolean)))];
-
-  const filteredNews = selectedCategory === "All"
-    ? newsItems
-    : newsItems.filter((item) => item.category === selectedCategory);
+  const handleCategorySelect = (cat: string) => {
+    setSelectedCategory(cat);
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20 text-[#2C2C2C]">
@@ -62,16 +76,14 @@ export default function NewsPage() {
         iconName="Newspaper"
       />
       
-      {/* Expanded max-w-7xl layout container to fix whitespace margins */}
       <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        
         {/* Filter Bar */}
         <div className="flex flex-wrap gap-2.5 mb-8">
-          {categories.map((cat) => (
+          {categoriesList.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat!)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold tracking-wide transition-all ${
+              onClick={() => handleCategorySelect(cat)}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold tracking-wide transition-all cursor-pointer ${
                 selectedCategory === cat
                   ? "bg-[#1E5631] text-white shadow-sm"
                   : "bg-[#EEEBE4] text-[#50627A] hover:bg-[#E4DFD5]"
@@ -83,10 +95,10 @@ export default function NewsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-sm font-bold text-[#50627A]">Loading news updates...</div>
+          <div className="text-center py-16 text-sm font-bold text-[#50627A]">Loading news updates...</div>
         ) : (
           <div className="space-y-6">
-            {filteredNews.map((item) => {
+            {newsItems.map((item) => {
               const dateDisplay = item.publishedAt
                 ? new Date(item.publishedAt).toLocaleDateString("en-US", {
                     month: "short",
@@ -102,13 +114,12 @@ export default function NewsPage() {
                   key={item.slug ?? item.title}
                   className="block group"
                 >
-                  <article 
-                    className="grid gap-0 bg-white rounded-2xl border border-[#E8E1D4] overflow-hidden shadow-sm md:grid-cols-[38%_62%] items-stretch min-h-[260px] transition-all duration-300 hover:shadow-md hover:border-[#1E5631]/30 relative before:absolute before:inset-0 before:bg-[radial-gradient(#e1ded7_1px,transparent_1px)] before:[background-size:16px_16px] before:opacity-30 pointer-events-none [&>*]:pointer-events-auto"
-                  >
-                    {/* Left Side: Media Placement with fine scaling transitions */}
+                  <article className="grid gap-0 bg-white rounded-2xl border border-[#E8E1D4] overflow-hidden shadow-sm md:grid-cols-[38%_62%] items-stretch min-h-[250px] transition-all duration-300 hover:shadow-md hover:border-[#1E5631]/30 relative before:absolute before:inset-0 before:bg-[radial-gradient(#e1ded7_1px,transparent_1px)] before:[background-size:16px_16px] before:opacity-30 pointer-events-none [&>*]:pointer-events-auto">
+                    
+                    {/* Left Side: Thumbnail Preview */}
                     <div className="p-4 md:p-6 flex items-stretch">
                       {imageUrl ? (
-                        <div className="relative w-full min-h-[180px] md:min-h-full overflow-hidden rounded-xl border border-[#E8E1D4] shadow-sm">
+                        <div className="relative w-full min-h-[180px] md:min-h-full overflow-hidden rounded-xl border border-[#E8E1D4] bg-gray-50 shrink-0">
                           <img 
                             src={imageUrl} 
                             alt={item.title} 
@@ -116,13 +127,13 @@ export default function NewsPage() {
                           />
                         </div>
                       ) : (
-                        <div className="w-full min-h-[180px] md:min-h-full flex items-center justify-center rounded-xl bg-[#F8F9FA] border border-dashed border-[#DDE2E5] transition-colors group-hover:bg-[#EEF2ED]">
+                        <div className="w-full min-h-[180px] md:min-h-full flex items-center justify-center rounded-xl bg-[#F8F9FA] border border-dashed border-[#DDE2E5] transition-colors group-hover:bg-[#EEF2ED] shrink-0">
                           <Newspaper className="h-10 w-10 text-[#C1C9D2] transition-colors group-hover:text-[#1E5631]" />
                         </div>
                       )}
                     </div>
 
-                    {/* Right Side: Card Text Info Details */}
+                    {/* Right Side: Text Details */}
                     <div className="flex flex-col justify-between p-6 pl-2 md:pl-0 lg:p-8 lg:pl-0 z-10">
                       <div>
                         <div className="flex items-center gap-2">
@@ -145,7 +156,6 @@ export default function NewsPage() {
                         </p>
                       </div>
 
-                      {/* Unified Read More styling matching projects page layout action */}
                       <div className="mt-6 flex items-center gap-1 text-sm font-black text-[#D4A017] group-hover:text-[#B88714] transition-colors">
                         <span>{t("news.readFull")}</span>
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -156,10 +166,20 @@ export default function NewsPage() {
               );
             })}
 
-            {filteredNews.length === 0 && (
+            {newsItems.length === 0 && (
               <div className="text-center py-16 bg-white rounded-xl border border-dashed border-[#E8E1D4] text-[#50627A] font-medium">
                 No news articles found under this section.
               </div>
+            )}
+
+            {paginationMeta && (
+              <PaginationControls
+                meta={paginationMeta}
+                onPageChange={(newPage) => {
+                  setPage(newPage);
+                  window.scrollTo({ top: 300, behavior: "smooth" });
+                }}
+              />
             )}
           </div>
         )}

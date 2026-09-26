@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Landmark, Mail, UserRound } from "lucide-react";
+import { Mail, UserRound } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 import { getPublicResource } from "@/lib/api";
 import { leaders as fallbackLeaders } from "@/lib/publicContent";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -20,8 +21,10 @@ interface Leader {
 }
 
 export default function LeadershipPage() {
-  const { t, tDynamic } = useLanguage();
+  const { tDynamic } = useLanguage();
   const [leaders, setLeaders] = useState<Leader[]>(fallbackLeaders as any);
+  const [page, setPage] = useState(1);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL 
     ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "") 
@@ -29,11 +32,17 @@ export default function LeadershipPage() {
 
   useEffect(() => {
     async function loadLeaders() {
-      const res = await getPublicResource("leaders", fallbackLeaders);
-      if (res) setLeaders(res as Leader[]);
+      const res: any = await getPublicResource("leaders", fallbackLeaders, { page, limit: 6 });
+      if (res && typeof res === "object" && "data" in res) {
+        setLeaders(res.data);
+        setPaginationMeta(res.meta);
+      } else if (Array.isArray(res)) {
+        setLeaders(res);
+        setPaginationMeta(null);
+      }
     }
     loadLeaders();
-  }, []);
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -82,6 +91,16 @@ export default function LeadershipPage() {
             );
           })}
         </div>
+
+        {paginationMeta && (
+          <PaginationControls
+            meta={paginationMeta}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 300, behavior: "smooth" });
+            }}
+          />
+        )}
       </main>
     </div>
   );

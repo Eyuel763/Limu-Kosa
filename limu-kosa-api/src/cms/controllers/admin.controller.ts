@@ -6,14 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiConsumes, ApiBody } from "@nestjs/swagger";
-import { diskStorage } from "multer";
-import { extname } from "path";
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiQuery } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { CmsService } from "../cms.service";
 import { UpsertResourceDto } from "../dto";
@@ -25,10 +24,18 @@ import { UpsertResourceDto } from "../dto";
 export class AdminController {
   constructor(private readonly cms: CmsService) {}
 
-  @ApiOperation({ summary: "List all entries for a resource" })
+  @ApiOperation({ summary: "List all entries for a resource with pagination" })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "search", required: false, type: String })
   @Get(":resource")
-  list(@Param("resource") resource: string) {
-    return this.cms.listAdmin(resource);
+  list(
+    @Param("resource") resource: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("search") search?: string,
+  ) {
+    return this.cms.listAdmin(resource, { page, limit, search });
   }
 
   @ApiOperation({ summary: "Create a new resource entry" })

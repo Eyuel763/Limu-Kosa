@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mountain } from "lucide-react";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 import { getPublicResource } from "@/lib/api";
 import { tourismSites as fallbackTourism } from "@/lib/publicContent";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -12,16 +12,24 @@ const tourismImage =
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
 
 export default function TourismPage() {
-  const { t, tDynamic } = useLanguage();
+  const { tDynamic } = useLanguage();
   const [tourismSites, setTourismSites] = useState<any[]>(fallbackTourism);
+  const [page, setPage] = useState(1);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     async function loadTourism() {
-      const res = await getPublicResource("tourism", fallbackTourism);
-      if (res) setTourismSites(res);
+      const res: any = await getPublicResource("tourism", fallbackTourism, { page, limit: 5 });
+      if (res && typeof res === "object" && "data" in res) {
+        setTourismSites(res.data);
+        setPaginationMeta(res.meta);
+      } else if (Array.isArray(res)) {
+        setTourismSites(res);
+        setPaginationMeta(null);
+      }
     }
     loadTourism();
-  }, []);
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -40,6 +48,16 @@ export default function TourismPage() {
                 <DynamicText item={site} field="body" fallback={site.body} className="mt-3 text-base leading-8 text-[#50627A]" as="p" />
               </div>
             ))}
+
+            {paginationMeta && (
+              <PaginationControls
+                meta={paginationMeta}
+                onPageChange={(newPage) => {
+                  setPage(newPage);
+                  window.scrollTo({ top: 300, behavior: "smooth" });
+                }}
+              />
+            )}
           </div>
           <div className="overflow-hidden rounded-lg shadow-lg">
             <img src={tourismImage} alt="Green mountain landscape representing tourism" className="h-80 w-full object-cover lg:h-full" />
@@ -49,4 +67,3 @@ export default function TourismPage() {
     </div>
   );
 }
-

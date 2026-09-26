@@ -7,6 +7,7 @@ import { getPublicResource } from "@/lib/api";
 import { departments as fallbackDepts } from "@/lib/publicContent";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Department {
@@ -37,16 +38,24 @@ const iconMap: Record<string, any> = {
 };
 
 export default function Departments() {
-  const { t, tDynamic } = useLanguage();
+  const { t } = useLanguage();
   const [departments, setDepartments] = useState<Department[]>(fallbackDepts as any);
+  const [page, setPage] = useState(1);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     async function loadDepts() {
-      const res = await getPublicResource("departments", fallbackDepts);
-      if (res) setDepartments(res as Department[]);
+      const res: any = await getPublicResource("departments", fallbackDepts, { page, limit: 6 });
+      if (res && typeof res === "object" && "data" in res) {
+        setDepartments(res.data);
+        setPaginationMeta(res.meta);
+      } else if (Array.isArray(res)) {
+        setDepartments(res);
+        setPaginationMeta(null);
+      }
     }
     loadDepts();
-  }, []);
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20">
@@ -68,8 +77,12 @@ export default function Departments() {
               {t("departments.directoryDesc")}
             </p>
             <div className="mt-6 border-l-2 border-[#D4A017] pl-4">
-              <div className="text-4xl font-black text-[#1E5631]">{departments.length}</div>
-              <div className="text-sm font-bold uppercase tracking-wide text-[#6B7280]">{t("departments.listedOffices")}</div>
+              <div className="text-4xl font-black text-[#1E5631]">
+                {paginationMeta ? paginationMeta.total : departments.length}
+              </div>
+              <div className="text-sm font-bold uppercase tracking-wide text-[#6B7280]">
+                {t("departments.listedOffices")}
+              </div>
             </div>
           </div>
           <div className="overflow-hidden rounded-lg shadow-lg">
@@ -102,6 +115,16 @@ export default function Departments() {
             );
           })}
         </section>
+
+        {paginationMeta && (
+          <PaginationControls
+            meta={paginationMeta}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 300, behavior: "smooth" });
+            }}
+          />
+        )}
       </main>
     </div>
   );

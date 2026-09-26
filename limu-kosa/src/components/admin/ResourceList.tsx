@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon, Search, X } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 
 interface ResourceItem {
   key: string;
@@ -37,6 +38,8 @@ interface ResourceListProps {
   deleteItem: (id: string) => void;
   loadItems: () => void;
   isBusy: boolean;
+  paginationMeta?: PaginationMeta | null;
+  onPageChange?: (page: number) => void;
 }
 
 export default function ResourceList({
@@ -49,6 +52,8 @@ export default function ResourceList({
   deleteItem,
   loadItems,
   isBusy,
+  paginationMeta,
+  onPageChange,
 }: ResourceListProps) {
   const { t, tDynamic } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
@@ -231,6 +236,12 @@ export default function ResourceList({
           </div>
         ) : null}
       </div>
+
+      {paginationMeta && onPageChange && (
+        <div className="border-t border-[#E8E1D4] px-4 py-3 bg-[#FAF9F5]">
+          <PaginationControls meta={paginationMeta} onPageChange={onPageChange} />
+        </div>
+      )}
     </section>
   );
 }

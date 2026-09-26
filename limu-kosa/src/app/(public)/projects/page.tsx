@@ -5,6 +5,7 @@ import { Building2, MapPin, Waves, Coffee, FileText, ArrowRight } from "lucide-r
 import Link from "next/link";
 import PageHero from "@/components/common/PageHero";
 import DynamicText from "@/components/common/DynamicText";
+import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 import { getPublicResource } from "@/lib/api";
 import { projects as fallbackProjects } from "@/lib/publicContent";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -27,24 +28,34 @@ const projectIconMap: Record<string, any> = {
 };
 
 export default function ProjectsPage() {
-  const { t, tDynamic } = useLanguage();
+  const { t } = useLanguage();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [page, setPage] = useState(1);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "") : "http://127.0.0.1:4000";
 
   useEffect(() => {
     async function loadProjects() {
+      setLoading(true);
       try {
-        const fetched: Project[] = (await getPublicResource("projects", fallbackProjects)) as any;
-        setProjects(fetched);
+        const res: any = await getPublicResource("projects", fallbackProjects, { page, limit: 5 });
+        if (res && typeof res === "object" && "data" in res) {
+          setProjects(res.data);
+          setPaginationMeta(res.meta);
+        } else if (Array.isArray(res)) {
+          setProjects(res);
+          setPaginationMeta(null);
+        }
       } catch (err) {
+        console.error("Failed to fetch projects", err);
       } finally {
         setLoading(false);
       }
     }
     loadProjects();
-  }, []);
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] pb-20 text-[#2C2C2C]">
@@ -118,6 +129,16 @@ export default function ProjectsPage() {
                 </Link>
               );
             })}
+
+            {paginationMeta && (
+              <PaginationControls
+                meta={paginationMeta}
+                onPageChange={(newPage) => {
+                  setPage(newPage);
+                  window.scrollTo({ top: 300, behavior: "smooth" });
+                }}
+              />
+            )}
           </div>
         )}
       </main>
