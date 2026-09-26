@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent } from "react";
+import { useState } from "react";
 import { Sun, Moon, Eye, EyeOff } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
@@ -29,7 +30,7 @@ export default function AdminLogin({
   theme,
   toggleTheme,
 }: AdminLoginProps) {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#EEF2ED] px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden text-[#2C2C2C]">
