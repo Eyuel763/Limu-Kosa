@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Eye, EyeOff } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 interface AdminLoginProps {
@@ -29,6 +29,8 @@ export default function AdminLogin({
   theme,
   toggleTheme,
 }: AdminLoginProps) {
+  const [showPassword, setShowPassword] = React.useState(false);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#EEF2ED] px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden text-[#2C2C2C]">
       <div className="absolute top-0 left-0 w-80 h-80 lg:w-96 lg:h-96 bg-[#12351E]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
@@ -83,14 +85,24 @@ export default function AdminLogin({
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-md relative block w-full px-3.5 py-3 border border-[#D7DED5] placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-[#1E5631] focus:border-[#1E5631] text-sm"
-                placeholder="••••••••"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none rounded-md relative block w-full px-3.5 py-3 border border-[#D7DED5] placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-[#1E5631] focus:border-[#1E5631] text-sm"
+                  placeholder={showPassword ? "••••••••" : "••••••••"}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white hover:bg-gray-100 border border-[#D7DED5] transition-colors text-[#6B7280] cursor-pointer"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
 
