@@ -54,15 +54,13 @@ export class CmsService {
           : {}),
       };
 
-      const [total, data] = await Promise.all([
-        this.prisma.contentItem.count({ where }),
-        this.prisma.contentItem.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: { updatedAt: "desc" },
-        }),
-      ]);
+      const total = await this.prisma.contentItem.count({ where });
+      const data = await this.prisma.contentItem.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { updatedAt: "desc" },
+      });
 
       return { data, meta: this.buildMeta(total, page, limit) };
     }
@@ -79,10 +77,8 @@ export class CmsService {
             }
           : {}),
       };
-      const [total, data] = await Promise.all([
-        this.prisma.department.count({ where }),
-        this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } }),
-      ]);
+      const total = await this.prisma.department.count({ where });
+      const data = await this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -98,10 +94,8 @@ export class CmsService {
             }
           : {}),
       };
-      const [total, data] = await Promise.all([
-        this.prisma.leader.count({ where }),
-        this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } }),
-      ]);
+      const total = await this.prisma.leader.count({ where });
+      const data = await this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -111,10 +105,8 @@ export class CmsService {
         ...(category ? { category } : {}),
         ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
       };
-      const [total, data] = await Promise.all([
-        this.prisma.galleryImage.count({ where }),
-        this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      ]);
+      const total = await this.prisma.galleryImage.count({ where });
+      const data = await this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -124,10 +116,8 @@ export class CmsService {
         ...(category ? { category } : {}),
         ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
       };
-      const [total, data] = await Promise.all([
-        this.prisma.download.count({ where }),
-        this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      ]);
+      const total = await this.prisma.download.count({ where });
+      const data = await this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -158,10 +148,8 @@ export class CmsService {
             }
           : {}),
       };
-      const [total, data] = await Promise.all([
-        this.prisma.contentItem.count({ where }),
-        this.prisma.contentItem.findMany({ where, skip, take: limit, orderBy: { updatedAt: "desc" } }),
-      ]);
+      const total = await this.prisma.contentItem.count({ where });
+      const data = await this.prisma.contentItem.findMany({ where, skip, take: limit, orderBy: { updatedAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -329,10 +317,8 @@ export class CmsService {
       const where: Prisma.DepartmentWhereInput = search
         ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }] }
         : {};
-      const [total, data] = await Promise.all([
-        this.prisma.department.count({ where }),
-        this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } }),
-      ]);
+      const total = await this.prisma.department.count({ where });
+      const data = await this.prisma.department.findMany({ where, skip, take: limit, orderBy: { name: "asc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -340,28 +326,22 @@ export class CmsService {
       const where: Prisma.LeaderWhereInput = search
         ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { position: { contains: search, mode: "insensitive" } }] }
         : {};
-      const [total, data] = await Promise.all([
-        this.prisma.leader.count({ where }),
-        this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } }),
-      ]);
+      const total = await this.prisma.leader.count({ where });
+      const data = await this.prisma.leader.findMany({ where, skip, take: limit, orderBy: { sortOrder: "asc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
     if (resource === "gallery") {
       const where: Prisma.GalleryImageWhereInput = search ? { title: { contains: search, mode: "insensitive" } } : {};
-      const [total, data] = await Promise.all([
-        this.prisma.galleryImage.count({ where }),
-        this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      ]);
+      const total = await this.prisma.galleryImage.count({ where });
+      const data = await this.prisma.galleryImage.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
     if (resource === "downloads") {
       const where: Prisma.DownloadWhereInput = search ? { title: { contains: search, mode: "insensitive" } } : {};
-      const [total, data] = await Promise.all([
-        this.prisma.download.count({ where }),
-        this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      ]);
+      const total = await this.prisma.download.count({ where });
+      const data = await this.prisma.download.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
@@ -369,10 +349,8 @@ export class CmsService {
       const where: Prisma.MessageWhereInput = search
         ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { subject: { contains: search, mode: "insensitive" } }] }
         : {};
-      const [total, data] = await Promise.all([
-        this.prisma.message.count({ where }),
-        this.prisma.message.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      ]);
+      const total = await this.prisma.message.count({ where });
+      const data = await this.prisma.message.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });
       return { data, meta: this.buildMeta(total, page, limit) };
     }
 
