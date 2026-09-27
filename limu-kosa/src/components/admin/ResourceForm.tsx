@@ -250,6 +250,17 @@ export default function ResourceForm({
             placeholder={isImage ? "https://example.com/image.jpg" : "/uploads/document.pdf"}
             className="flex-1 min-w-0 rounded-lg border border-[#D7DED5] bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
           />
+          {currentUrl && (
+            <button
+              type="button"
+              onClick={() => handleChange(key, "")}
+              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 transition shrink-0"
+              title="Remove uploaded file or image"
+            >
+              <Trash2 className="h-4 w-4" />
+              Remove
+            </button>
+          )}
           <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[#D7DED5] bg-[#F8F6F1] px-4 py-2 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition hover:text-[#D4A017] active:scale-95 shrink-0">
             <Upload className="h-4 w-4" />
             Upload
@@ -269,8 +280,16 @@ export default function ResourceForm({
           </label>
         </div>
         {isImage && fullPreviewUrl && (
-          <div className="mt-2.5 relative h-24 w-44 overflow-hidden rounded-md border border-[#D7DED5] bg-gray-50 shadow-xs">
+          <div className="mt-2.5 relative group h-24 w-44 overflow-hidden rounded-md border border-[#D7DED5] bg-gray-50 shadow-xs">
             <img src={fullPreviewUrl} alt="Uploaded preview" className="h-full w-full object-cover" />
+            <button
+              type="button"
+              onClick={() => handleChange(key, "")}
+              className="absolute top-1.5 right-1.5 bg-red-600 text-white p-1 rounded-full opacity-90 hover:opacity-100 transition shadow-xs"
+              title="Remove image"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           </div>
         )}
       </div>

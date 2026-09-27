@@ -21,6 +21,7 @@ interface AdminSidebarProps {
   templates: Record<string, any>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (val: boolean) => void;
+  isNavHidden?: boolean;
 }
 
 export default function AdminSidebar({
@@ -32,6 +33,7 @@ export default function AdminSidebar({
   templates,
   isSidebarOpen,
   setIsSidebarOpen,
+  isNavHidden = false,
 }: AdminSidebarProps) {
   const { t } = useLanguage();
 
@@ -45,8 +47,12 @@ export default function AdminSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-[#12351E] px-5 py-6 text-white shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-[#12351E] px-5 py-6 text-white shadow-lg transition-transform duration-300 ease-in-out ${
+          isNavHidden
+            ? "-translate-x-full"
+            : isSidebarOpen
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="flex items-center justify-between mb-8">

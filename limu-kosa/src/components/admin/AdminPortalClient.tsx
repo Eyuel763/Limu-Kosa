@@ -23,6 +23,10 @@ import {
   Users,
   Maximize2,
   Minimize2,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -97,6 +101,9 @@ export default function AdminPortalClient() {
   const [adminSearch, setAdminSearch] = useState("");
   const [adminMeta, setAdminMeta] = useState<PaginationMeta | null>(null);
   const [isFullscreenEdit, setIsFullscreenEdit] = useState(false);
+  const [isNavHidden, setIsNavHidden] = useState(false);
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{ id: string; title?: string; type?: "resource" | "user" } | null>(null);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -376,7 +383,17 @@ export default function AdminPortalClient() {
     }
   }
 
-  async function saveItem() {
+  async function saveItem(skipConfirm?: boolean | any) {
+    if (!token) return;
+    const isExplicitSkip = typeof skipConfirm === "boolean" ? skipConfirm : false;
+    if (selectedId && !isExplicitSkip) {
+      setShowSaveConfirm(true);
+      return;
+    }
+    await executeSaveItem();
+  }
+
+  async function executeSaveItem() {
     if (!token) return;
     setIsBusy(true);
     try {
@@ -413,9 +430,12 @@ export default function AdminPortalClient() {
     }
   }
 
-  async function deleteItem(id: string) {
+  function requestDeleteItem(id: string, title?: string) {
+    setDeleteConfirmTarget({ id, title, type: "resource" });
+  }
+
+  async function executeDeleteItem(id: string) {
     if (!token) return;
-    if (!confirm("Are you sure you want to delete this record?")) return;
     setIsBusy(true);
     try {
       const response = await authenticatedFetch(`${apiBase}/admin/${active}/${id}`, {
@@ -490,9 +510,10 @@ export default function AdminPortalClient() {
         templates={templates}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+        isNavHidden={isNavHidden}
       />
 
-      <main className="min-w-0 flex flex-col min-h-screen w-full lg:pl-[280px]">
+      <main className={`min-w-0 flex flex-col min-h-screen w-full transition-all duration-300 ${isNavHidden ? "lg:pl-0" : "lg:pl-[280px]"}`}>
         <header className="border-b border-[#D7DED5] bg-white px-4 py-5 lg:px-8 shadow-sm sticky top-0 z-30">
           <div className="flex items-center justify-between gap-4 w-full">
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -503,6 +524,16 @@ export default function AdminPortalClient() {
               >
                 <Menu className="h-6 w-6" />
               </button>
+
+              <button
+                onClick={() => setIsNavHidden((prev) => !prev)}
+                className="hidden lg:inline-flex items-center gap-1.5 rounded-lg border border-[#D7DED5] bg-[#FAF9F5] px-3 py-1.5 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition shadow-2xs shrink-0"
+                title={isNavHidden ? "Show navigation sidebar" : "Hide navigation sidebar"}
+              >
+                {isNavHidden ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                <span>{isNavHidden ? "Show Navigation" : "Hide Navigation"}</span>
+              </button>
+
               <div className="min-w-0 flex-1">
                 <h1 className="text-xl font-black text-[#1E5631] truncate">{t("admin.title")}</h1>
                 <p className="mt-0.5 text-xs text-[#50627A] font-medium truncate max-w-xs sm:max-w-md">{message}</p>
@@ -538,7 +569,7 @@ export default function AdminPortalClient() {
             users={adminUsers as any}
             onCreateUser={handleCreateUser}
             onResetPassword={handleResetUserPassword}
-            onDeleteUser={handleDeleteUser}
+            onDeleteUser={(userId, nameOrEmail) => setDeleteConfirmTarget({ id: userId, title: nameOrEmail, type: "user" })}
             isBusy={isBusy}
             currentUserRole={currentUserRole}
           />
@@ -656,7 +687,7 @@ export default function AdminPortalClient() {
 
                   <div className="border-t border-[#E8E1D4] px-5 py-4 bg-gray-50 rounded-b-2xl flex items-center justify-between shrink-0 gap-4">
                     <button
-                      onClick={saveItem}
+                      onClick={() => saveItem()}
                       disabled={isBusy}
                       className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
                     >
@@ -683,7 +714,7 @@ export default function AdminPortalClient() {
             selectedId={selectedId}
             setSelectedId={setSelectedId}
             setFormState={setFormState}
-            deleteItem={deleteItem}
+            deleteItem={requestDeleteItem}
             loadItems={() => loadItems(active, adminPage, adminSearch)}
             isBusy={isBusy}
             paginationMeta={adminMeta}
@@ -708,7 +739,7 @@ export default function AdminPortalClient() {
               selectedId={selectedId}
               setSelectedId={setSelectedId}
               setFormState={setFormState}
-              deleteItem={deleteItem}
+              deleteItem={requestDeleteItem}
               loadItems={() => loadItems(active, adminPage, adminSearch)}
               isBusy={isBusy}
               paginationMeta={adminMeta}
@@ -785,7 +816,7 @@ export default function AdminPortalClient() {
                 ) : (
                   <div className="flex items-center gap-3 shrink-0">
                     <button
-                      onClick={saveItem}
+                      onClick={() => saveItem()}
                       disabled={isBusy}
                       className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
                     >
@@ -912,6 +943,97 @@ export default function AdminPortalClient() {
                 className="text-xs font-bold text-[#50627A] hover:text-[#1E5631] transition"
               >
                 Close Full Screen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmTarget && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#D7DED5] max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="p-2.5 rounded-full bg-red-50 border border-red-100">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#2C2C2C]">Confirm Delete</h3>
+                <p className="text-xs text-gray-500 font-medium">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#50627A] leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-[#2C2C2C]">{deleteConfirmTarget.title || "this item"}</strong>? All associated data will be removed.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmTarget(null)}
+                className="px-4 py-2 rounded-lg border border-[#D7DED5] text-xs font-bold text-[#50627A] hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const target = deleteConfirmTarget;
+                  setDeleteConfirmTarget(null);
+                  if (target.type === "user") {
+                    await handleDeleteUser(target.id);
+                  } else {
+                    await executeDeleteItem(target.id);
+                  }
+                }}
+                disabled={isBusy}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition shadow-sm disabled:opacity-40"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT CONFIRMATION MODAL */}
+      {showSaveConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#D7DED5] max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-[#1E5631]">
+              <div className="p-2.5 rounded-full bg-green-50 border border-green-100">
+                <Save className="h-6 w-6 text-[#1E5631]" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#2C2C2C]">Confirm Save Changes</h3>
+                <p className="text-xs text-gray-500 font-medium">Update record entry in database</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#50627A] leading-relaxed">
+              Are you sure you want to save and publish the changes to{" "}
+              <strong className="text-[#2C2C2C]">{formState.title || formState.name || selectedId || "this record"}</strong>?
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowSaveConfirm(false)}
+                className="px-4 py-2 rounded-lg border border-[#D7DED5] text-xs font-bold text-[#50627A] hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowSaveConfirm(false);
+                  await executeSaveItem();
+                }}
+                disabled={isBusy}
+                className="px-4 py-2 rounded-lg bg-[#1E5631] text-white text-xs font-bold hover:bg-[#12351E] transition shadow-sm disabled:opacity-40"
+              >
+                Confirm & Save
               </button>
             </div>
           </div>

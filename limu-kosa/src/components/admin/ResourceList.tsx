@@ -35,7 +35,7 @@ interface ResourceListProps {
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
   setFormState: (state: any) => void;
-  deleteItem: (id: string) => void;
+  deleteItem: (id: string, title?: string) => void;
   loadItems: () => void;
   isBusy: boolean;
   paginationMeta?: PaginationMeta | null;
@@ -215,7 +215,7 @@ export default function ResourceList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteItem(item.id as string);
+                      deleteItem(item.id as string, item.title || item.name);
                     }}
                     className="p-2 text-xs font-bold rounded-lg border border-red-100 bg-red-50/50 hover:bg-red-50 text-red-600 hover:border-red-200 transition shadow-3xs shrink-0"
                     title="Remove item data row permanently"

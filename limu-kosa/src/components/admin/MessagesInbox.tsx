@@ -18,7 +18,7 @@ interface MessagesInboxProps {
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
   setFormState: (state: any) => void;
-  deleteItem: (id: string) => void;
+  deleteItem: (id: string, title?: string) => void;
   loadItems: () => void;
   isBusy: boolean;
   paginationMeta?: PaginationMeta | null;
@@ -175,7 +175,7 @@ export default function MessagesInbox({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteItem(item.id as string);
+                          deleteItem(item.id as string, item.subject || item.name || item.email);
                         }}
                         className="p-1.5 text-xs text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition shrink-0"
                         title="Delete Message"

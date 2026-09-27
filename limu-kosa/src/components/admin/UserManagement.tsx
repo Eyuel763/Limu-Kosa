@@ -15,7 +15,7 @@ interface UserManagementProps {
   users: UserRecord[];
   onCreateUser: (name: string, email: string, password: string, role: "ADMIN" | "EDITOR") => Promise<void>;
   onResetPassword: (userId: string, newPassword: string) => Promise<void>;
-  onDeleteUser: (userId: string) => Promise<void>;
+  onDeleteUser: (userId: string, nameOrEmail?: string) => void;
   isBusy: boolean;
   currentUserRole: string;
 }
@@ -267,11 +267,7 @@ export default function UserManagement({
                         Reset
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`Are you sure you want to delete ${user.email}? This action cannot be undone.`)) {
-                            onDeleteUser(user.id);
-                          }
-                        }}
+                        onClick={() => onDeleteUser(user.id, user.name || user.email)}
                         disabled={isBusy}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 transition disabled:opacity-40"
                         title="Delete User"
