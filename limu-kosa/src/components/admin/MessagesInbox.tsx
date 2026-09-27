@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Mail, Calendar, Trash2, RefreshCw, Inbox, Send, User, Search, X } from "lucide-react";
 import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
 
@@ -23,6 +23,8 @@ interface MessagesInboxProps {
   isBusy: boolean;
   paginationMeta?: PaginationMeta | null;
   onPageChange?: (page: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export default function MessagesInbox({
@@ -35,24 +37,27 @@ export default function MessagesInbox({
   isBusy,
   paginationMeta,
   onPageChange,
+  searchQuery = "",
+  onSearchChange,
 }: MessagesInboxProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   const selectedMessage = useMemo(() => {
     return items.find((msg) => msg.id === selectedId) || null;
   }, [items, selectedId]);
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return items;
-    const q = searchQuery.toLowerCase();
-    return items.filter((msg) => {
-      const text = [msg.name, msg.email, msg.subject, msg.body]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return text.includes(q);
-    });
-  }, [items, searchQuery]);
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onSearchChange && localSearch !== searchQuery) {
+        onSearchChange(localSearch);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, onSearchChange]);
 
   const getInitials = (name?: string) => {
     if (!name) return "??";
@@ -60,6 +65,8 @@ export default function MessagesInbox({
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
+
+  const totalCount = paginationMeta ? paginationMeta.total : items.length;
 
   return (
     <div className="px-4 py-6 lg:px-8 flex-1 w-full min-w-0">
@@ -76,7 +83,7 @@ export default function MessagesInbox({
                 </h2>
               </div>
               <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
-                {filteredItems.length} {filteredItems.length === 1 ? "Message" : "Messages"}
+                {totalCount} {totalCount === 1 ? "Message" : "Messages"}
               </span>
             </div>
 
@@ -95,14 +102,17 @@ export default function MessagesInbox({
             <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search messages by sender, email, subject, or content..."
               className="w-full text-xs outline-none bg-transparent placeholder:text-gray-400 font-medium"
             />
-            {searchQuery && (
+            {localSearch && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setLocalSearch("");
+                  onSearchChange?.("");
+                }}
                 className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition"
                 title="Clear search"
               >
@@ -112,7 +122,7 @@ export default function MessagesInbox({
           </div>
 
           <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
-            {filteredItems.map((item) => {
+            {items.map((item) => {
               const isSelected = selectedId === item.id;
               const timeDisplay = item.createdAt
                 ? new Date(item.createdAt).toLocaleDateString("en-US", {

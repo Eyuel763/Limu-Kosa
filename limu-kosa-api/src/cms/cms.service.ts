@@ -381,7 +381,14 @@ export class CmsService {
 
     if (resource === "messages") {
       const where: Prisma.MessageWhereInput = search
-        ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { subject: { contains: search, mode: "insensitive" } }] }
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+              { subject: { contains: search, mode: "insensitive" } },
+              { body: { contains: search, mode: "insensitive" } },
+            ],
+          }
         : {};
       const total = await this.prisma.message.count({ where });
       const data = await this.prisma.message.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } });

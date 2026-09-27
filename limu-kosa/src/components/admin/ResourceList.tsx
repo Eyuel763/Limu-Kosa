@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Calendar, Layers, ArrowUpRight, Trash2, LucideIcon, Search, X } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import PaginationControls, { PaginationMeta } from "@/components/common/PaginationControls";
@@ -40,6 +40,8 @@ interface ResourceListProps {
   isBusy: boolean;
   paginationMeta?: PaginationMeta | null;
   onPageChange?: (page: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export default function ResourceList({
@@ -54,32 +56,26 @@ export default function ResourceList({
   isBusy,
   paginationMeta,
   onPageChange,
+  searchQuery = "",
+  onSearchChange,
 }: ResourceListProps) {
   const { t, tDynamic } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   const translatedResourceLabel = t(`admin.tab.${activeResource.key}` as any);
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return items;
-    const q = searchQuery.toLowerCase();
-    return items.filter((item) => {
-      const text = [
-        item.title,
-        item.name,
-        item.slug,
-        item.category,
-        item.description,
-        item.excerpt,
-        item.subject,
-        item.email,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return text.includes(q);
-    });
-  }, [items, searchQuery]);
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onSearchChange && localSearch !== searchQuery) {
+        onSearchChange(localSearch);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, onSearchChange]);
 
   return (
     <section className="bg-white rounded-2xl shadow-sm border border-[#D7DED5] flex flex-col min-h-[550px] w-full min-w-0 overflow-hidden">
@@ -95,7 +91,7 @@ export default function ResourceList({
             </h2>
           </div>
           <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-[#EEF2ED] text-[#1E5631] rounded-full border border-[#D7DED5]">
-            {filteredItems.length}
+            {paginationMeta ? paginationMeta.total : items.length}
           </span>
         </div>
         <button
@@ -112,14 +108,17 @@ export default function ResourceList({
         <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
         <input
           type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           placeholder={`${t("admin.search")} ${translatedResourceLabel.toLowerCase()}...`}
           className="w-full text-xs outline-none bg-transparent placeholder:text-gray-400 font-medium"
         />
-        {searchQuery && (
+        {localSearch && (
           <button
-            onClick={() => setSearchQuery("")}
+            onClick={() => {
+              setLocalSearch("");
+              onSearchChange?.("");
+            }}
             className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition"
             title="Clear search"
           >
@@ -129,7 +128,7 @@ export default function ResourceList({
       </div>
 
       <div className="flex-1 divide-y divide-[#E8E1D4]/60 overflow-y-auto max-h-[640px] bg-[radial-gradient(#faf9f5_1px,transparent_1px)] [background-size:16px_16px] w-full min-w-0">
-        {filteredItems.map((item) => {
+        {items.map((item) => {
           const rawTitle = item.title ?? item.name;
           const labelText = rawTitle ? tDynamic(item, item.title ? "title" : "name") : (item.slug ?? item.id ?? "Untitled Entry");
           const isCurrentSelected = selectedId === item.id;

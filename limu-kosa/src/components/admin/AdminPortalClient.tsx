@@ -21,6 +21,8 @@ import {
   Lock,
   Key,
   Users,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -92,7 +94,19 @@ export default function AdminPortalClient() {
   const [currentUserRole, setCurrentUserRole] = useState("");
 
   const [adminPage, setAdminPage] = useState(1);
+  const [adminSearch, setAdminSearch] = useState("");
   const [adminMeta, setAdminMeta] = useState<PaginationMeta | null>(null);
+  const [isFullscreenEdit, setIsFullscreenEdit] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreenEdit) {
+        setIsFullscreenEdit(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreenEdit]);
 
   async function refreshSession(): Promise<string | null> {
     try {
@@ -201,6 +215,8 @@ export default function AdminPortalClient() {
 
   useEffect(() => {
     setAdminPage(1);
+    setAdminSearch("");
+    setIsFullscreenEdit(false);
   }, [active]);
 
   useEffect(() => {
@@ -208,7 +224,7 @@ export default function AdminPortalClient() {
       if (active === "users") {
         void loadUsers();
       } else {
-        void loadItems(active, 1, token);
+        void loadItems(active, 1, "", token);
       }
     }
   }, [active, token]);
@@ -245,7 +261,7 @@ export default function AdminPortalClient() {
       setToken(data.accessToken);
       if (data.user?.role) setCurrentUserRole(data.user.role);
       setMessage(`Logged in as ${data.user.email}`);
-      await loadItems(active, 1, data.accessToken);
+      await loadItems(active, 1, "", data.accessToken);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed");
     } finally {
@@ -267,10 +283,11 @@ export default function AdminPortalClient() {
     setMessage("Logged out successfully.");
   }
 
-  async function loadItems(resource = active, pageNum = adminPage, authToken = token) {
+  async function loadItems(resource = active, pageNum = adminPage, searchQuery = adminSearch, authToken = token) {
     setIsBusy(true);
     try {
-      const response = await authenticatedFetch(`${apiBase}/admin/${resource}?page=${pageNum}&limit=10`, {}, authToken);
+      const q = searchQuery.trim() ? `&search=${encodeURIComponent(searchQuery.trim())}` : "";
+      const response = await authenticatedFetch(`${apiBase}/admin/${resource}?page=${pageNum}&limit=10${q}`, {}, authToken);
       if (!response.ok) throw new Error("Could not load resource. Is the backend running?");
       const data = await response.json();
       if (data && typeof data === "object" && "data" in data) {
@@ -667,12 +684,18 @@ export default function AdminPortalClient() {
             setSelectedId={setSelectedId}
             setFormState={setFormState}
             deleteItem={deleteItem}
-            loadItems={loadItems}
+            loadItems={() => loadItems(active, adminPage, adminSearch)}
             isBusy={isBusy}
             paginationMeta={adminMeta}
             onPageChange={(p) => {
               setAdminPage(p);
-              void loadItems(active, p);
+              void loadItems(active, p, adminSearch);
+            }}
+            searchQuery={adminSearch}
+            onSearchChange={(q) => {
+              setAdminSearch(q);
+              setAdminPage(1);
+              void loadItems(active, 1, q);
             }}
           />
         ) : (
@@ -686,12 +709,18 @@ export default function AdminPortalClient() {
               setSelectedId={setSelectedId}
               setFormState={setFormState}
               deleteItem={deleteItem}
-              loadItems={loadItems}
+              loadItems={() => loadItems(active, adminPage, adminSearch)}
               isBusy={isBusy}
               paginationMeta={adminMeta}
               onPageChange={(p) => {
                 setAdminPage(p);
-                void loadItems(active, p);
+                void loadItems(active, p, adminSearch);
+              }}
+              searchQuery={adminSearch}
+              onSearchChange={(q) => {
+                setAdminSearch(q);
+                setAdminPage(1);
+                void loadItems(active, 1, q);
               }}
             />
 
@@ -704,19 +733,32 @@ export default function AdminPortalClient() {
                         ? `${t("admin.editRecord")} ${t(`admin.tab.${activeResource.key}` as any)}` 
                         : `${t("admin.newRecord")} ${t(`admin.tab.${activeResource.key}` as any)}`)}
                 </h2>
-                {active !== "messages" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedId(null);
-                      setFormState({ ...templates[active] });
-                    }}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition shrink-0"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    {t("admin.clearForm")}
-                  </button>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {active !== "messages" && (
+                    <button
+                      type="button"
+                      onClick={() => setIsFullscreenEdit(true)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-[#D7DED5] bg-white px-2.5 py-1 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition shadow-2xs shrink-0"
+                      title="Open editor in full screen overlay"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Full Screen</span>
+                    </button>
+                  )}
+                  {active !== "messages" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedId(null);
+                        setFormState({ ...templates[active] });
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition shrink-0"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {t("admin.clearForm")}
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[500px] w-full min-w-0">
@@ -768,6 +810,113 @@ export default function AdminPortalClient() {
           </div>
         )}
       </main>
+
+      {/* FULLSCREEN OVERLAPPING MODAL WINDOW */}
+      {isFullscreenEdit && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-in fade-in duration-200">
+          <div className="w-full max-w-7xl h-[94vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-[#D7DED5]">
+            {/* FULLSCREEN HEADER */}
+            <div className="flex items-center justify-between border-b border-[#E8E1D4] px-6 py-4 bg-[#FAF9F5] shrink-0 gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-[#1E5631] text-white rounded-full shrink-0">
+                  Full Screen Editor
+                </span>
+                <h2 className="text-sm font-black uppercase tracking-wider text-[#2C2C2C] truncate">
+                  {selected 
+                    ? `${t("admin.editRecord")} ${t(`admin.tab.${activeResource.key}` as any)}` 
+                    : `${t("admin.newRecord")} ${t(`admin.tab.${activeResource.key}` as any)}`}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedId(null);
+                    setFormState({ ...templates[active] });
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6F4E37] hover:text-[#1E5631] transition px-3 py-1.5 rounded-md border border-[#D7DED5] bg-white"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("admin.clearForm")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreenEdit(false)}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[#D7DED5] bg-white px-3 py-1.5 text-xs font-bold text-[#50627A] hover:bg-gray-100 transition shadow-2xs"
+                  title="Exit full screen"
+                >
+                  <Minimize2 className="h-4 w-4 text-[#1E5631]" />
+                  <span>Exit Full Screen</span>
+                </button>
+              </div>
+            </div>
+
+            {/* FULLSCREEN BODY (SIDE-BY-SIDE PREVIEW & EDITOR) */}
+            <div className="flex-1 overflow-y-auto p-6 bg-[#FAF9F5]/40 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <div className="bg-white p-5 rounded-xl border border-[#E8E1D4] shadow-2xs space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-[#6F4E37] border-b border-[#E8E1D4] pb-2">
+                  Live Preview
+                </h3>
+                <ResourcePreview
+                  active={active}
+                  selectedId={selectedId}
+                  formState={formState}
+                  apiBase={apiBase}
+                />
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-[#E8E1D4] shadow-2xs space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-[#1E5631] border-b border-[#E8E1D4] pb-2">
+                  Content Editor
+                </h3>
+                <ResourceForm
+                  active={active}
+                  formState={formState}
+                  setFormState={setFormState}
+                  apiBase={apiBase}
+                  uploadFile={uploadFile}
+                />
+              </div>
+            </div>
+
+            {/* FULLSCREEN FOOTER */}
+            <div className="border-t border-[#E8E1D4] px-6 py-4 bg-gray-50 flex items-center justify-between shrink-0 gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={async () => {
+                    await saveItem();
+                  }}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-2 rounded-md bg-[#1E5631] px-6 py-2.5 text-sm font-bold text-white hover:bg-[#12351E] transition active:scale-95 shadow-sm disabled:opacity-40"
+                >
+                  <Save className="h-4 w-4" />
+                  {t("admin.saveRecord")}
+                </button>
+                {selectedId && (
+                  <button
+                    onClick={() => {
+                      setSelectedId(null);
+                      setFormState({ ...templates[active] });
+                    }}
+                    className="text-xs font-bold text-[#50627A] hover:text-red-600 transition"
+                  >
+                    {t("admin.cancel")}
+                  </button>
+                )}
+              </div>
+
+              <button
+                onClick={() => setIsFullscreenEdit(false)}
+                className="text-xs font-bold text-[#50627A] hover:text-[#1E5631] transition"
+              >
+                Close Full Screen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
