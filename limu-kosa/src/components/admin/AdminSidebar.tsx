@@ -23,6 +23,7 @@ interface AdminSidebarProps {
   setIsSidebarOpen: (val: boolean) => void;
   isNavCollapsed: boolean;
   setIsNavCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  currentUserRole?: string;
 }
 
 export default function AdminSidebar({
@@ -36,8 +37,16 @@ export default function AdminSidebar({
   setIsSidebarOpen,
   isNavCollapsed,
   setIsNavCollapsed,
+  currentUserRole = "",
 }: AdminSidebarProps) {
   const { t } = useLanguage();
+
+  const visibleResources = resources.filter((item) => {
+    if (item.key === "users" && currentUserRole !== "ADMIN") {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <>
@@ -98,7 +107,7 @@ export default function AdminSidebar({
 
         {/* NAVIGATION LIST */}
         <nav className="space-y-1.5 overflow-y-auto max-h-[calc(100vh-130px)] scrollbar-none">
-          {resources.map((item) => {
+          {visibleResources.map((item) => {
             const Icon = item.icon;
             const translationKey = `admin.tab.${item.key}` as TranslationKey;
             const translatedLabel = t(translationKey) !== translationKey ? t(translationKey) : item.label;

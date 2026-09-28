@@ -227,6 +227,12 @@ export default function AdminPortalClient() {
   }, [active]);
 
   useEffect(() => {
+    if (currentUserRole && currentUserRole !== "ADMIN" && active === "users") {
+      setActive("news");
+    }
+  }, [currentUserRole, active]);
+
+  useEffect(() => {
     if (token) {
       if (active === "users") {
         void loadUsers();
@@ -512,6 +518,7 @@ export default function AdminPortalClient() {
         setIsSidebarOpen={setIsSidebarOpen}
         isNavCollapsed={isNavCollapsed}
         setIsNavCollapsed={setIsNavCollapsed}
+        currentUserRole={currentUserRole}
       />
 
       <main className={`min-w-0 flex flex-col min-h-screen w-full transition-all duration-300 ${isNavCollapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"}`}>
