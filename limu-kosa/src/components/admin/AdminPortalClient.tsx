@@ -101,7 +101,7 @@ export default function AdminPortalClient() {
   const [adminSearch, setAdminSearch] = useState("");
   const [adminMeta, setAdminMeta] = useState<PaginationMeta | null>(null);
   const [isFullscreenEdit, setIsFullscreenEdit] = useState(false);
-  const [isNavHidden, setIsNavHidden] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{ id: string; title?: string; type?: "resource" | "user" } | null>(null);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
@@ -510,10 +510,11 @@ export default function AdminPortalClient() {
         templates={templates}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        isNavHidden={isNavHidden}
+        isNavCollapsed={isNavCollapsed}
+        setIsNavCollapsed={setIsNavCollapsed}
       />
 
-      <main className={`min-w-0 flex flex-col min-h-screen w-full transition-all duration-300 ${isNavHidden ? "lg:pl-0" : "lg:pl-[280px]"}`}>
+      <main className={`min-w-0 flex flex-col min-h-screen w-full transition-all duration-300 ${isNavCollapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"}`}>
         <header className="border-b border-[#D7DED5] bg-white px-4 py-5 lg:px-8 shadow-sm sticky top-0 z-30">
           <div className="flex items-center justify-between gap-4 w-full">
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -523,15 +524,6 @@ export default function AdminPortalClient() {
                 aria-label="Open sidebar"
               >
                 <Menu className="h-6 w-6" />
-              </button>
-
-              <button
-                onClick={() => setIsNavHidden((prev) => !prev)}
-                className="hidden lg:inline-flex items-center gap-1.5 rounded-lg border border-[#D7DED5] bg-[#FAF9F5] px-3 py-1.5 text-xs font-bold text-[#1E5631] hover:bg-[#EEF2ED] transition shadow-2xs shrink-0"
-                title={isNavHidden ? "Show navigation sidebar" : "Hide navigation sidebar"}
-              >
-                {isNavHidden ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-                <span>{isNavHidden ? "Show Navigation" : "Hide Navigation"}</span>
               </button>
 
               <div className="min-w-0 flex-1">
