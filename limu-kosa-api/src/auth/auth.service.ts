@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException, BadRequestException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
+import * as nodemailer from "nodemailer";
 import { PrismaService } from "../prisma.service";
 
 @Injectable()
@@ -13,6 +14,114 @@ export class AuthService {
 
   private hashToken(rawToken: string): string {
     return crypto.createHash("sha256").update(rawToken).digest("hex");
+  }
+
+  async forgotPassword(email: string) {
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({ where: { email: cleanEmail } });
+
+    if (user) {
+      await this.prisma.passwordResetToken.updateMany({
+        where: { userId: user.id, used: false },
+        data: { used: true },
+      });
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = this.hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await this.prisma.passwordResetToken.create({
+        data: {
+          tokenHash,
+          userId: user.id,
+          expiresAt,
+        },
+      });
+
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const resetUrl = `${frontendUrl}/admin?resetToken=${rawToken}&email=${encodeURIComponent(cleanEmail)}`;
+
+      if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        try {
+          const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT || 587),
+            secure: process.env.SMTP_SECURE === "true",
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            },
+          });
+
+          await transporter.sendMail({
+            from: process.env.SMTP_FROM || `"Limu Kosa Admin" <${process.env.SMTP_USER}>`,
+            to: cleanEmail,
+            subject: "Reset your Limu Kosa Admin Password",
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; rounded: 8px;">
+                <h2 style="color: #1E5631; margin-bottom: 16px;">Limu Kosa Woreda Administration</h2>
+                <p style="font-size: 14px; color: #333;">Hello ${user.name},</p>
+                <p style="font-size: 14px; color: #333;">We received a request to reset your password for the Limu Kosa Admin Portal. Click the button below to set a new password:</p>
+                <div style="margin: 24px 0;">
+                  <a href="${resetUrl}" style="background-color: #1E5631; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Reset Password</a>
+                </div>
+                <p style="font-size: 12px; color: #666;">Or copy and paste this link into your browser:</p>
+                <p style="font-size: 12px; color: #1E5631; word-break: break-all;">${resetUrl}</p>
+                <p style="font-size: 12px; color: #888; margin-top: 24px;">This link is valid for 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
+              </div>
+            `,
+          });
+        } catch (mailErr) {
+          console.error("Failed to send reset email via SMTP:", mailErr);
+          console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
+        }
+      } else {
+        console.log(`\n======================================================`);
+        console.log(`[PASSWORD RESET LINK GENERATED FOR ${cleanEmail}]`);
+        console.log(`RESET URL: ${resetUrl}`);
+        console.log(`======================================================\n`);
+      }
+    }
+
+    return {
+      message: "If an account exists with that email, a password reset link has been sent.",
+    };
+  }
+
+  async resetPasswordWithToken(email: string, rawToken: string, newPassword: string) {
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({ where: { email: cleanEmail } });
+
+    if (!user) {
+      throw new BadRequestException("Invalid email or reset token.");
+    }
+
+    const tokenHash = this.hashToken(rawToken);
+    const resetToken = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+    });
+
+    if (!resetToken || resetToken.userId !== user.id || resetToken.used || resetToken.expiresAt < new Date()) {
+      throw new BadRequestException("Invalid, used, or expired password reset token.");
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+
+    await this.prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { used: true },
+    });
+
+    await this.prisma.refreshToken.updateMany({
+      where: { userId: user.id },
+      data: { revoked: true },
+    });
+
+    return { message: "Password updated successfully. You can now sign in with your new password." };
   }
 
   async login(email: string, password: string) {

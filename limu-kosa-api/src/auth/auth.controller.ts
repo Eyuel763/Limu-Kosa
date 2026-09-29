@@ -47,6 +47,27 @@ class CreateUserDto {
   role!: "ADMIN" | "EDITOR";
 }
 
+class ForgotPasswordDto {
+  @ApiProperty({ example: "admin@limukosa.gov.et" })
+  @IsEmail()
+  email!: string;
+}
+
+class ConfirmResetPasswordDto {
+  @ApiProperty({ example: "admin@limukosa.gov.et" })
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ example: "3a4b..." })
+  @IsString()
+  token!: string;
+
+  @ApiProperty({ example: "NewSecurePassword123!", minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+}
+
 class ResetPasswordDto {
   @ApiProperty({ example: "NewPassword123!", minLength: 8 })
   @IsString()
@@ -88,6 +109,18 @@ export class AuthController {
       accessToken: result.accessToken,
       user: result.user,
     };
+  }
+
+  @ApiOperation({ summary: "Request a password reset link via email" })
+  @Post("forgot-password")
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @ApiOperation({ summary: "Reset password using token" })
+  @Post("reset-password")
+  async resetPassword(@Body() dto: ConfirmResetPasswordDto) {
+    return this.authService.resetPasswordWithToken(dto.email, dto.token, dto.newPassword);
   }
 
   @ApiOperation({ summary: "Refresh access token using HttpOnly cookie" })

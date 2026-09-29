@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserRound, Plus, Key, Trash2, Shield, Edit3 } from "lucide-react";
+import { UserRound, Plus, Key, Trash2, Shield, Edit3, Eye, EyeOff } from "lucide-react";
 
 interface UserRecord {
   id: string;
@@ -36,6 +36,9 @@ export default function UserManagement({
 
   const [resetUserId, setResetUserId] = useState<string | null>(null);
   const [resetPassword, setResetPassword] = useState("");
+
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   const isAdmin = currentUserRole === "ADMIN";
 
@@ -134,15 +137,25 @@ export default function UserManagement({
                 <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
                   Password
                 </label>
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-sm outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-                />
+                <div className="relative">
+                  <input
+                    type={showCreatePassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-sm outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631] pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCreatePassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    title={showCreatePassword ? "Hide password" : "Show password"}
+                  >
+                    {showCreatePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
@@ -193,15 +206,25 @@ export default function UserManagement({
               <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
                 New Password
               </label>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={resetPassword}
-                onChange={(e) => setResetPassword(e.target.value)}
-                placeholder="Enter new password (min. 8 characters)"
-                className="w-full max-w-md rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-sm outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-              />
+              <div className="relative max-w-md">
+                <input
+                  type={showResetPassword ? "text" : "password"}
+                  required
+                  minLength={8}
+                  value={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.value)}
+                  placeholder="Enter new password (min. 8 characters)"
+                  className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-sm outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowResetPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                  title={showResetPassword ? "Hide password" : "Show password"}
+                >
+                  {showResetPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <button

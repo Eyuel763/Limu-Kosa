@@ -85,7 +85,7 @@ export default function ResourceForm({
             : "text-[#50627A] hover:bg-gray-200"
         }`}
       >
-        🇬🇧 EN
+        EN
       </button>
       <button
         type="button"
@@ -96,7 +96,7 @@ export default function ResourceForm({
             : "text-[#50627A] hover:bg-gray-200"
         }`}
       >
-        🇪🇹 አማ
+        አማ
       </button>
       <button
         type="button"

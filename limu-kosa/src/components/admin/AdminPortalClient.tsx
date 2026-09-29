@@ -27,6 +27,8 @@ import {
   PanelLeftOpen,
   Trash2,
   AlertTriangle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -93,6 +95,9 @@ export default function AdminPortalClient() {
   const [currentPasswordInput, setCurrentPasswordInput] = useState("");
   const [newPasswordInput, setNewPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [adminUsers, setAdminUsers] = useState<AnyRecord[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState("");
@@ -501,6 +506,7 @@ export default function AdminPortalClient() {
         message={message}
         theme={theme}
         toggleTheme={toggleTheme}
+        apiBase={apiBase}
       />
     );
   }
@@ -612,44 +618,83 @@ export default function AdminPortalClient() {
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
                       {t("admin.currentPassword")}
                     </label>
-                    <input
-                      type="password"
-                      required
-                      value={currentPasswordInput}
-                      onChange={(e) => setCurrentPasswordInput(e.target.value)}
-                      placeholder="Enter current password"
-                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showCurrentPassword ? "text" : "password"}
+                        required
+                        value={currentPasswordInput}
+                        onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                        placeholder="Enter current password"
+                        className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 pr-10 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
                       {t("admin.newPassword")}
                     </label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={newPasswordInput}
-                      onChange={(e) => setNewPasswordInput(e.target.value)}
-                      placeholder="Enter new password (min. 8 characters)"
-                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        value={newPasswordInput}
+                        onChange={(e) => setNewPasswordInput(e.target.value)}
+                        placeholder="Enter new password (min. 8 characters)"
+                        className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 pr-10 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">
                       {t("admin.confirmPassword")}
                     </label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={confirmPasswordInput}
-                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                      placeholder="Re-enter new password to confirm"
-                      className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        value={confirmPasswordInput}
+                        onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                        placeholder="Re-enter new password to confirm"
+                        className="w-full rounded-lg border border-[#D7DED5] bg-white px-3.5 py-2 pr-10 text-xs outline-none focus:border-[#1E5631] focus:ring-1 focus:ring-[#1E5631]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="pt-3 flex justify-end">

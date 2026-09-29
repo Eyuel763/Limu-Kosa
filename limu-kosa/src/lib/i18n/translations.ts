@@ -230,7 +230,7 @@ export const translations = {
   'admin.logout':        { en: 'Logout',                  am: 'ውጣ',             om: 'Ba\'i' },
   'admin.session':       { en: 'Admin Session',            am: 'የአስተዳዳሪ ክፍለ ጊዜ', om: 'Yeroo Bulchiinsaa' },
   'admin.refresh':       { en: 'Refresh Data',             am: 'ውሂቡን አድስ',      om: 'Ragaa haaromsi' },
-  'admin.clearForm':     { en: '+ Clear Form',             am: '+ ቅጹን አጽዳ',     om: '+ Fooromii qulqulleessi' },
+  'admin.clearForm':     { en: 'Clear Form',              am: 'ቅጹን አጽዳ',      om: 'Fooromii qulqulleessi' },
   'admin.save':          { en: 'Save Record',              am: 'መዝገቡን አስቀምጥ',   om: 'Galmee kuusi' },
   'admin.update':        { en: 'Update Record',            am: 'መዝገቡን አዘምን',    om: 'Galmee haaromsi' },
   'admin.delete':        { en: 'Delete',                   am: 'ሰርዝ',            om: 'Haqi' },
