@@ -38,19 +38,25 @@ export class AuthService {
         },
       });
 
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
       const resetUrl = `${frontendUrl}/admin?resetToken=${rawToken}&email=${encodeURIComponent(cleanEmail)}`;
 
       if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
         try {
+          const smtpPort = Number(process.env.SMTP_PORT || 465);
+          const isSecure = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE === "true" : smtpPort === 465;
+
           const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT || 587),
-            secure: process.env.SMTP_SECURE === "true",
+            port: smtpPort,
+            secure: isSecure,
             auth: {
               user: process.env.SMTP_USER,
               pass: process.env.SMTP_PASS,
             },
+            connectionTimeout: 10000,
+            greetingTimeout: 5000,
+            socketTimeout: 10000,
           });
 
           await transporter.sendMail({
