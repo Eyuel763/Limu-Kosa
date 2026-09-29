@@ -319,7 +319,7 @@ export default function AdminLogin({
                 <CheckCircle2 className="h-5 w-5" /> Set New Password
               </h3>
               <p className="text-xs text-[#50627A]">
-                Enter your account email, reset token, and your new password below.
+                Enter your account email and your new password below.
               </p>
             </div>
 
@@ -336,6 +336,8 @@ export default function AdminLogin({
             )}
 
             <div className="space-y-4">
+              <input type="hidden" value={resetTokenInput} />
+
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Account Email</label>
                 <input
@@ -348,17 +350,19 @@ export default function AdminLogin({
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Reset Token</label>
-                <input
-                  type="text"
-                  value={resetTokenInput}
-                  onChange={(e) => setResetTokenInput(e.target.value)}
-                  className="appearance-none rounded-md block w-full px-3.5 py-2.5 border border-[#D7DED5] text-xs font-mono text-gray-900 focus:outline-none focus:ring-[#1E5631] focus:border-[#1E5631]"
-                  placeholder="Paste token from email link..."
-                  required
-                />
-              </div>
+              {!resetTokenInput && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">Reset Token</label>
+                  <input
+                    type="text"
+                    value={resetTokenInput}
+                    onChange={(e) => setResetTokenInput(e.target.value)}
+                    className="appearance-none rounded-md block w-full px-3.5 py-2.5 border border-[#D7DED5] text-xs font-mono text-gray-900 focus:outline-none focus:ring-[#1E5631] focus:border-[#1E5631]"
+                    placeholder="Paste token from email link..."
+                    required
+                  />
+                </div>
+              )}
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-black uppercase tracking-wider text-[#50627A]">New Password</label>
