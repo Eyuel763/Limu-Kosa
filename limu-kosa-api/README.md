@@ -1,28 +1,52 @@
-# Limu Kosa Government Administration API (Backend)
+# ⚙️ Limu Kosa Woreda CMS API - Backend (`limu-kosa-api`)
 
-This is the NestJS backend API serving the Limu Kosa Woreda Government Administration CMS and public portal. It integrates with PostgreSQL using Prisma ORM and handles file uploads via ImageKit.io CDN.
-
----
-
-## Tech Stack
-*   **Framework**: [NestJS](https://nestjs.com/) (TypeScript)
-*   **Database ORM**: [Prisma](https://www.prisma.io/)
-*   **Database**: PostgreSQL
-*   **Authentication**: Passport.js with JWT Strategy
-*   **File Storage**: [ImageKit.io](https://imagekit.io/) CDN (with graceful local disk storage fallback)
+The backend REST API service for the **Limu Kosa Woreda Government Administration** web portal and CMS, built using NestJS, Prisma ORM, PostgreSQL, Passport.js JWT, and ImageKit.io CDN storage.
 
 ---
 
-## Environment Configuration
-Create a `.env` file in the root directory (`limu-kosa-api/`) and add:
+## 🛠️ Tech Stack
+
+- **Framework**: [NestJS](https://nestjs.com/) (TypeScript)
+- **Database ORM**: [Prisma ORM](https://www.prisma.io/)
+- **Database**: PostgreSQL (compatible with [Neon.tech](https://neon.tech/) & PgBouncer multiplexing)
+- **Authentication**: Passport.js with dual Access Token & HttpOnly Refresh Cookie Strategy
+- **Cloud Storage**: [ImageKit.io](https://imagekit.io/) CDN (with automatic local disk fallback)
+
+---
+
+## 🔒 Security & Backend Architecture
+
+### 1. Dual-Token Architecture & Cookie Security
+- **Access Tokens**: Short-lived JWT Bearer tokens passed via headers or credentials for API authorization.
+- **Refresh Tokens**: HttpOnly, SameSite, Secure cookies stored in the browser that automatically refresh access tokens (`POST /api/auth/refresh`) without exposing refresh keys to JavaScript memory.
+- **Database Revocation List**: Active refresh tokens are stored in the database and revoked upon logout or password change.
+
+### 2. Neon PgBouncer Optimization
+- Optimized queries to execute sequentially (`await count` then `await findMany`) rather than concurrent `Promise.all` batches to maintain stability over transaction-mode PgBouncer connection pools.
+
+### 3. Unique Slug Generation (`ensureUniqueSlug`)
+- Automatic collision detection and unique numerical suffix appending (`-2`, `-3`) for newly created content items and departments, preventing duplicate key database failures (`P2002`).
+
+---
+
+## 📋 Environment Configuration
+
+Create a `.env` file in `limu-kosa-api/`:
 
 ```env
+# Server Port
 PORT=4000
-DATABASE_URL="postgresql://postgres:1412thue@localhost:5432/limu_kosa?schema=public"
-JWT_SECRET="super-secret-jwt-key"
-CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001"
 
-# ImageKit.io Credentials (Required for cloud uploads. If omitted, falls back to local uploads)
+# PostgreSQL Connection String
+DATABASE_URL="postgresql://user:password@localhost:5432/limu_kosa?schema=public"
+
+# JWT Auth Secret
+JWT_SECRET="your-secure-random-jwt-secret-key"
+
+# Allowed CORS Origins (Comma-separated)
+CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
+
+# Optional Cloud Storage (ImageKit.io CDN)
 IMAGEKIT_PUBLIC_KEY="your_imagekit_public_key"
 IMAGEKIT_PRIVATE_KEY="your_imagekit_private_key"
 IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_imagekit_id/"
@@ -30,21 +54,21 @@ IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_imagekit_id/"
 
 ---
 
-## Local Setup
+## 🚀 Setup & Local Execution
 
 ### 1. Installation
 ```bash
 npm install
 ```
 
-### 2. Database Sync
-Push Prisma models to your local PostgreSQL instance:
+### 2. Database Synchronization & Migration
+Sync Prisma schema models with your database instance:
 ```bash
 npx prisma db push
 ```
 
 ### 3. Database Seeding
-Seed initial woreda info, departments, leaders, news, and project articles:
+Populate initial woreda information, leadership entries, department registries, news, and project articles:
 ```bash
 npm run prisma:seed
 ```
@@ -53,55 +77,48 @@ npm run prisma:seed
 ```bash
 npm run start:dev
 ```
-The server starts locally at `http://localhost:4000`.
+*API will run at `http://localhost:4000`.*
 
 ---
 
-## Render.com Deployment Guide
+## 📡 API Endpoints Reference
 
-To deploy the NestJS API to [Render](https://render.com/), follow these steps:
+### 🌐 Public Endpoints (`/api/public`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/public/:resource` | Get published entries with pagination & search (`news`, `announcements`, `departments`, `leaders`, `projects`, `gallery`, `downloads`, `investment`, `tourism`) |
+| `GET` | `/api/public/:resource/:idOrSlug` | Get single entry by ID or unique slug |
+| `POST` | `/api/public/messages` | Submit citizen contact form message |
 
-### Option A: One-Click Blueprint Deployment (Recommended)
-1. Commit the changes to your Git repository (GitHub/GitLab).
-2. Go to your Render Dashboard, click **New +** and select **Blueprint**.
-3. Connect your repository. Render will automatically read the `render.yaml` configuration file.
-4. Set the value of the `DATABASE_URL` environment variable to your production PostgreSQL connection string.
-5. Provide your **ImageKit.io** credentials in the fields shown.
-6. Click **Approve**. Render will provision your database and Web Service.
+### 🔐 Auth Endpoints (`/api/auth`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Authenticate user & issue access token + refresh cookie |
+| `POST` | `/api/auth/refresh` | Refresh access token using HttpOnly cookie |
+| `POST` | `/api/auth/logout` | Revoke refresh session and clear cookie |
+| `POST` | `/api/auth/change-password` | Change password for authenticated admin |
+| `GET` | `/api/auth/users` | List system users (ADMIN role required) |
+| `POST` | `/api/auth/users` | Create user (ADMIN role required) |
+| `DELETE` | `/api/auth/users/:id` | Delete user (ADMIN role required) |
 
-### Option B: Manual Web Service Setup
-1. On Render, click **New +** and select **Web Service**.
-2. Connect your Git repository.
-3. Configure the service settings:
-    *   **Runtime**: `Node`
-    *   **Build Command**: `npm install && npm run build && npx prisma generate`
-    *   **Start Command**: `node dist/src/main.js`
-4. Add the required Environment Variables in the **Env** tab:
-    *   `DATABASE_URL`: *(Your production PostgreSQL URL)*
-    *   `JWT_SECRET`: *(A secure random string)*
-    *   `CORS_ORIGINS`: `*` *(or your frontend URL once deployed)*
-    *   `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` *(From your ImageKit dashboard)*
-5. Trigger a deploy.
-
-### database Migrations on Render
-After your web service is deployed successfully, you can run migrations/push on the production database from your local terminal:
-```bash
-# Set your DATABASE_URL env variable to the production connection string, then run:
-npx prisma db push
-```
+### ⚙️ Admin CMS Endpoints (`/api/admin`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/admin/:resource?page=1&limit=10&search=term` | List registry entries with pagination & DB search |
+| `POST` | `/api/admin/:resource` | Create new registry entry |
+| `PATCH` | `/api/admin/:resource/:id` | Update existing registry entry |
+| `DELETE` | `/api/admin/:resource/:id` | Delete registry entry |
+| `POST` | `/api/admin/uploads/file` | Upload file/image to ImageKit CDN (returns CDN URL) |
 
 ---
 
-## API Endpoints Reference
+## ☁️ Production Deployment (Render.com)
 
-### Public API (`/api/public`)
-*   `GET /api/public/:resource` - Get all published items (`news`, `announcements`, `departments`, `leaders`, `projects`, `gallery`, `downloads`, `investment`, `tourism`).
-*   `GET /api/public/:resource/:idOrSlug` - Get details of an item by ID or slug.
+### Web Service Build & Start Commands
+- **Build Command**: `npm install && npm run build && npx prisma generate`
+- **Start Command**: `node dist/src/main.js`
 
-### Admin CMS API (`/api/admin`)
-*   `POST /api/auth/login` - Admin authentication. Returns JWT token. (Seed login: `admin@limukosa.gov.et` / `Admin@12345`).
-*   `GET /api/admin/:resource` - List registry items (requires Auth).
-*   `POST /api/admin/:resource` - Create registry item (requires Auth).
-*   `PATCH /api/admin/:resource/:id` - Edit registry item (requires Auth).
-*   `DELETE /api/admin/:resource/:id` - Delete registry item (requires Auth).
-*   `POST /api/admin/uploads/file` - Upload file directly to ImageKit.io CDN (requires Auth). Returns the public CDN URL.
+### Deployment Steps
+1. Connect your GitHub repository on Render.
+2. Add environment variables (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`).
+3. Deploy the service and run `npx prisma db push` against the production database URL.
