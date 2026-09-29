@@ -41,7 +41,52 @@ export class AuthService {
       const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
       const resetUrl = `${frontendUrl}/admin?resetToken=${rawToken}&email=${encodeURIComponent(cleanEmail)}`;
 
-      if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      const htmlBody = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h2 style="color: #1E5631; margin-bottom: 16px;">Limu Kosa Woreda Administration</h2>
+          <p style="font-size: 14px; color: #333;">Hello ${user.name},</p>
+          <p style="font-size: 14px; color: #333;">We received a request to reset your password for the Limu Kosa Admin Portal. Click the button below to set a new password:</p>
+          <div style="margin: 24px 0;">
+            <a href="${resetUrl}" style="background-color: #1E5631; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="font-size: 12px; color: #666;">Or copy and paste this link into your browser:</p>
+          <p style="font-size: 12px; color: #1E5631; word-break: break-all;">${resetUrl}</p>
+          <p style="font-size: 12px; color: #888; margin-top: 24px;">This link is valid for 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
+        </div>
+      `;
+
+      const resendApiKey =
+        process.env.RESEND_API_KEY ||
+        (process.env.SMTP_PASS?.startsWith("re_") ? process.env.SMTP_PASS : null);
+
+      if (resendApiKey) {
+        try {
+          const resendResp = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${resendApiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: process.env.SMTP_FROM || "Limu Kosa Admin <onboarding@resend.dev>",
+              to: [cleanEmail],
+              subject: "Reset your Limu Kosa Admin Password",
+              html: htmlBody,
+            }),
+          });
+
+          const resendData = await resendResp.json();
+          if (!resendResp.ok) {
+            console.error("Resend HTTP API error:", resendData);
+            console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
+          } else {
+            console.log(`[EMAIL SENT VIA RESEND HTTP API TO ${cleanEmail}] ID: ${resendData.id}`);
+          }
+        } catch (resendErr) {
+          console.error("Failed to send email via Resend API:", resendErr);
+          console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
+        }
+      } else if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
         try {
           const smtpPort = Number(process.env.SMTP_PORT || 465);
           const isSecure = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE === "true" : smtpPort === 465;
@@ -63,19 +108,7 @@ export class AuthService {
             from: process.env.SMTP_FROM || `"Limu Kosa Admin" <${process.env.SMTP_USER}>`,
             to: cleanEmail,
             subject: "Reset your Limu Kosa Admin Password",
-            html: `
-              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; rounded: 8px;">
-                <h2 style="color: #1E5631; margin-bottom: 16px;">Limu Kosa Woreda Administration</h2>
-                <p style="font-size: 14px; color: #333;">Hello ${user.name},</p>
-                <p style="font-size: 14px; color: #333;">We received a request to reset your password for the Limu Kosa Admin Portal. Click the button below to set a new password:</p>
-                <div style="margin: 24px 0;">
-                  <a href="${resetUrl}" style="background-color: #1E5631; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Reset Password</a>
-                </div>
-                <p style="font-size: 12px; color: #666;">Or copy and paste this link into your browser:</p>
-                <p style="font-size: 12px; color: #1E5631; word-break: break-all;">${resetUrl}</p>
-                <p style="font-size: 12px; color: #888; margin-top: 24px;">This link is valid for 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
-              </div>
-            `,
+            html: htmlBody,
           });
         } catch (mailErr) {
           console.error("Failed to send reset email via SMTP:", mailErr);
