@@ -55,11 +55,43 @@ export class AuthService {
         </div>
       `;
 
+      const brevoApiKey =
+        process.env.BREVO_API_KEY ||
+        (process.env.SMTP_PASS?.startsWith("xkeysib-") ? process.env.SMTP_PASS : null);
+
       const resendApiKey =
         process.env.RESEND_API_KEY ||
         (process.env.SMTP_PASS?.startsWith("re_") ? process.env.SMTP_PASS : null);
 
-      if (resendApiKey) {
+      if (brevoApiKey) {
+        try {
+          const fromEmail = process.env.SMTP_USER || "admin@limukosa.gov.et";
+          const brevoResp = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "api-key": brevoApiKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sender: { name: "Limu Kosa Admin", email: fromEmail },
+              to: [{ email: cleanEmail, name: user.name }],
+              subject: "Reset your Limu Kosa Admin Password",
+              htmlContent: htmlBody,
+            }),
+          });
+
+          const brevoData = await brevoResp.json();
+          if (!brevoResp.ok) {
+            console.error("Brevo HTTP API error:", brevoData);
+            console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
+          } else {
+            console.log(`[EMAIL SENT VIA BREVO HTTP API TO ${cleanEmail}] MessageId: ${brevoData.messageId}`);
+          }
+        } catch (brevoErr) {
+          console.error("Failed to send email via Brevo API:", brevoErr);
+          console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
+        }
+      } else if (resendApiKey) {
         try {
           const resendResp = await fetch("https://api.resend.com/emails", {
             method: "POST",
