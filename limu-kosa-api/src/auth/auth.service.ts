@@ -16,6 +16,68 @@ export class AuthService {
     return crypto.createHash("sha256").update(rawToken).digest("hex");
   }
 
+  private async sendEmailViaGmailApi(to: string, subject: string, htmlContent: string) {
+    const clientId = process.env.GMAIL_CLIENT_ID;
+    const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+    const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+    const fromUser = process.env.GMAIL_USER || process.env.SMTP_USER;
+
+    if (!clientId || !clientSecret || !refreshToken || !fromUser) {
+      throw new Error("Missing Gmail OAuth2 environment variables (GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_USER)");
+    }
+
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: "refresh_token",
+      }),
+    });
+
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok || !tokenData.access_token) {
+      throw new Error(`Failed to refresh Google access token: ${JSON.stringify(tokenData)}`);
+    }
+
+    const accessToken = tokenData.access_token;
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+    const messageParts = [
+      `From: "Limu Kosa Admin" <${fromUser}>`,
+      `To: ${to}`,
+      `Subject: ${utf8Subject}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=utf-8",
+      "",
+      htmlContent,
+    ];
+    const message = messageParts.join("\r\n");
+
+    const raw = Buffer.from(message)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    const sendRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ raw }),
+    });
+
+    const sendData = await sendRes.json();
+    if (!sendRes.ok) {
+      throw new Error(`Gmail API send error: ${JSON.stringify(sendData)}`);
+    }
+
+    return sendData;
+  }
+
   async forgotPassword(email: string) {
     const cleanEmail = email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email: cleanEmail } });
@@ -55,40 +117,20 @@ export class AuthService {
         </div>
       `;
 
-      const brevoApiKey =
-        process.env.BREVO_API_KEY ||
-        (process.env.SMTP_PASS?.startsWith("xkeysib-") ? process.env.SMTP_PASS : null);
-
       const resendApiKey =
         process.env.RESEND_API_KEY ||
         (process.env.SMTP_PASS?.startsWith("re_") ? process.env.SMTP_PASS : null);
 
-      if (brevoApiKey) {
+      if (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET && process.env.GMAIL_REFRESH_TOKEN) {
         try {
-          const fromEmail = process.env.SMTP_USER || "admin@limukosa.gov.et";
-          const brevoResp = await fetch("https://api.brevo.com/v3/smtp/email", {
-            method: "POST",
-            headers: {
-              "api-key": brevoApiKey,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              sender: { name: "Limu Kosa Admin", email: fromEmail },
-              to: [{ email: cleanEmail, name: user.name }],
-              subject: "Reset your Limu Kosa Admin Password",
-              htmlContent: htmlBody,
-            }),
-          });
-
-          const brevoData = await brevoResp.json();
-          if (!brevoResp.ok) {
-            console.error("Brevo HTTP API error:", brevoData);
-            console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
-          } else {
-            console.log(`[EMAIL SENT VIA BREVO HTTP API TO ${cleanEmail}] MessageId: ${brevoData.messageId}`);
-          }
-        } catch (brevoErr) {
-          console.error("Failed to send email via Brevo API:", brevoErr);
+          const result = await this.sendEmailViaGmailApi(
+            cleanEmail,
+            "Reset your Limu Kosa Admin Password",
+            htmlBody,
+          );
+          console.log(`[EMAIL SENT VIA GMAIL REST API TO ${cleanEmail}] ID: ${result.id}`);
+        } catch (gmailErr) {
+          console.error("Failed to send email via Gmail REST API:", gmailErr);
           console.log(`[PASSWORD RESET LINK FOR ${cleanEmail}]: ${resetUrl}`);
         }
       } else if (resendApiKey) {
