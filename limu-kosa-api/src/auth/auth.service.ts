@@ -95,6 +95,7 @@ export class AuthService {
             host: process.env.SMTP_HOST,
             port: smtpPort,
             secure: isSecure,
+            family: 4,
             auth: {
               user: process.env.SMTP_USER,
               pass: process.env.SMTP_PASS,
@@ -102,7 +103,7 @@ export class AuthService {
             connectionTimeout: 10000,
             greetingTimeout: 5000,
             socketTimeout: 10000,
-          });
+          } as any);
 
           await transporter.sendMail({
             from: process.env.SMTP_FROM || `"Limu Kosa Admin" <${process.env.SMTP_USER}>`,
