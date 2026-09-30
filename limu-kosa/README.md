@@ -1,6 +1,6 @@
 # 🎨 Limu Kosa Woreda Web Portal - Frontend (`limu-kosa`)
 
-The web frontend for the **Limu Kosa Woreda Government Administration** public portal and integrated CMS Admin Panel, built using Next.js 16 (App Router), React 19, Tailwind CSS, and TypeScript.
+The modern web frontend for the **Limu Kosa Woreda Government Administration** public portal and integrated CMS Admin Panel, built using Next.js 16 (App Router), React 19, Tailwind CSS, Lucide Icons, and TypeScript.
 
 ---
 
@@ -17,26 +17,31 @@ The web frontend for the **Limu Kosa Woreda Government Administration** public p
 ## ✨ Features & Architecture
 
 ### 1. Trilingual i18n Context (`LanguageContext.tsx`)
-- Instant switching between **English (EN)**, **Amharic (AM)**, and **Afaan Oromoo (OM)**.
+- Instant switching between **English (EN)**, **Amharic (አማ)**, and **Afaan Oromoo (ORO)** without reloading.
 - Automated client-side translation fallback for dynamic database records.
+- Clean language selector tabs on multilingual form fields avoiding operating-system-specific flag rendering glitches.
 
 ### 2. Public Portal Pages
 - **Homepage (`/`)**: Animated hero section slider, woreda statistical metrics, public notices, and highlighted news.
-- **Departments (`/departments`, `/departments/[id]`)**: Detailed public listings of woreda administrative offices.
+- **Departments (`/departments`, `/departments/[id]`)**: Comprehensive public listings of woreda administrative offices and responsibilities.
 - **News & Announcements (`/news`, `/news/[slug]`, `/announcements`)**: Searchable and paginated news archive.
-- **Leadership (`/leadership`)**: Biographies and contact info for woreda leadership.
-- **Development Projects (`/projects`, `/projects/[slug]`)**: Overview of infrastructure and social initiatives.
-- **Tourism & Culture (`/tourism`)**: Spotlighting Limu shade-grown coffee trails, Bolo Caves, and Lake Cheleleki.
-- **Downloads (`/downloads`)**: Downloadable public reports and government publications.
+- **Leadership (`/leadership`)**: Official biographies, position profiles, and contacts for woreda leaders.
+- **Development Projects (`/projects`, `/projects/[slug]`)**: Overview of public infrastructure and agricultural initiatives.
+- **Tourism & Culture (`/tourism`)**: Spotlighting Limu shade-grown coffee trails, Bolo Caves, and Cheleleki wetlands.
+- **Downloads (`/downloads`)**: Downloadable public reports, directives, and government publications.
 - **Gallery (`/gallery`)**: Photo gallery with category filtering.
-- **Contact Form (`/contact`)**: Public citizen message dispatcher.
+- **Contact Form (`/contact`)**: Citizen message dispatcher with validation.
 
 ### 3. Integrated Admin Management Portal (`/admin`)
 - **HttpOnly Session Manager**: Handles refresh token recovery, dual-token access, and automatic session logout.
-- **Collapsible Icon Navigation Bar**: Side panel collapses to a compact icon-only strip with hover tooltips or expands to full width.
+- **Forgot Password Workflow**:
+  - Direct password reset request form from the login screen.
+  - Dedicated "Set New Password" mode with automatic token capture from email links.
+- **Password Visibility Toggles**: Interactive show/hide eye toggle icons (`Eye` / `EyeOff`) across all password fields (Login, Create User, Reset Password, Site Settings Security).
+- **Role-Based Access Control (RBAC)**: Automatically restricts sensitive views—the **Users** management tab is exclusively visible to users with the `ADMIN` role and hidden from `EDITOR` accounts.
+- **Collapsible Icon Navigation Bar**: Sidebar collapses to a compact icon-only strip with hover tooltips or expands to full width.
 - **Full Screen Editor**: Overlapping fullscreen modal window for spacious content creation with side-by-side Live Preview.
-- **Custom Confirmation Modals**: Confirmation dialogs for Delete and Edit operations.
-- **Role-Based Views**: Automatically restricts management tabs (e.g. `Users`) based on user role (`ADMIN` vs `EDITOR`).
+- **Custom Confirmation Modals**: Built-in modal dialogs for Delete and Edit operations.
 - **File Uploader**: Image uploading with CDN previews and one-click image removal.
 
 ---
@@ -75,9 +80,12 @@ npm run start
 
 ---
 
-## 🌐 Deployment (Vercel / Netlify / Render)
+## 🌐 Deployment (Vercel / Netlify)
 
-When deploying to [Vercel](https://vercel.com/) or similar platforms:
-1. Set the root directory to `limu-kosa`.
-2. Add the environment variable: `NEXT_PUBLIC_API_URL=https://your-backend-api-url.onrender.com/api`.
-3. Build command: `npm run build`.
+When deploying to [Vercel](https://vercel.com/):
+1. Import your GitHub repository and set the root directory to `limu-kosa`.
+2. Add the environment variable:
+   ```env
+   NEXT_PUBLIC_API_URL=https://your-backend-api-url.onrender.com/api
+   ```
+3. Build command: `npm run build` (Output directory: `.next`).

@@ -1,15 +1,16 @@
 # ⚙️ Limu Kosa Woreda CMS API - Backend (`limu-kosa-api`)
 
-The backend REST API service for the **Limu Kosa Woreda Government Administration** web portal and CMS, built using NestJS, Prisma ORM, PostgreSQL, Passport.js JWT, and ImageKit.io CDN storage.
+The backend REST API service for the **Limu Kosa Woreda Government Administration** web portal and CMS, built using NestJS, Prisma ORM, PostgreSQL, Passport.js JWT, Nodemailer, and Google Gmail REST API.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [NestJS](https://nestjs.com/) (TypeScript)
-- **Database ORM**: [Prisma ORM](https://www.prisma.io/)
+- **Framework**: [NestJS 11](https://nestjs.com/) (TypeScript)
+- **Database ORM**: [Prisma ORM 6](https://www.prisma.io/)
 - **Database**: PostgreSQL (compatible with [Neon.tech](https://neon.tech/) & PgBouncer multiplexing)
-- **Authentication**: Passport.js with dual Access Token & HttpOnly Refresh Cookie Strategy
+- **Authentication**: Passport.js with dual Access Token & HttpOnly Refresh Cookie Strategy + Role-Based Access Control (RBAC)
+- **Email Delivery**: Multi-engine (Google Gmail REST API over HTTPS, Resend HTTPS API, Nodemailer SMTP with IPv4 enforcement)
 - **Cloud Storage**: [ImageKit.io](https://imagekit.io/) CDN (with automatic local disk fallback)
 
 ---
@@ -19,12 +20,24 @@ The backend REST API service for the **Limu Kosa Woreda Government Administratio
 ### 1. Dual-Token Architecture & Cookie Security
 - **Access Tokens**: Short-lived JWT Bearer tokens passed via headers or credentials for API authorization.
 - **Refresh Tokens**: HttpOnly, SameSite, Secure cookies stored in the browser that automatically refresh access tokens (`POST /api/auth/refresh`) without exposing refresh keys to JavaScript memory.
-- **Database Revocation List**: Active refresh tokens are stored in the database and revoked upon logout or password change.
+- **Database Revocation List**: Active refresh tokens are stored in the database (`RefreshToken` table) and revoked upon logout, password change, or token rotation.
 
-### 2. Neon PgBouncer Optimization
+### 2. Password Reset Engine (Forgot Password)
+- **Database Tracking**: Dedicated `PasswordResetToken` table storing cryptographically hashed, single-use tokens valid for 1 hour.
+- **Multi-Engine Dispatch**:
+  1. **Google Gmail REST API (Port 443 HTTPS)**: Bypasses cloud host SMTP port blocks (such as Render's outbound port 25/465/587 firewall).
+  2. **Resend REST API (Port 443 HTTPS)**: Direct cloud email delivery over HTTPS.
+  3. **Nodemailer SMTP Fallback**: Configured with explicit IPv4 socket resolution (`family: 4`) to prevent `ENETUNREACH` IPv6 errors.
+  4. **Console Fallback**: Logs generated reset URL directly to server logs for local development.
+
+### 3. Role-Based Access Control (RBAC)
+- Enforces strict roles: `ADMIN` (Full System Administration & User Management) vs. `EDITOR` (Content Registry Operations).
+- Admin management endpoints (`/api/auth/users/*`) are protected with `@Roles("ADMIN")` and `RolesGuard`.
+
+### 4. Neon PgBouncer Optimization
 - Optimized queries to execute sequentially (`await count` then `await findMany`) rather than concurrent `Promise.all` batches to maintain stability over transaction-mode PgBouncer connection pools.
 
-### 3. Unique Slug Generation (`ensureUniqueSlug`)
+### 5. Unique Slug Generation (`ensureUniqueSlug`)
 - Automatic collision detection and unique numerical suffix appending (`-2`, `-3`) for newly created content items and departments, preventing duplicate key database failures (`P2002`).
 
 ---
@@ -44,7 +57,28 @@ DATABASE_URL="postgresql://user:password@localhost:5432/limu_kosa?schema=public"
 JWT_SECRET="your-secure-random-jwt-secret-key"
 
 # Allowed CORS Origins (Comma-separated)
-CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
+CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:3000,https://limu-kosa.vercel.app"
+
+# Frontend URL (Used for generating password reset links)
+FRONTEND_URL="http://localhost:3000"
+
+# --- Email Service Configuration (Choose One) ---
+# Option 1: Google Gmail REST API (Recommended for Cloud Hosts like Render)
+GMAIL_CLIENT_ID="your_google_oauth_client_id"
+GMAIL_CLIENT_SECRET="your_google_oauth_client_secret"
+GMAIL_REFRESH_TOKEN="your_google_oauth_refresh_token"
+GMAIL_USER="your-email@gmail.com"
+
+# Option 2: Resend HTTPS API
+RESEND_API_KEY="re_your_resend_api_key"
+SMTP_FROM="Limu Kosa Admin <onboarding@resend.dev>"
+
+# Option 3: Standard SMTP (Local / VPS)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-16-char-app-password"
 
 # Optional Cloud Storage (ImageKit.io CDN)
 IMAGEKIT_PUBLIC_KEY="your_imagekit_public_key"
@@ -68,7 +102,7 @@ npx prisma db push
 ```
 
 ### 3. Database Seeding
-Populate initial woreda information, leadership entries, department registries, news, and project articles:
+Populate initial woreda information, leadership entries, department registries, news, and default admin user:
 ```bash
 npm run prisma:seed
 ```
@@ -77,7 +111,18 @@ npm run prisma:seed
 ```bash
 npm run start:dev
 ```
-*API will run at `http://localhost:4000`.*
+*API will run at `http://localhost:4000` (Interactive Swagger Docs at `http://localhost:4000/api`).*
+
+---
+
+## 🔑 Emergency Password Reset CLI
+
+If you ever forget the super admin password or need to reset a password without using email:
+
+```bash
+npm run reset-password
+```
+Follow the interactive CLI prompt to select the user and assign a new secure password.
 
 ---
 
@@ -96,9 +141,12 @@ npm run start:dev
 | `POST` | `/api/auth/login` | Authenticate user & issue access token + refresh cookie |
 | `POST` | `/api/auth/refresh` | Refresh access token using HttpOnly cookie |
 | `POST` | `/api/auth/logout` | Revoke refresh session and clear cookie |
-| `POST` | `/api/auth/change-password` | Change password for authenticated admin |
+| `POST` | `/api/auth/forgot-password` | Request password reset email with 1-hour secure token |
+| `POST` | `/api/auth/reset-password` | Reset password using valid reset token |
+| `POST` | `/api/auth/change-password` | Change password for logged-in user |
 | `GET` | `/api/auth/users` | List system users (ADMIN role required) |
-| `POST` | `/api/auth/users` | Create user (ADMIN role required) |
+| `POST` | `/api/auth/users` | Create new user (ADMIN role required) |
+| `POST` | `/api/auth/users/:id/reset-password` | Reset a specific user's password (ADMIN role required) |
 | `DELETE` | `/api/auth/users/:id` | Delete user (ADMIN role required) |
 
 ### ⚙️ Admin CMS Endpoints (`/api/admin`)
@@ -116,9 +164,9 @@ npm run start:dev
 
 ### Web Service Build & Start Commands
 - **Build Command**: `npm install && npm run build && npx prisma generate`
-- **Start Command**: `node dist/src/main.js`
+- **Start Command**: `node dist/main.js`
 
 ### Deployment Steps
 1. Connect your GitHub repository on Render.
-2. Add environment variables (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`).
-3. Deploy the service and run `npx prisma db push` against the production database URL.
+2. Under **Environment**, add the required variables (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `FRONTEND_URL`, and your chosen Email API keys).
+3. Deploy the service and sync the database via `npx prisma db push`.
